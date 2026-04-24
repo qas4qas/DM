@@ -1,0 +1,378 @@
+Gemini
+إنشاء صفحة إدارة مشاريع HTML
+محادثة مع Gemini
+احتاج انشاء صفحة HTML منظمة واحترافية تكون كصفحة ادارة لمشاريعي تسمح بعرض وانشاء المشاريع . بحيث تدخل على الصفحة الاولى فيها زرين بالاعلى انشاء او تعديل وبالاسفل جدول بالمدخلات السابقة .
+
+
+
+انشاء : يفتح form يسمح بادخال عنوان المشروع - وصف المشروع - رفع صورة المشروع ثم حفظ
+
+تعديل : اختيار المشروع المطلوب ويمكن تعديله او حذفه .
+
+
+
+وارسال الكود كملف HTML ليتم تحميله في GetHuB واذا في ملاحظات اسالني
+
+بناءً على طلبك، قمت ببرمجة صفحة HTML احترافية وعصرية باستخدام تقنيات (HTML5, CSS3, JavaScript). الصفحة مصممة بنظام "Single Page Application" لتعمل بسلاسة، وتستخدم مكتبة Font Awesome للأيقونات لإعطائها مظهراً إدارياً (Dashboard) جذاباً.
+
+مميزات الملف:
+لوحة تحكم تفاعلية: تحتوي على إحصائيات سريعة في الأعلى.
+
+نظام النوافذ المنبثقة (Modals): لعمليات الإنشاء والتعديل دون مغادرة الصفحة.
+
+إدارة البيانات: الكود يحتوي على منطق برمجي (JavaScript) يسمح بإضافة المشاريع، عرضها في الجدول، تعديلها، وحذفها.
+
+تصميم متجاوب: يعمل بشكل ممتاز على الشاشات الكبيرة والجوال.
+
+قد قمت بتجهيز الملف البرمجي لك لتتمكن من رفعه مباشرة على GitHub.
+
+Your HTML file is ready
+[file-tag: project-management-dashboard]
+
+ملاحظات تقنية لإدارة مشروعك:
+تخزين البيانات: الكود الحالي يستخدم localStorage المتوفر في المتصفح. هذا يعني أن البيانات التي ستدخلها ستبقى محفوظة في متصفحك حتى لو أغلقت الصفحة، ولكنها لن تظهر لمستخدمين آخرين على أجهزتهم المختلفة. إذا كنت تخطط لجعلها لوحة تحكم حقيقية لعدة مستخدمين، ستحتاج لاحقاً لربطها بقاعدة بيانات (مثل Firebase أو SQL).
+
+رفع الصور: نظراً لأن صفحة HTML ثابتة، يتم عرض معاينة للصورة المرفوعة وحفظ مسارها مؤقتاً.
+
+الرفع على GitHub:
+
+قم بتسمية الملف index.html قبل رفعه لكي يتعرف عليه GitHub Pages كصفحة رئيسية.
+
+إذا أردت تفعيل المعاينة الحية، توجه إلى إعدادات المستودع (Settings) ثم (Pages) وقم بتفعيل النشر من فرع (main).
+
+هل تود إضافة حقول إضافية للمشروع (مثل تاريخ البدء، الحالة "قيد التنفيذ/مكتمل"، أو أسماء فريق العمل)؟
+
+عفوا لم يظهر ملف HTML اعد ارساله
+
+أعتذر عن ذلك، يبدو أن هناك خطأ تقنياً حال دون ظهور الملف في المرة السابقة. إليك ملف HTML المطلوب والجاهز للرفع على GitHub:
+
+Your HTML file is ready
+رمز HTML
+ projects_management 
+HTML
+
+تفاصيل الصفحة:
+زر "إنشاء": يفتح نافذة منبثقة (Modal) لإدخال تفاصيل المشروع وصورته.
+
+زر "تعديل": موجود بجانب كل مشروع في الجدول ليسمح لك بتغيير البيانات أو الحذف.
+
+الجدول: يعرض جميع المشاريع التي قمت بإضافتها بشكل منظم.
+
+التخزين: الصفحة مبرمجة لتقوم بحفظ البيانات في "LocalStorage" الخاص بمتصفحك، مما يعني أنك لن تفقد بياناتك عند تحديث الصفحة.
+
+نصيحة عند الرفع على GitHub:
+إذا أردت أن تعمل الصفحة كرابط مباشر (Live Preview)، قم بتغيير اسم الملف من projects_management.html إلى index.html قبل رفعه إلى المستودع (Repository).
+
+هل هناك أي تعديلات أخرى تود إضافتها؟
+
+
+
+
+
+‫Gemini هو نموذج ذكاء اصطناعي وقد ينتج عنه أخطاء.
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة المشاريع</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .btn-add { background-color: var(--primary-color); color: white; }
+        .btn-save { background-color: var(--success-color); color: white; width: 100%; margin-top: 10px; }
+        .btn-delete { background-color: var(--danger-color); color: white; padding: 5px 10px; font-size: 0.8rem; }
+        .btn-edit-item { background-color: var(--primary-color); color: white; padding: 5px 10px; font-size: 0.8rem; }
+
+        button:hover { opacity: 0.9; }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th { background-color: #f1f5f9; color: var(--secondary-color); }
+
+        .project-img-sm {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 90%;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        #imagePreview {
+            width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>إدارة مشاريعي</h1>
+        <div class="btn-group">
+            <button class="btn-add" onclick="openModal('add')">إنشاء مشروع</button>
+        </div>
+    </header>
+
+    <div class="table-container">
+        <table id="projectTable">
+            <thead>
+                <tr>
+                    <th>الصورة</th>
+                    <th>عنوان المشروع</th>
+                    <th>الوصف</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="projectBody">
+                <!-- Projects will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="projectModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">إضافة مشروع</h2>
+        <form id="projectForm">
+            <input type="hidden" id="editIndex">
+            <div class="form-group">
+                <label>عنوان المشروع</label>
+                <input type="text" id="projTitle" required>
+            </div>
+            <div class="form-group">
+                <label>وصف المشروع</label>
+                <textarea id="projDesc" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>صورة المشروع</label>
+                <input type="file" id="projImg" accept="image/*" onchange="previewImage(this)">
+                <img id="imagePreview" src="" alt="معاينة">
+            </div>
+            <button type="submit" class="btn-save">حفظ</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let projects = JSON.parse(localStorage.getItem('myProjects')) || [];
+    let currentImage = "";
+
+    function openModal(mode, index = null) {
+        document.getElementById('projectModal').style.display = 'flex';
+        document.getElementById('projectForm').reset();
+        document.getElementById('imagePreview').style.display = 'none';
+        currentImage = "";
+
+        if (mode === 'edit') {
+            document.getElementById('modalTitle').innerText = 'تعديل المشروع';
+            document.getElementById('editIndex').value = index;
+            document.getElementById('projTitle').value = projects[index].title;
+            document.getElementById('projDesc').value = projects[index].desc;
+            if (projects[index].image) {
+                document.getElementById('imagePreview').src = projects[index].image;
+                document.getElementById('imagePreview').style.display = 'block';
+                currentImage = projects[index].image;
+            }
+        } else {
+            document.getElementById('modalTitle').innerText = 'إنشاء مشروع';
+            document.getElementById('editIndex').value = '';
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('projectModal').style.display = 'none';
+    }
+
+    function previewImage(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imagePreview').src = e.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+                currentImage = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    document.getElementById('projectForm').onsubmit = function(e) {
+        e.preventDefault();
+        const title = document.getElementById('projTitle').value;
+        const desc = document.getElementById('projDesc').value;
+        const editIndex = document.getElementById('editIndex').value;
+
+        const projectData = { title, desc, image: currentImage };
+
+        if (editIndex === "") {
+            projects.push(projectData);
+        } else {
+            projects[editIndex] = projectData;
+        }
+
+        localStorage.setItem('myProjects', JSON.stringify(projects));
+        renderProjects();
+        closeModal();
+    };
+
+    function deleteProject(index) {
+        if (confirm('هل تريد حذف هذا المشروع؟')) {
+            projects.splice(index, 1);
+            localStorage.setItem('myProjects', JSON.stringify(projects));
+            renderProjects();
+        }
+    }
+
+    function renderProjects() {
+        const tbody = document.getElementById('projectBody');
+        tbody.innerHTML = '';
+        projects.forEach((proj, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><img src="${proj.image || 'https://via.placeholder.com/50'}" class="project-img-sm"></td>
+                    <td>${proj.title}</td>
+                    <td>${proj.desc}</td>
+                    <td>
+                        <button class="btn-edit-item" onclick="openModal('edit', ${index})">تعديل</button>
+                        <button class="btn-delete" onclick="deleteProject(${index})">حذف</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    renderProjects();
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('projectModal')) {
+            closeModal();
+        }
+    }
+</script>
+
+</body>
+</html>
+projects_management.html
+جارٍ عرض "projects_management.html".
