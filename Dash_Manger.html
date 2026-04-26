@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة مشاريع المدارس</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary-color: #008489; /* لون قريب من هوية تعليم جدة */
+            --secondary-color: #64748b;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* تنسيق الهيدر */
+        header {
+            background: #fff;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* تنسيق الخريطة */
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+            border-bottom: 4px solid var(--primary-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* تصميم شبكة المشاريع (Cards Grid) */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            border: 1px solid #eee;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .project-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .project-card-content {
+            padding: 15px;
+        }
+
+        .project-card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .project-card-desc {
+            font-size: 0.9rem;
+            color: #666;
+            height: 60px;
+            overflow: hidden;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        /* أزرار عصرية */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-add { background: var(--primary-color); color: white; }
+        .btn-edit { background: #e2e8f0; color: #475569; }
+        .btn-delete { background: #fee2e2; color: #ef4444; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center; align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            width: 450px;
+            max-width: 90%;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2 style="margin:0; color: var(--primary-color);">خارطة مشاريع المدارس</h2>
+    <button class="btn btn-add" onclick="openModal('add')">+ إضافة مشروع جديد</button>
+</header>
+
+<div id="map"></div>
+
+<div class="container">
+    <div id="projectStats" style="margin-bottom: 15px; color: #666;">
+        </div>
+    
+    <div class="projects-grid" id="projectsContainer">
+        </div>
+</div>
+
+<div id="projectModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">إضافة بيانات المشروع</h3>
+        <form id="projectForm">
+            <input type="hidden" id="editIndex">
+            <div class="form-group">
+                <label>اسم المشروع / المدرسة</label>
+                <input type="text" id="projTitle" required placeholder="مثال: مدرسة الإبداع الابتدائية">
+            </div>
+            <div class="form-group">
+                <label>الوصف</label>
+                <textarea id="projDesc" rows="3" required placeholder="تفاصيل المشروع..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>الإحداثيات (خط الطول والعرض)</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="projLat" placeholder="العرض (Lat)" required>
+                    <input type="text" id="projLng" placeholder="الطول (Lng)" required>
+                </div>
+                <small style="color: #888;">يمكنك النقر على الخريطة لاحقاً لتحديد الموقع</small>
+            </div>
+            <div class="form-group">
+                <label>صورة المشروع</label>
+                <input type="file" id="projImg" accept="image/*" onchange="previewImage(this)">
+            </div>
+            <button type="submit" class="btn btn-add" style="width: 100%;">حفظ المشروع</button>
+            <button type="button" class="btn" onclick="closeModal()" style="width: 100%; margin-top:10px;">إلغاء</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let projects = JSON.parse(localStorage.getItem('schoolProjects')) || [];
+    let currentImage = "";
+    let map, markers = [];
+
+    // تهيئة الخريطة (افتراضياً على جدة)
+    function initMap() {
+        map = L.map('map').setView([21.5433, 39.1728], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // عند النقر على الخريطة، يتم ملء الإحداثيات في المودال تلقائياً
+        map.on('click', function(e) {
+            document.getElementById('projLat').value = e.latlng.lat.toFixed(6);
+            document.getElementById('projLng').value = e.latlng.lng.toFixed(6);
+        });
+    }
+
+    function openModal(mode, index = null) {
+        document.getElementById('projectModal').style.display = 'flex';
+        document.getElementById('projectForm').reset();
+        currentImage = "";
+
+        if (mode === 'edit') {
+            const p = projects[index];
+            document.getElementById('modalTitle').innerText = 'تعديل مشروع';
+            document.getElementById('editIndex').value = index;
+            document.getElementById('projTitle').value = p.title;
+            document.getElementById('projDesc').value = p.desc;
+            document.getElementById('projLat').value = p.lat;
+            document.getElementById('projLng').value = p.lng;
+            currentImage = p.image;
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('projectModal').style.display = 'none';
+    }
+
+    function previewImage(input) {
+        const reader = new FileReader();
+        reader.onload = (e) => currentImage = e.target.result;
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    document.getElementById('projectForm').onsubmit = function(e) {
+        e.preventDefault();
+        const projectData = {
+            title: document.getElementById('projTitle').value,
+            desc: document.getElementById('projDesc').value,
+            lat: document.getElementById('projLat').value,
+            lng: document.getElementById('projLng').value,
+            image: currentImage || 'https://via.placeholder.com/300x180?text=No+Image'
+        };
+
+        const idx = document.getElementById('editIndex').value;
+        if (idx === "") projects.push(projectData);
+        else projects[idx] = projectData;
+
+        localStorage.setItem('schoolProjects', JSON.stringify(projects));
+        renderAll();
+        closeModal();
+    };
+
+    function deleteProject(index) {
+        if(confirm('هل أنت متأكد من الحذف؟')) {
+            projects.splice(index, 1);
+            localStorage.setItem('schoolProjects', JSON.stringify(projects));
+            renderAll();
+        }
+    }
+
+    function renderAll() {
+        const container = document.getElementById('projectsContainer');
+        container.innerHTML = '';
+        
+        // مسح الماركرز القديمة من الخريطة
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+
+        projects.forEach((p, i) => {
+            // إضافة البطاقة
+            container.innerHTML += `
+                <div class="project-card">
+                    <img src="${p.image}">
+                    <div class="project-card-content">
+                        <div class="project-card-title">${p.title}</div>
+                        <div class="project-card-desc">${p.desc}</div>
+                        <div class="card-actions">
+                            <button class="btn btn-edit" onclick="openModal('edit', ${i})">تعديل</button>
+                            <button class="btn btn-delete" onclick="deleteProject(${i})">حذف</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // إضافة العلامة على الخريطة
+            const marker = L.marker([p.lat, p.lng]).addTo(map)
+                .bindPopup(`<b>${p.title}</b><br>${p.desc}`);
+            markers.push(marker);
+        });
+
+        document.getElementById('projectStats').innerText = `عدد المدارس المسجلة: ${projects.length}`;
+    }
+
+    // التشغيل عند التحميل
+    window.onload = () => {
+        initMap();
+        renderAll();
+    };
+</script>
+
+</body>
+</html>
