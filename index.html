@@ -59,7 +59,6 @@
         .cover-page {
             width: 100%;
             height: 100%;
-            /* تم التحديث لاستخدام صورتك الخاصة من مجلد images */
             background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)), url('images/cover.png');
             background-size: cover;
             background-position: center;
@@ -102,7 +101,6 @@
             background: #fff;
         }
 
-        /* تأثير طي الورقة */
         .corner-peel {
             position: absolute;
             width: 85px;
@@ -122,7 +120,6 @@
         .corner-next:hover {
             width: 110px;
             height: 110px;
-            background: linear-gradient(225deg, transparent 40%, rgba(59, 130, 246, 0.6) 40%, rgba(59, 130, 246, 0.95) 100%);
         }
 
         .corner-prev {
@@ -135,7 +132,6 @@
         .corner-prev:hover {
             width: 110px;
             height: 110px;
-            background: linear-gradient(135deg, transparent 40%, rgba(148, 163, 184, 0.6) 40%, rgba(148, 163, 184, 0.95) 100%);
         }
 
         .modal-overlay {
@@ -168,11 +164,6 @@
             .left-side, .right-side { width: 100%; height: 50%; }
             .left-side { border-left: none; border-bottom: 4px solid #3b82f6; }
             .right-side { padding: 20px; }
-            .corner-peel { width: 70px; height: 70px; }
-        }
-
-        @media (max-width: 640px) {
-            .book { height: 450px; }
         }
     </style>
 </head>
@@ -197,6 +188,7 @@
         <button onclick="openAuthModal()" class="bg-blue-600 text-white w-12 h-12 rounded-full shadow-2xl text-2xl flex items-center justify-center hover:bg-blue-700 hover:rotate-90 transition-all duration-300">+</button>
     </div>
 
+    <!-- Auth Modal -->
     <div id="authModal" class="modal-overlay">
         <div class="bg-white p-8 rounded-2xl w-80 shadow-2xl text-center">
             <h3 class="text-xl font-bold mb-4">الدخول للوحة التحكم</h3>
@@ -208,41 +200,60 @@
         </div>
     </div>
 
+    <!-- Admin Panel -->
     <div id="adminPanel" class="modal-overlay">
-        <div class="bg-white p-8 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-4xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <h2 class="text-2xl font-bold text-slate-800">إدارة معرض الأعمال</h2>
                 <button onclick="closeModal('adminPanel')" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Add New -->
                 <div class="space-y-4">
-                    <h3 class="font-bold text-blue-600 text-lg border-r-4 border-blue-600 pr-2">إضافة عمل جديد</h3>
+                    <h3 class="font-bold text-blue-600 text-lg border-r-4 border-blue-600 pr-2">إضافة / تعديل مؤقت</h3>
                     <p class="text-xs text-slate-500 bg-blue-50 p-2 rounded">
-                        <strong>نصيحة:</strong> يقبل النظام الروابط الداخلية (مثال: images/pic1.jpg) أو الروابط الخارجية الكاملة (مثال: https://site.com/img.png).
+                        ملاحظة: الإضافات هنا تحفظ في المتصفح فقط. لجعلها دائمة، انسخ "مصفوفة البيانات" من الأسفل واستبدلها في الكود.
                     </p>
-                    <input type="text" id="imgUrl" placeholder="رابط الصورة أو مسارها" class="w-full border p-3 rounded-lg bg-slate-50">
+                    <input type="text" id="imgUrl" placeholder="رابط الصورة (مثال: images/work1.png)" class="w-full border p-3 rounded-lg bg-slate-50">
                     <input type="text" id="imgTitle" placeholder="عنوان التحليل" class="w-full border p-3 rounded-lg bg-slate-50 font-bold">
                     <textarea id="imgDesc" placeholder="وصف موجز للمنهجية والنتائج..." class="w-full border p-3 rounded-lg bg-slate-50 h-32"></textarea>
                     <button onclick="addProject()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">إضافة العمل</button>
                 </div>
 
+                <!-- Control and JSON -->
                 <div class="space-y-4">
-                    <h3 class="font-bold text-red-600 text-lg border-r-4 border-red-600 pr-2">حذف الصفحات</h3>
-                    <div id="deleteList" class="space-y-2 max-h-80 overflow-y-auto pr-2"></div>
+                    <h3 class="font-bold text-green-600 text-lg border-r-4 border-green-600 pr-2">بيانات الكود الدائمة</h3>
+                    <p class="text-xs text-slate-500">انسخ هذا النص وضعه في الكود داخل المصفوفة `projects` لضمان عدم ضياع البيانات:</p>
+                    <textarea id="jsonOutput" readonly class="w-full border p-3 rounded-lg bg-slate-900 text-green-400 font-mono text-xs h-48 cursor-all" onclick="this.select()"></textarea>
+                    
+                    <h3 class="font-bold text-red-600 text-lg border-r-4 border-red-600 pr-2 mt-4">إدارة الصفحات</h3>
+                    <div id="deleteList" class="space-y-2 max-h-40 overflow-y-auto pr-2"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let projects = JSON.parse(localStorage.getItem('myProjects')) || [
+        /**
+         * المصفوفة الدائمة:
+         * لإضافة مشاريع لا تحذف أبداً، قم بتعديل هذه القائمة مباشرة.
+         */
+        const initialProjects = [
             {
                 title: "تحليل مبيعات الربع السنوي",
                 desc: "استخدام تقنيات Python لتحليل اتجاهات المبيعات وتحديد نقاط النمو الأكثر تأثيراً في السوق المحلي.",
-                url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800"
+                url: "images/project1.png" 
+            },
+            {
+                title: "لوحة مؤشرات الأداء Power BI",
+                desc: "تصميم لوحة تفاعلية لمراقبة الإنتاجية وتقليل الفاقد في العمليات التشغيلية بنسبة 15%.",
+                url: "images/project2.png"
             }
         ];
+
+        // تحميل البيانات من المتصفح أو استخدام القائمة الأولية
+        let projects = JSON.parse(localStorage.getItem('myProjects')) || initialProjects;
 
         let currentPage = 0;
 
@@ -250,29 +261,30 @@
             const book = document.getElementById('book');
             book.innerHTML = '';
             
+            // صفحة الغلاف
             const cover = document.createElement('div');
             cover.className = `page ${currentPage > 0 ? 'flipped' : ''}`;
             cover.style.zIndex = projects.length + 2;
-            
             cover.innerHTML = `
                 <div class="cover-page">
                     <h2 class="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">Data Analyst<br>Projects Portfolio</h2>
                     <div class="w-24 h-1 bg-blue-500 mb-6"></div>
                     <p class="text-xl md:text-2xl font-light opacity-90 mb-8">Prepared by Qasim</p>
                     <p class="text-xs md:text-sm font-medium tracking-widest opacity-70 mt-12">خبير تحليل البيانات قاسم عميش</p>
-                    ${currentPage === 0 && projects.length > 0 ? '<div class="corner-peel corner-next" onclick="nextPage()" title="فتح المعرض"></div>' : ''}
+                    ${currentPage === 0 ? '<div class="corner-peel corner-next" onclick="nextPage()" title="فتح المعرض"></div>' : ''}
                 </div>
             `;
             book.appendChild(cover);
 
+            // صفحات المشاريع
             projects.forEach((proj, index) => {
                 const page = document.createElement('div');
                 const pageIdx = index + 1;
                 page.className = `page ${pageIdx < currentPage ? 'flipped' : ''}`;
                 page.style.zIndex = projects.length - index;
 
-                let isLastPage = (pageIdx === projects.length);
                 let isCurrentOpenPage = (pageIdx === currentPage);
+                let isLastPage = (pageIdx === projects.length);
                 
                 page.innerHTML = `
                     <div class="left-side">
@@ -291,14 +303,27 @@
                 `;
                 book.appendChild(page);
             });
-            updateDeleteList();
+            updateAdminFeatures();
         }
 
         function nextPage() { if (currentPage <= projects.length) { currentPage++; renderBook(); } }
         function prevPage() { if (currentPage > 0) { currentPage--; renderBook(); } }
-        function openAuthModal() { document.getElementById('passInput').value = ''; document.getElementById('authModal').style.display = 'flex'; }
+        
+        function openAuthModal() { 
+            document.getElementById('passInput').value = ''; 
+            document.getElementById('authModal').style.display = 'flex'; 
+        }
+
+        function verifyPassword() { 
+            if (document.getElementById('passInput').value === "5512") { 
+                closeModal('authModal'); 
+                document.getElementById('adminPanel').style.display = 'flex'; 
+            } else { 
+                alert("كلمة المرور غير صحيحة"); 
+            } 
+        }
+
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function verifyPassword() { if (document.getElementById('passInput').value === "5512") { closeModal('authModal'); document.getElementById('adminPanel').style.display = 'flex'; } else { alert("كلمة المرور غير صحيحة"); } }
 
         function addProject() {
             const url = document.getElementById('imgUrl').value;
@@ -310,27 +335,40 @@
                 document.getElementById('imgUrl').value = '';
                 document.getElementById('imgTitle').value = '';
                 document.getElementById('imgDesc').value = '';
-                alert("تمت الإضافة بنجاح");
             }
         }
 
         function deleteProject(index) {
-            if (confirm("هل تريد حذف هذه الصفحة؟")) { projects.splice(index, 1); if (currentPage > projects.length + 1) currentPage = projects.length + 1; saveAndRefresh(); }
+            if (confirm("هل تريد حذف هذه الصفحة؟")) { 
+                projects.splice(index, 1); 
+                if (currentPage > projects.length) currentPage = projects.length;
+                saveAndRefresh(); 
+            }
         }
 
-        function updateDeleteList() {
+        function updateAdminFeatures() {
             const list = document.getElementById('deleteList');
-            if(!list) return;
+            const jsonArea = document.getElementById('jsonOutput');
+            if(!list || !jsonArea) return;
+
+            // تحديث قائمة الحذف
             list.innerHTML = '';
             projects.forEach((proj, index) => {
                 const item = document.createElement('div');
                 item.className = "flex items-center justify-between p-2 bg-slate-50 border rounded-lg";
-                item.innerHTML = `<span class="text-xs truncate">${proj.title}</span><button onclick="deleteProject(${index})" class="text-red-500 font-bold">حذف</button>`;
+                item.innerHTML = `<span class="text-xs truncate max-w-[150px]">${proj.title}</span><button onclick="deleteProject(${index})" class="text-red-500 font-bold text-xs">حذف</button>`;
                 list.appendChild(item);
             });
+
+            // تحديث نص المصفوفة للكود
+            jsonArea.value = JSON.stringify(projects, null, 4);
         }
 
-        function saveAndRefresh() { localStorage.setItem('myProjects', JSON.stringify(projects)); renderBook(); }
+        function saveAndRefresh() { 
+            localStorage.setItem('myProjects', JSON.stringify(projects)); 
+            renderBook(); 
+        }
+
         window.onload = renderBook;
     </script>
 </body>
