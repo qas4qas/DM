@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qasim Portfolio - Data Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .book-container {
+            perspective: 2000px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            padding: 20px;
+        }
+
+        .book {
+            width: 100%;
+            max-width: 1100px;
+            height: 650px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+
+        .page {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: white;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+            border-radius: 12px;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform-origin: left center;
+            backface-visibility: hidden;
+        }
+
+        .page.flipped {
+            transform: rotateY(-180deg);
+        }
+
+        /* صفحة الغلاف */
+        .cover-page {
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url('https://thumbs.dreamstime.com/b/financial-concept-close-up-pencil-financial-report-concept-financial-data-analysis-investment-planning-business-analytics-168415777.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .left-side {
+            width: 60%;
+            height: 100%;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+        }
+
+        .left-side img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .right-side {
+            width: 40%;
+            height: 100%;
+            padding: 50px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #fff;
+        }
+
+        /* تأثير طي الورقة المطور - تم تعديله ليكون في أطراف الصفحة */
+        .corner-peel {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            z-index: 150; /* أعلى من كل المحتويات */
+            transition: all 0.4s ease;
+        }
+
+        /* الزاوية اليسرى السفلية (للتالي/التقدم للأمام) */
+        .corner-next {
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(225deg, transparent 50%, rgba(59, 130, 246, 0.4) 50%, rgba(59, 130, 246, 0.7) 100%);
+            border-bottom-left-radius: 12px;
+        }
+
+        .corner-next:hover {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(225deg, transparent 40%, rgba(59, 130, 246, 0.6) 40%, rgba(59, 130, 246, 0.9) 100%);
+        }
+
+        /* الزاوية اليمنى السفلية (للسابق/الرجوع للخلف) */
+        .corner-prev {
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(135deg, transparent 50%, rgba(148, 163, 184, 0.4) 50%, rgba(148, 163, 184, 0.7) 100%);
+            border-bottom-right-radius: 12px;
+        }
+
+        .corner-prev:hover {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, transparent 40%, rgba(148, 163, 184, 0.6) 40%, rgba(148, 163, 184, 0.9) 100%);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .footer-text {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: auto;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .book { height: 500px; }
+            .page { flex-direction: column; }
+            .left-side, .right-side { width: 100%; height: 50%; }
+            .left-side { border-left: none; border-bottom: 4px solid #3b82f6; }
+            .right-side { padding: 20px; }
+            .corner-peel { width: 70px; height: 70px; }
+        }
+
+        @media (max-width: 640px) {
+            .book { height: 450px; }
+            header h1 { font-size: 2rem !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="text-center pt-8 pb-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Qasim Portfolio</h1>
+        <div class="mt-2 inline-block bg-blue-600 text-white px-4 py-1 rounded-full font-bold text-sm md:text-base">
+            معرض أعمال تحليل البيانات Data Analysis
+        </div>
+    </header>
+
+    <div class="book-container">
+        <div id="book" class="book">
+            <!-- محتوى مولد عبر JS -->
+        </div>
+    </div>
+
+    <div class="text-center pb-12 text-slate-400 text-sm">
+        استخدم زوايا الورقة السفلية لتقليب الصفحات
+    </div>
+
+    <!-- زر لوحة التحكم -->
+    <div class="fixed bottom-6 right-6 z-[200]">
+        <button onclick="openAuthModal()" class="bg-blue-600 text-white w-12 h-12 rounded-full shadow-2xl text-2xl flex items-center justify-center hover:bg-blue-700 hover:rotate-90 transition-all duration-300">
+            +
+        </button>
+    </div>
+
+    <div id="authModal" class="modal-overlay">
+        <div class="bg-white p-8 rounded-2xl w-80 shadow-2xl text-center">
+            <h3 class="text-xl font-bold mb-4">الدخول للوحة التحكم</h3>
+            <input type="password" id="passInput" placeholder="أدخل كلمة المرور" class="w-full border-2 border-slate-200 p-3 rounded-xl mb-4 text-center focus:border-blue-500 outline-none">
+            <div class="flex gap-2">
+                <button onclick="verifyPassword()" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold">دخول</button>
+                <button onclick="closeModal('authModal')" class="flex-1 bg-slate-200 text-slate-700 py-2 rounded-lg font-bold">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="modal-overlay">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 class="text-2xl font-bold text-slate-800">إدارة معرض الأعمال</h2>
+                <button onclick="closeModal('adminPanel')" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h3 class="font-bold text-blue-600 text-lg border-r-4 border-blue-600 pr-2">إضافة عمل جديد</h3>
+                    <input type="text" id="imgUrl" placeholder="رابط الصورة المباشر" class="w-full border p-3 rounded-lg bg-slate-50">
+                    <input type="text" id="imgTitle" placeholder="عنوان التحليل" class="w-full border p-3 rounded-lg bg-slate-50 font-bold">
+                    <textarea id="imgDesc" placeholder="وصف موجز للمنهجية والنتائج..." class="w-full border p-3 rounded-lg bg-slate-50 h-32"></textarea>
+                    <button onclick="addProject()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">إضافة العمل</button>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="font-bold text-red-600 text-lg border-r-4 border-red-600 pr-2">حذف الصفحات</h3>
+                    <div id="deleteList" class="space-y-2 max-h-80 overflow-y-auto pr-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let projects = JSON.parse(localStorage.getItem('myProjects')) || [
+            {
+                title: "تحليل مبيعات الربع السنوي",
+                desc: "استخدام تقنيات Python لتحليل اتجاهات المبيعات وتحديد نقاط النمو الأكثر تأثيراً في السوق المحلي.",
+                url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800"
+            }
+        ];
+
+        let currentPage = 0;
+
+        function renderBook() {
+            const book = document.getElementById('book');
+            book.innerHTML = '';
+            
+            // 1. إضافة صفحة الغلاف
+            const cover = document.createElement('div');
+            cover.className = `page ${currentPage > 0 ? 'flipped' : ''}`;
+            cover.style.zIndex = projects.length + 2;
+            
+            let coverHTML = `
+                <div class="cover-page">
+                    <h2 class="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">Data Analyst<br>Projects Portfolio</h2>
+                    <div class="w-24 h-1 bg-blue-500 mb-6"></div>
+                    <p class="text-xl md:text-2xl font-light opacity-90 mb-8">Prepared by Qasim</p>
+                    <p class="text-xs md:text-sm font-medium tracking-widest opacity-70 mt-12">خبير تحليل البيانات قاسم عميش</p>
+                    ${currentPage === 0 && projects.length > 0 ? '<div class="corner-peel corner-next" onclick="nextPage()" title="الصفحة الأولى"></div>' : ''}
+                </div>
+            `;
+            cover.innerHTML = coverHTML;
+            book.appendChild(cover);
+
+            // 2. إضافة صفحات المشاريع
+            projects.forEach((proj, index) => {
+                const page = document.createElement('div');
+                const pageIdx = index + 1;
+                page.className = `page ${pageIdx < currentPage ? 'flipped' : ''}`;
+                page.style.zIndex = projects.length - index;
+
+                let isLastPage = (pageIdx === projects.length);
+                let isCurrentOpenPage = (pageIdx === currentPage);
+                
+                // تم وضع العلامات داخل الـ page مباشرة لضمان تموضعها في الأطراف القصوى
+                let pageHTML = `
+                    <div class="left-side">
+                        <img src="${proj.url}" alt="${proj.title}" onerror="this.src='https://via.placeholder.com/600x800?text=Data+Visualization'">
+                    </div>
+                    <div class="right-side">
+                        <h2 class="text-2xl md:text-3xl font-bold text-blue-800 mb-4 border-b-4 border-blue-600 inline-block pb-1">${proj.title}</h2>
+                        <p class="text-slate-600 leading-relaxed text-base md:text-lg mb-4 flex-grow">${proj.desc}</p>
+                        <div class="footer-text flex justify-between items-center">
+                            <span>DATA ANALYST: QASIM</span>
+                            <span>صفحة ${pageIdx + 1}</span>
+                        </div>
+                    </div>
+                    ${isCurrentOpenPage ? '<div class="corner-peel corner-prev" onclick="prevPage()" title="السابق"></div>' : ''}
+                    ${isCurrentOpenPage && !isLastPage ? '<div class="corner-peel corner-next" onclick="nextPage()" title="التالي"></div>' : ''}
+                `;
+                page.innerHTML = pageHTML;
+                book.appendChild(page);
+            });
+            updateDeleteList();
+        }
+
+        function nextPage() {
+            if (currentPage <= projects.length) {
+                currentPage++;
+                renderBook();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                renderBook();
+            }
+        }
+
+        function openAuthModal() {
+            document.getElementById('passInput').value = '';
+            document.getElementById('authModal').style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function verifyPassword() {
+            const pw = document.getElementById('passInput').value;
+            if (pw === "5512") {
+                closeModal('authModal');
+                document.getElementById('adminPanel').style.display = 'flex';
+            } else {
+                alert("كلمة المرور غير صحيحة");
+            }
+        }
+
+        function addProject() {
+            const url = document.getElementById('imgUrl').value;
+            const title = document.getElementById('imgTitle').value;
+            const desc = document.getElementById('imgDesc').value;
+
+            if (url && title && desc) {
+                projects.push({ url, title, desc });
+                saveAndRefresh();
+                document.getElementById('imgUrl').value = '';
+                document.getElementById('imgTitle').value = '';
+                document.getElementById('imgDesc').value = '';
+                alert("تمت إضافة العمل بنجاح");
+            } else {
+                alert("يرجى إكمال جميع الحقول");
+            }
+        }
+
+        function deleteProject(index) {
+            if (confirm("هل أنت متأكد من حذف هذه الصفحة؟")) {
+                projects.splice(index, 1);
+                if (currentPage > projects.length + 1) currentPage = projects.length + 1;
+                saveAndRefresh();
+            }
+        }
+
+        function updateDeleteList() {
+            const list = document.getElementById('deleteList');
+            list.innerHTML = '';
+            projects.forEach((proj, index) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-2 bg-slate-50 rounded-lg border hover:bg-slate-100 transition";
+                item.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <img src="${proj.url}" class="w-10 h-10 object-cover rounded shadow-sm flex-shrink-0">
+                        <span class="text-xs font-bold truncate">${proj.title}</span>
+                    </div>
+                    <button onclick="deleteProject(${index})" class="text-red-500 hover:bg-red-50 p-1 rounded text-xs">حذف</button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function saveAndRefresh() {
+            localStorage.setItem('myProjects', JSON.stringify(projects));
+            renderBook();
+        }
+
+        window.onload = renderBook;
+    </script>
+</body>
+</html>
