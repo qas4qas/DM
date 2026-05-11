@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qasim Portfolio - Data Analysis</title>
+    <title>Qasim Portfolio - Live Data</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
@@ -55,11 +55,10 @@
             transform: rotateY(-180deg);
         }
 
-        /* صفحة الغلاف */
         .cover-page {
             width: 100%;
             height: 100%;
-            background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)), url('images/cover.png');
+            background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('images/cover.png');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -69,7 +68,6 @@
             text-align: center;
             color: white;
             padding: 20px;
-            position: relative;
         }
 
         .left-side {
@@ -88,7 +86,7 @@
             max-height: 100%;
             object-fit: contain;
             border-radius: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .right-side {
@@ -106,8 +104,7 @@
             width: 85px;
             height: 85px;
             cursor: pointer;
-            z-index: 200; 
-            transition: all 0.4s ease;
+            z-index: 200;
         }
 
         .corner-next {
@@ -117,11 +114,6 @@
             border-bottom-left-radius: 12px;
         }
 
-        .corner-next:hover {
-            width: 110px;
-            height: 110px;
-        }
-
         .corner-prev {
             bottom: 0;
             right: 0;
@@ -129,10 +121,31 @@
             border-bottom-right-radius: 12px;
         }
 
-        .corner-prev:hover {
-            width: 110px;
-            height: 110px;
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
         }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .modal-overlay {
             display: none;
@@ -148,31 +161,25 @@
             backdrop-filter: blur(4px);
         }
 
-        .footer-text {
-            font-size: 0.7rem;
-            color: #64748b;
-            margin-top: auto;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 8px;
-            font-weight: bold;
-            letter-spacing: 0.025em;
-        }
-
         @media (max-width: 1024px) {
-            .book { height: 500px; }
+            .book { height: 550px; }
             .page { flex-direction: column; }
             .left-side, .right-side { width: 100%; height: 50%; }
             .left-side { border-left: none; border-bottom: 4px solid #3b82f6; }
-            .right-side { padding: 20px; }
         }
     </style>
 </head>
 <body>
 
+    <div id="loading">
+        <div class="loader"></div>
+        <p class="font-bold text-slate-600">جاري مزامنة بيانات المشاريع...</p>
+    </div>
+
     <header class="text-center pt-8 pb-4">
         <h1 class="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Qasim Portfolio</h1>
-        <div class="mt-2 inline-block bg-blue-600 text-white px-4 py-1 rounded-full font-bold text-sm md:text-base shadow-lg">
-            معرض أعمال تحليل البيانات Data Analysis
+        <div class="mt-2 inline-block bg-blue-600 text-white px-4 py-1 rounded-full font-bold text-xs shadow-lg">
+            Cloud Sync Active (Google Sheets)
         </div>
     </header>
 
@@ -184,14 +191,15 @@
         استخدم زوايا الورقة السفلية لتقليب الصفحات
     </div>
 
+    <!-- زر لوحة التحكم -->
     <div class="fixed bottom-6 right-6 z-[200]">
-        <button onclick="openAuthModal()" class="bg-blue-600 text-white w-12 h-12 rounded-full shadow-2xl text-2xl flex items-center justify-center hover:bg-blue-700 hover:rotate-90 transition-all duration-300">+</button>
+        <button onclick="openAuthModal()" class="bg-slate-800 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center hover:bg-black transition-all">⚙️</button>
     </div>
 
     <!-- Auth Modal -->
     <div id="authModal" class="modal-overlay">
         <div class="bg-white p-8 rounded-2xl w-80 shadow-2xl text-center">
-            <h3 class="text-xl font-bold mb-4">الدخول للوحة التحكم</h3>
+            <h3 class="text-xl font-bold mb-4">لوحة الإدارة</h3>
             <input type="password" id="passInput" placeholder="أدخل كلمة المرور" class="w-full border-2 border-slate-200 p-3 rounded-xl mb-4 text-center focus:border-blue-500 outline-none">
             <div class="flex gap-2">
                 <button onclick="verifyPassword()" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold">دخول</button>
@@ -202,81 +210,105 @@
 
     <!-- Admin Panel -->
     <div id="adminPanel" class="modal-overlay">
-        <div class="bg-white p-8 rounded-2xl w-full max-w-4xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <h2 class="text-2xl font-bold text-slate-800">إدارة معرض الأعمال</h2>
+        <div class="bg-white p-8 rounded-2xl w-full max-w-md shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">تعليمات التحديث</h2>
                 <button onclick="closeModal('adminPanel')" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Add New -->
-                <div class="space-y-4">
-                    <h3 class="font-bold text-blue-600 text-lg border-r-4 border-blue-600 pr-2">إضافة / تعديل مؤقت</h3>
-                    <p class="text-xs text-slate-500 bg-blue-50 p-2 rounded">
-                        ملاحظة: الإضافات هنا تحفظ في المتصفح فقط. لجعلها دائمة، انسخ "مصفوفة البيانات" من الأسفل واستبدلها في الكود.
-                    </p>
-                    <input type="text" id="imgUrl" placeholder="رابط الصورة (مثال: images/work1.png)" class="w-full border p-3 rounded-lg bg-slate-50">
-                    <input type="text" id="imgTitle" placeholder="عنوان التحليل" class="w-full border p-3 rounded-lg bg-slate-50 font-bold">
-                    <textarea id="imgDesc" placeholder="وصف موجز للمنهجية والنتائج..." class="w-full border p-3 rounded-lg bg-slate-50 h-32"></textarea>
-                    <button onclick="addProject()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">إضافة العمل</button>
-                </div>
-
-                <!-- Control and JSON -->
-                <div class="space-y-4">
-                    <h3 class="font-bold text-green-600 text-lg border-r-4 border-green-600 pr-2">بيانات الكود الدائمة</h3>
-                    <p class="text-xs text-slate-500">انسخ هذا النص وضعه في الكود داخل المصفوفة `projects` لضمان عدم ضياع البيانات:</p>
-                    <textarea id="jsonOutput" readonly class="w-full border p-3 rounded-lg bg-slate-900 text-green-400 font-mono text-xs h-48 cursor-all" onclick="this.select()"></textarea>
-                    
-                    <h3 class="font-bold text-red-600 text-lg border-r-4 border-red-600 pr-2 mt-4">إدارة الصفحات</h3>
-                    <div id="deleteList" class="space-y-2 max-h-40 overflow-y-auto pr-2"></div>
+            <div class="space-y-4 text-right">
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    يتم جلب البيانات تلقائياً من ملف Google Sheets. لتعديل المشاريع أو إضافة صور جديدة، يرجى استخدام الرابط التالي:
+                </p>
+                <a href="https://docs.google.com/spreadsheets/d/1v-AAsf7-D2qC9j5X4h9q08H1S8eL3j9u7G1T-R-h8Yw/edit" target="_blank" class="block w-full bg-green-100 text-green-700 p-4 rounded-xl text-center font-bold hover:bg-green-200 transition border border-green-200">
+                    📂 فتح ملف البيانات (Google Sheets)
+                </a>
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <p class="text-xs text-blue-700 font-bold mb-2">ترتيب الأعمدة في الملف:</p>
+                    <ul class="text-[11px] text-blue-600 space-y-1">
+                        <li>• العمود A: عنوان المشروع</li>
+                        <li>• العمود B: وصف المشروع والنتائج</li>
+                        <li>• العمود C: رابط الصورة</li>
+                    </ul>
                 </div>
             </div>
+            <button onclick="location.reload()" class="w-full mt-6 bg-slate-800 text-white py-3 rounded-xl font-bold">تحديث الموقع الآن 🔄</button>
         </div>
     </div>
 
     <script>
-        /**
-         * المصفوفة الدائمة:
-         * لإضافة مشاريع لا تحذف أبداً، قم بتعديل هذه القائمة مباشرة.
-         */
-        const initialProjects = [
-            {
-                title: "تحليل مبيعات الربع السنوي",
-                desc: "استخدام تقنيات Python لتحليل اتجاهات المبيعات وتحديد نقاط النمو الأكثر تأثيراً في السوق المحلي.",
-                url: "images/project1.png" 
-            },
-            {
-                title: "لوحة مؤشرات الأداء Power BI",
-                desc: "تصميم لوحة تفاعلية لمراقبة الإنتاجية وتقليل الفاقد في العمليات التشغيلية بنسبة 15%.",
-                url: "images/project2.png"
-            }
-        ];
+        // الرابط المحدث مع تفعيل صيغة tqx=out:csv لضمان استجابة السيرفر كملف CSV
+        const SPREADSHEET_ID = "1vQSgvwhA6oY1ESj_I5_8nyWlpnpUll-xrUKUe16btvf7te5CX1_lsFOCx1PiQ4EP4WYtcuVHXsKvfsA";
+        const SPREADSHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQSgvwhA6oY1ESj_I5_8nyWlpnpUll-xrUKUe16btvf7te5CX1_lsFOCx1PiQ4EP4WYtcuVHXsKvfsA/pub?output=csv&gid=0&cache-bust=${Date.now()}`;
 
-        // تحميل البيانات من المتصفح أو استخدام القائمة الأولية
-        let projects = JSON.parse(localStorage.getItem('myProjects')) || initialProjects;
-
+        let projects = [];
         let currentPage = 0;
+
+        // دالة لتحليل صفوف CSV بشكل صحيح حتى مع وجود فواصل داخل النص
+        function parseCSV(text) {
+            const lines = text.split(/\r?\n/);
+            return lines.slice(1).filter(line => line.trim()).map(line => {
+                const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+                if (matches) {
+                    return matches.map(val => val.replace(/^"|"$/g, '').trim());
+                }
+                return [];
+            });
+        }
+
+        async function fetchLiveProjects() {
+            try {
+                // استخدام cache: "no-store" لضمان جلب أحدث بيانات دائماً
+                const response = await fetch(SPREADSHEET_CSV_URL, { cache: "no-store" });
+                
+                if (!response.ok) throw new Error("Network response was not ok");
+                
+                const csvData = await response.text();
+                const parsedRows = parseCSV(csvData);
+                
+                projects = parsedRows.map(cols => ({
+                    title: cols[0] || "بدون عنوان",
+                    desc: cols[1] || "لا يوجد وصف متاح.",
+                    url: cols[2] || ""
+                }));
+                
+                if (projects.length === 0) {
+                    throw new Error("No data found in sheet");
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                renderBook();
+            } catch (error) {
+                console.error("Error loading sheet:", error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="p-6 text-center">
+                        <p class='text-red-500 font-bold mb-4'>⚠️ فشل الاتصال بقاعدة البيانات</p>
+                        <p class='text-slate-500 text-sm mb-6'>تأكد من أنك قمت بعمل 'Publish to web' من داخل Google Sheets بصيغة CSV.</p>
+                        <button onclick="location.reload()" class="bg-blue-600 text-white px-6 py-2 rounded-lg">إعادة المحاولة</button>
+                    </div>
+                `;
+            }
+        }
 
         function renderBook() {
             const book = document.getElementById('book');
             book.innerHTML = '';
             
-            // صفحة الغلاف
+            // Cover Page
             const cover = document.createElement('div');
             cover.className = `page ${currentPage > 0 ? 'flipped' : ''}`;
             cover.style.zIndex = projects.length + 2;
             cover.innerHTML = `
                 <div class="cover-page">
-                    <h2 class="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">Data Analyst<br>Projects Portfolio</h2>
+                    <h2 class="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg text-white">Data Analyst<br>Portfolio</h2>
                     <div class="w-24 h-1 bg-blue-500 mb-6"></div>
                     <p class="text-xl md:text-2xl font-light opacity-90 mb-8">Prepared by Qasim</p>
-                    <p class="text-xs md:text-sm font-medium tracking-widest opacity-70 mt-12">خبير تحليل البيانات قاسم عميش</p>
-                    ${currentPage === 0 ? '<div class="corner-peel corner-next" onclick="nextPage()" title="فتح المعرض"></div>' : ''}
+                    <p class="text-xs md:text-sm font-medium tracking-widest opacity-70 mt-12">خبير تحليل البيانات - قاسم عميش</p>
+                    ${currentPage === 0 ? '<div class="corner-peel corner-next" onclick="nextPage()" title="تصفح الأعمال"></div>' : ''}
                 </div>
             `;
             book.appendChild(cover);
 
-            // صفحات المشاريع
+            // Project Pages
             projects.forEach((proj, index) => {
                 const page = document.createElement('div');
                 const pageIdx = index + 1;
@@ -288,34 +320,32 @@
                 
                 page.innerHTML = `
                     <div class="left-side">
-                        <img src="${proj.url}" alt="${proj.title}" onerror="this.src='https://via.placeholder.com/600x800?text=الصورة+غير+موجودة'">
+                        <img src="${proj.url}" alt="${proj.title}" onerror="this.src='https://via.placeholder.com/600x800?text=الصورة+تحت+المعالجة'">
                     </div>
                     <div class="right-side">
                         <h2 class="text-2xl md:text-3xl font-bold text-blue-800 mb-4 border-b-4 border-blue-600 inline-block pb-1">${proj.title}</h2>
-                        <p class="text-slate-600 leading-relaxed text-base md:text-lg mb-4 flex-grow">${proj.desc}</p>
+                        <p class="text-slate-600 leading-relaxed text-base md:text-lg mb-6 flex-grow">${proj.desc}</p>
                         <div class="footer-text flex justify-between items-center">
-                            <span>Tools: Power BI - SQL - Excel - Python</span>
+                            <span>Cloud Synced Data</span>
                             <span>صفحة ${pageIdx + 1}</span>
                         </div>
                     </div>
-                    ${isCurrentOpenPage ? '<div class="corner-peel corner-prev" onclick="prevPage()" title="الرجوع"></div>' : ''}
+                    ${isCurrentOpenPage ? '<div class="corner-peel corner-prev" onclick="prevPage()" title="السابق"></div>' : ''}
                     ${isCurrentOpenPage && !isLastPage ? '<div class="corner-peel corner-next" onclick="nextPage()" title="التالي"></div>' : ''}
                 `;
                 book.appendChild(page);
             });
-            updateAdminFeatures();
         }
 
         function nextPage() { if (currentPage <= projects.length) { currentPage++; renderBook(); } }
         function prevPage() { if (currentPage > 0) { currentPage--; renderBook(); } }
         
-        function openAuthModal() { 
-            document.getElementById('passInput').value = ''; 
-            document.getElementById('authModal').style.display = 'flex'; 
-        }
+        function openAuthModal() { document.getElementById('passInput').value = ''; document.getElementById('authModal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         function verifyPassword() { 
-            if (document.getElementById('passInput').value === "5512") { 
+            const pass = document.getElementById('passInput').value;
+            if (pass === "987654321") { 
                 closeModal('authModal'); 
                 document.getElementById('adminPanel').style.display = 'flex'; 
             } else { 
@@ -323,53 +353,7 @@
             } 
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        function addProject() {
-            const url = document.getElementById('imgUrl').value;
-            const title = document.getElementById('imgTitle').value;
-            const desc = document.getElementById('imgDesc').value;
-            if (url && title && desc) {
-                projects.push({ url, title, desc });
-                saveAndRefresh();
-                document.getElementById('imgUrl').value = '';
-                document.getElementById('imgTitle').value = '';
-                document.getElementById('imgDesc').value = '';
-            }
-        }
-
-        function deleteProject(index) {
-            if (confirm("هل تريد حذف هذه الصفحة؟")) { 
-                projects.splice(index, 1); 
-                if (currentPage > projects.length) currentPage = projects.length;
-                saveAndRefresh(); 
-            }
-        }
-
-        function updateAdminFeatures() {
-            const list = document.getElementById('deleteList');
-            const jsonArea = document.getElementById('jsonOutput');
-            if(!list || !jsonArea) return;
-
-            // تحديث قائمة الحذف
-            list.innerHTML = '';
-            projects.forEach((proj, index) => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-2 bg-slate-50 border rounded-lg";
-                item.innerHTML = `<span class="text-xs truncate max-w-[150px]">${proj.title}</span><button onclick="deleteProject(${index})" class="text-red-500 font-bold text-xs">حذف</button>`;
-                list.appendChild(item);
-            });
-
-            // تحديث نص المصفوفة للكود
-            jsonArea.value = JSON.stringify(projects, null, 4);
-        }
-
-        function saveAndRefresh() { 
-            localStorage.setItem('myProjects', JSON.stringify(projects)); 
-            renderBook(); 
-        }
-
-        window.onload = renderBook;
+        window.onload = fetchLiveProjects;
     </script>
 </body>
 </html>
