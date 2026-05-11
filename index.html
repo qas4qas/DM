@@ -251,8 +251,8 @@
         // رابط الـ CSV للقراءة
         const SPREADSHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQSgvwhA6oY1ESj_I5_8nyWlpnpUll-xrUKUe16btvf7te5CX1_lsFOCx1PiQ4EP4WYtcuVHXsKvfsA/pub?output=csv&cache-bust=${Date.now()}`;
         
-        // تم وضع الرابط الكامل بناءً على المعرف الذي أرسلته
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZ40c0T6BRLUM0vLbXXD4gM2g2I3FLKCQC1mQHF4U/exec"; 
+        // الصق رابط الـ Google Apps Script الذي حصلت عليه هنا لتفعيل الإرسال
+        const GOOGLE_SCRIPT_URL = ""; 
 
         let projects = [];
         let currentPage = 0;
@@ -277,8 +277,124 @@
                 return;
             }
 
+            if (!GOOGLE_SCRIPT_URL) {
+                alert("يرجى إعداد Google Apps Script أولاً وإضافة الرابط في الكود");
+                return;
+            }
+
             btn.disabled = true;
             btn.innerHTML = "جاري الإرسال...";
 
             try {
-                // إرسال البيانات عبر
+                // إرسال البيانات عبر POST إلى الـ Script
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // لضمان عدم حدوث مشاكل مع سياسة المتصفح
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, desc, url })
+                });
+
+                alert("تمت الإضافة بنجاح! سيتم تحديث الصفحة.");
+                location.reload();
+            } catch (error) {
+                console.error(error);
+                alert("حدث خطأ أثناء الإرسال. تأكد من إعدادات الـ Script.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "إرسال إلى جوجل شيت 🚀";
+            }
+        }
+
+        function parseCSV(csv) {
+            const result = [];
+            const rows = csv.split(/\r?\n/).slice(1);
+            rows.forEach(row => {
+                if (!row.trim()) return;
+                const columns = [];
+                let current = "";
+                let inQuotes = false;
+                for (let i = 0; i < row.length; i++) {
+                    const char = row[i];
+                    if (char === '"') inQuotes = !inQuotes;
+                    else if (char === ',' && !inQuotes) { columns.push(current.trim()); current = ""; }
+                    else current += char;
+                }
+                columns.push(current.trim());
+                result.push(columns);
+            });
+            return result;
+        }
+
+        async function fetchLiveProjects() {
+            try {
+                const response = await fetch(SPREADSHEET_CSV_URL, { cache: "no-store" });
+                const csvData = await response.text();
+                const dataRows = parseCSV(csvData);
+                projects = dataRows.map(cols => ({
+                    title: cols[0]?.replace(/^"|"$/g, '') || "بدون عنوان",
+                    desc: cols[1]?.replace(/^"|"$/g, '') || "لا يوجد وصف متاح.",
+                    url: formatDriveUrl(cols[2]?.replace(/^"|"$/g, '').trim())
+                }));
+                document.getElementById('loading').style.display = 'none';
+                renderBook();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').innerHTML = "<p class='text-red-500'>فشل الاتصال بالبيانات</p>";
+            }
+        }
+
+        function renderBook() {
+            const book = document.getElementById('book');
+            book.innerHTML = '';
+            
+            // Cover
+            const cover = document.createElement('div');
+            cover.className = `page ${currentPage > 0 ? 'flipped' : ''}`;
+            cover.style.zIndex = projects.length + 2;
+            cover.innerHTML = `
+                <div class="cover-page">
+                    <h2 class="text-4xl md:text-6xl font-extrabold mb-4 text-white">Data Analyst Portfolio</h2>
+                    <div class="w-24 h-1 bg-blue-500 mb-6"></div>
+                    <p class="text-xl opacity-90">Prepared by Qasim</p>
+                    ${currentPage === 0 ? '<div class="corner-peel corner-next" onclick="nextPage()"></div>' : ''}
+                </div>
+            `;
+            book.appendChild(cover);
+
+            // Project Pages
+            projects.forEach((proj, index) => {
+                const page = document.createElement('div');
+                const pageIdx = index + 1;
+                page.className = `page ${pageIdx < currentPage ? 'flipped' : ''}`;
+                page.style.zIndex = projects.length - index;
+                let isCurrent = (pageIdx === currentPage);
+                
+                page.innerHTML = `
+                    <div class="left-side"><img src="${proj.url}" onerror="this.src='https://via.placeholder.com/600x800?text=Image+Processing'"></div>
+                    <div class="right-side">
+                        <h2 class="text-2xl font-bold text-blue-800 mb-4 border-b-2 border-blue-600 pb-1">${proj.title}</h2>
+                        <p class="text-slate-600 text-base leading-relaxed mb-6 flex-grow">${proj.desc}</p>
+                        <div class="text-[10px] text-slate-400">صفحة ${pageIdx + 1}</div>
+                    </div>
+                    ${isCurrent ? '<div class="corner-peel corner-prev" onclick="prevPage()"></div>' : ''}
+                    ${isCurrent && pageIdx < projects.length ? '<div class="corner-peel corner-next" onclick="nextPage()"></div>' : ''}
+                `;
+                book.appendChild(page);
+            });
+        }
+
+        function nextPage() { currentPage++; renderBook(); }
+        function prevPage() { currentPage--; renderBook(); }
+        function openAuthModal() { document.getElementById('passInput').value = ''; document.getElementById('authModal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function verifyPassword() { 
+            if (document.getElementById('passInput').value === "987654321") { 
+                closeModal('authModal'); 
+                document.getElementById('adminPanel').style.display = 'flex'; 
+            } else { alert("كلمة المرور غير صحيحة"); } 
+        }
+
+        window.onload = fetchLiveProjects;
+    </script>
+</body>
+</html>
