@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="حاسبة الوقت">
+<title>حاسبة الوقت</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --accent: #6c63ff;
+    --accent2: #ff6b9d;
+    --accent3: #00d4aa;
+    --text: #e8e8f0;
+    --text2: #8888aa;
+    --text3: #5555770;
+    --radius: 18px;
+    --radius-sm: 10px;
+  }
+
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+font-family: ‘IBM Plex Sans Arabic’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+min-height: -webkit-fill-available;
+display: flex;
+flex-direction: column;
+overflow-x: hidden;
+}
+
+/* Background ambience */
+body::before {
+content: ‘’;
+position: fixed;
+top: -30%;
+right: -20%;
+width: 60vw;
+height: 60vw;
+background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%);
+pointer-events: none;
+z-index: 0;
+}
+body::after {
+content: ‘’;
+position: fixed;
+bottom: -20%;
+left: -20%;
+width: 50vw;
+height: 50vw;
+background: radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 70%);
+pointer-events: none;
+z-index: 0;
+}
+
+.app {
+position: relative;
+z-index: 1;
+max-width: 430px;
+margin: 0 auto;
+width: 100%;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+padding: 0 0 40px;
+}
+
+/* Header */
+.header {
+padding: 56px 24px 24px;
+text-align: center;
+}
+.header h1 {
+font-size: 26px;
+font-weight: 700;
+letter-spacing: -0.5px;
+background: linear-gradient(135deg, var(–text) 30%, var(–accent));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+margin-bottom: 4px;
+}
+.header p {
+color: var(–text2);
+font-size: 13px;
+font-weight: 300;
+}
+
+/* Mode Tabs */
+.modes {
+display: flex;
+gap: 8px;
+padding: 0 20px 24px;
+overflow-x: auto;
+scrollbar-width: none;
+-webkit-overflow-scrolling: touch;
+}
+.modes::-webkit-scrollbar { display: none; }
+
+.mode-btn {
+flex: 0 0 auto;
+padding: 10px 18px;
+border-radius: 50px;
+border: 1.5px solid var(–border);
+background: var(–surface);
+color: var(–text2);
+font-family: inherit;
+font-size: 13px;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.25s ease;
+display: flex;
+align-items: center;
+gap: 6px;
+white-space: nowrap;
+}
+.mode-btn .icon { font-size: 15px; }
+.mode-btn.active {
+background: var(–accent);
+border-color: var(–accent);
+color: #fff;
+box-shadow: 0 4px 20px rgba(108,99,255,0.35);
+}
+
+/* Card */
+.card {
+margin: 0 16px;
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: var(–radius);
+padding: 24px;
+animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+from { opacity: 0; transform: translateY(12px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* Section label */
+.section-label {
+font-size: 11px;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 1.5px;
+color: var(–text2);
+margin-bottom: 12px;
+}
+
+/* Input row */
+.input-group {
+margin-bottom: 20px;
+}
+
+/* Time toggle */
+.time-source {
+display: flex;
+gap: 8px;
+margin-bottom: 16px;
+}
+.time-source-btn {
+flex: 1;
+padding: 10px;
+border-radius: var(–radius-sm);
+border: 1.5px solid var(–border);
+background: var(–surface2);
+color: var(–text2);
+font-family: inherit;
+font-size: 13px;
+cursor: pointer;
+transition: all 0.2s;
+text-align: center;
+}
+.time-source-btn.active {
+border-color: var(–accent3);
+color: var(–accent3);
+background: rgba(0,212,170,0.08);
+}
+
+/* DateTime input */
+.dt-input-wrap {
+position: relative;
+}
+.dt-input {
+width: 100%;
+padding: 14px 16px;
+border-radius: var(–radius-sm);
+border: 1.5px solid var(–border);
+background: var(–surface2);
+color: var(–text);
+font-family: inherit;
+font-size: 15px;
+outline: none;
+transition: border-color 0.2s;
+-webkit-appearance: none;
+appearance: none;
+direction: ltr;
+text-align: right;
+}
+.dt-input:focus {
+border-color: var(–accent);
+}
+.dt-input::-webkit-calendar-picker-indicator {
+filter: invert(0.6);
+}
+
+/* Divider */
+.divider {
+display: flex;
+align-items: center;
+gap: 12px;
+margin: 4px 0 20px;
+color: var(–text2);
+font-size: 12px;
+}
+.divider::before, .divider::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: var(–border);
+}
+
+/* Calculate button */
+.calc-btn {
+width: 100%;
+padding: 16px;
+border-radius: var(–radius-sm);
+border: none;
+background: linear-gradient(135deg, var(–accent), #9b5de5);
+color: #fff;
+font-family: inherit;
+font-size: 16px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.25s;
+box-shadow: 0 4px 20px rgba(108,99,255,0.3);
+margin-top: 4px;
+}
+.calc-btn:active {
+transform: scale(0.97);
+box-shadow: 0 2px 10px rgba(108,99,255,0.2);
+}
+
+/* Result */
+.result-card {
+margin: 16px 16px 0;
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: var(–radius);
+padding: 24px;
+animation: slideUp 0.35s ease;
+}
+.result-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 20px;
+}
+.result-title {
+font-size: 12px;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 1.5px;
+color: var(–text2);
+}
+.result-status {
+font-size: 11px;
+padding: 4px 10px;
+border-radius: 20px;
+}
+.result-status.future {
+background: rgba(0,212,170,0.1);
+color: var(–accent3);
+border: 1px solid rgba(0,212,170,0.25);
+}
+.result-status.past {
+background: rgba(255,107,157,0.1);
+color: var(–accent2);
+border: 1px solid rgba(255,107,157,0.25);
+}
+.result-status.neutral {
+background: rgba(108,99,255,0.1);
+color: var(–accent);
+border: 1px solid rgba(108,99,255,0.25);
+}
+
+/* Big numbers */
+.result-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 10px;
+margin-bottom: 16px;
+}
+.result-grid.four { grid-template-columns: repeat(2, 1fr); }
+
+.result-item {
+background: var(–surface2);
+border-radius: var(–radius-sm);
+padding: 16px 12px;
+text-align: center;
+border: 1px solid var(–border);
+}
+.result-item.highlight {
+border-color: var(–accent);
+background: rgba(108,99,255,0.08);
+}
+.result-num {
+font-size: 32px;
+font-weight: 700;
+line-height: 1;
+margin-bottom: 4px;
+background: linear-gradient(135deg, var(–text) 40%, var(–accent));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+direction: ltr;
+}
+.result-item.highlight .result-num {
+background: linear-gradient(135deg, #fff, var(–accent));
+-webkit-background-clip: text;
+background-clip: text;
+}
+.result-label {
+font-size: 11px;
+color: var(–text2);
+font-weight: 500;
+}
+
+/* Summary line */
+.result-summary {
+background: var(–surface2);
+border-radius: var(–radius-sm);
+padding: 14px 16px;
+font-size: 13px;
+color: var(–text2);
+line-height: 1.7;
+border: 1px solid var(–border);
+}
+.result-summary strong {
+color: var(–text);
+}
+
+/* Countdown live */
+.countdown-live {
+background: linear-gradient(135deg, rgba(108,99,255,0.12), rgba(0,212,170,0.08));
+border-radius: var(–radius-sm);
+padding: 20px;
+text-align: center;
+border: 1px solid rgba(108,99,255,0.2);
+margin-bottom: 16px;
+}
+.countdown-display {
+font-size: 38px;
+font-weight: 700;
+letter-spacing: 2px;
+direction: ltr;
+color: var(–text);
+font-variant-numeric: tabular-nums;
+}
+.countdown-label {
+font-size: 11px;
+color: var(–text2);
+margin-top: 6px;
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
+/* Error */
+.error-msg {
+margin: 12px 0 0;
+padding: 12px 16px;
+background: rgba(255,107,157,0.1);
+border: 1px solid rgba(255,107,157,0.25);
+border-radius: var(–radius-sm);
+color: var(–accent2);
+font-size: 13px;
+display: none;
+}
+.error-msg.show { display: block; }
+
+/* Hidden */
+.hidden { display: none !important; }
+
+/* Live dot */
+.live-dot {
+display: inline-block;
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: var(–accent3);
+margin-left: 6px;
+animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+0%, 100% { opacity: 1; transform: scale(1); }
+50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* Days mode extra */
+.days-row {
+display: flex;
+gap: 8px;
+}
+.days-input {
+flex: 1;
+padding: 14px 12px;
+border-radius: var(–radius-sm);
+border: 1.5px solid var(–border);
+background: var(–surface2);
+color: var(–text);
+font-family: inherit;
+font-size: 20px;
+font-weight: 600;
+outline: none;
+text-align: center;
+transition: border-color 0.2s;
+-webkit-appearance: none;
+}
+.days-input:focus { border-color: var(–accent); }
+.days-input::placeholder { font-size: 14px; font-weight: 400; color: var(–text2); }
+.days-unit {
+display: flex;
+align-items: center;
+padding: 0 8px;
+font-size: 12px;
+color: var(–text2);
+font-weight: 500;
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+
+  <div class="header">
+    <h1>⏱ حاسبة الوقت</h1>
+    <p>احسب الفترات والأوقات بسهولة</p>
+  </div>
+
+  <!-- Mode Tabs -->
+
+  <div class="modes">
+    <button class="mode-btn active" onclick="setMode('remaining')" id="tab-remaining">
+      <span class="icon">⏳</span> باقي من الآن
+    </button>
+    <button class="mode-btn" onclick="setMode('period')" id="tab-period">
+      <span class="icon">↔️</span> احسب فترة
+    </button>
+    <button class="mode-btn" onclick="setMode('days')" id="tab-days">
+      <span class="icon">📅</span> حسبة أيام
+    </button>
+  </div>
+
+  <!-- ============ MODE 1: REMAINING ============ -->
+
+  <div class="card" id="mode-remaining">
+
+```
+<div class="input-group">
+  <div class="section-label">🎯 وقت الحدث</div>
+  <input class="dt-input" type="datetime-local" id="r-event-time">
+</div>
+
+<button class="calc-btn" onclick="calcRemaining()">احسب الوقت المتبقي</button>
+<div class="error-msg" id="r-error">الرجاء تحديد وقت الحدث</div>
+```
+
+  </div>
+
+  <!-- ============ MODE 2: PERIOD ============ -->
+
+  <div class="card hidden" id="mode-period">
+
+```
+<!-- Start -->
+<div class="input-group">
+  <div class="section-label">🟢 وقت البداية</div>
+  <div class="time-source" id="start-source">
+    <button class="time-source-btn active" onclick="setSource('start','custom')" id="start-custom-btn">تحديد</button>
+    <button class="time-source-btn" onclick="setSource('start','now')" id="start-now-btn">الآن ↙</button>
+  </div>
+  <div id="start-input-wrap">
+    <input class="dt-input" type="datetime-local" id="p-start">
+  </div>
+</div>
+
+<div class="divider">إلى</div>
+
+<!-- End -->
+<div class="input-group">
+  <div class="section-label">🔴 وقت النهاية</div>
+  <div class="time-source" id="end-source">
+    <button class="time-source-btn active" onclick="setSource('end','custom')" id="end-custom-btn">تحديد</button>
+    <button class="time-source-btn" onclick="setSource('end','now')" id="end-now-btn">الآن ↙</button>
+  </div>
+  <div id="end-input-wrap">
+    <input class="dt-input" type="datetime-local" id="p-end">
+  </div>
+</div>
+
+<button class="calc-btn" onclick="calcPeriod()">احسب الفترة</button>
+<div class="error-msg" id="p-error"></div>
+```
+
+  </div>
+
+  <!-- ============ MODE 3: DAYS ============ -->
+
+  <div class="card hidden" id="mode-days">
+
+```
+<div class="input-group">
+  <div class="section-label">📅 تاريخ البداية</div>
+  <div class="time-source">
+    <button class="time-source-btn active" onclick="setDaysSource('start','custom')" id="ds-custom-btn">تحديد</button>
+    <button class="time-source-btn" onclick="setDaysSource('start','today')" id="ds-today-btn">اليوم ↙</button>
+  </div>
+  <div id="ds-input-wrap">
+    <input class="dt-input" type="date" id="d-start" style="text-align:right;">
+  </div>
+</div>
+
+<div class="divider">إلى</div>
+
+<div class="input-group">
+  <div class="section-label">📅 تاريخ النهاية</div>
+  <div class="time-source">
+    <button class="time-source-btn active" onclick="setDaysSource('end','custom')" id="de-custom-btn">تحديد</button>
+    <button class="time-source-btn" onclick="setDaysSource('end','today')" id="de-today-btn">اليوم ↙</button>
+  </div>
+  <div id="de-input-wrap">
+    <input class="dt-input" type="date" id="d-end" style="text-align:right;">
+  </div>
+</div>
+
+<div class="input-group" style="margin-top:4px">
+  <div class="section-label">⏰ إضافة ساعات (اختياري)</div>
+  <div class="days-row">
+    <div>
+      <input class="days-input" type="number" id="d-hours" placeholder="ساعات" min="0" max="23">
+    </div>
+    <div class="days-unit">ساعة</div>
+    <div>
+      <input class="days-input" type="number" id="d-mins" placeholder="دقائق" min="0" max="59">
+    </div>
+    <div class="days-unit">دقيقة</div>
+  </div>
+</div>
+
+<button class="calc-btn" onclick="calcDays()">احسب</button>
+<div class="error-msg" id="d-error">الرجاء تحديد التاريخين</div>
+```
+
+  </div>
+
+  <!-- RESULT -->
+
+  <div class="result-card hidden" id="result-area"></div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// State
+// ─────────────────────────────────────────
+let currentMode = 'remaining';
+let liveTimer = null;
+let startSource = 'custom';
+let endSource = 'custom';
+let daysStartSource = 'custom';
+let daysEndSource = 'custom';
+
+// ─────────────────────────────────────────
+// Mode switching
+// ─────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  clearInterval(liveTimer);
+  document.getElementById('result-area').classList.add('hidden');
+
+  ['remaining','period','days'].forEach(m => {
+    document.getElementById('mode-'+m).classList.toggle('hidden', m !== mode);
+    document.getElementById('tab-'+m).classList.toggle('active', m === mode);
+  });
+
+  // Reset errors
+  ['r-error','p-error','d-error'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('show');
+  });
+}
+
+// ─────────────────────────────────────────
+// Time source toggle (period)
+// ─────────────────────────────────────────
+function setSource(which, type) {
+  if(which === 'start') {
+    startSource = type;
+    document.getElementById('start-custom-btn').classList.toggle('active', type === 'custom');
+    document.getElementById('start-now-btn').classList.toggle('active', type === 'now');
+    document.getElementById('start-input-wrap').classList.toggle('hidden', type === 'now');
+  } else {
+    endSource = type;
+    document.getElementById('end-custom-btn').classList.toggle('active', type === 'custom');
+    document.getElementById('end-now-btn').classList.toggle('active', type === 'now');
+    document.getElementById('end-input-wrap').classList.toggle('hidden', type === 'now');
+  }
+}
+
+function setDaysSource(which, type) {
+  if(which === 'start') {
+    daysStartSource = type;
+    document.getElementById('ds-custom-btn').classList.toggle('active', type === 'custom');
+    document.getElementById('ds-today-btn').classList.toggle('active', type === 'today');
+    document.getElementById('ds-input-wrap').classList.toggle('hidden', type === 'today');
+  } else {
+    daysEndSource = type;
+    document.getElementById('de-custom-btn').classList.toggle('active', type === 'custom');
+    document.getElementById('de-today-btn').classList.toggle('active', type === 'today');
+    document.getElementById('de-input-wrap').classList.toggle('hidden', type === 'today');
+  }
+}
+
+// ─────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────
+function formatDuration(ms) {
+  const absMs = Math.abs(ms);
+  const totalSec = Math.floor(absMs / 1000);
+  const totalMin = Math.floor(totalSec / 60);
+  const totalHrs = Math.floor(totalMin / 60);
+  const totalDays = Math.floor(totalHrs / 24);
+  const totalWeeks = Math.floor(totalDays / 7);
+  const totalMonths = Math.floor(totalDays / 30.4375);
+
+  const secs = totalSec % 60;
+  const mins = totalMin % 60;
+  const hrs  = totalHrs % 24;
+  const days = totalDays % 7;
+
+  return { totalSec, totalMin, totalHrs, totalDays, totalWeeks, totalMonths, secs, mins, hrs, days };
+}
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function showResult(html) {
+  const el = document.getElementById('result-area');
+  el.innerHTML = html;
+  el.classList.remove('hidden');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ─────────────────────────────────────────
+// MODE 1 — Remaining
+// ─────────────────────────────────────────
+function calcRemaining() {
+  clearInterval(liveTimer);
+  const val = document.getElementById('r-event-time').value;
+  if(!val) { showError('r-error','الرجاء تحديد وقت الحدث'); return; }
+
+  const eventTime = new Date(val);
+  if(isNaN(eventTime)) { showError('r-error','وقت غير صحيح'); return; }
+  document.getElementById('r-error').classList.remove('show');
+
+  function render() {
+    const now = new Date();
+    const diff = eventTime - now;
+    const isPast = diff < 0;
+    const d = formatDuration(diff);
+
+    const liveDisplay = `
+      <div class="countdown-live">
+        <div class="countdown-display" id="live-clock">
+          ${pad(d.totalHrs > 99 ? d.totalDays : Math.floor(Math.abs(diff)/3600000))}:${pad(d.mins)}:${pad(d.secs)}
+        </div>
+        <div class="countdown-label">${isPast ? 'مرّ على الحدث' : 'الوقت المتبقي'} <span class="live-dot"></span></div>
+      </div>
+    `;
+
+    const statusClass = isPast ? 'past' : 'future';
+    const statusText  = isPast ? 'انتهى' : 'قادم';
+
+    const html = `
+      <div class="result-header">
+        <span class="result-title">النتيجة</span>
+        <span class="result-status ${statusClass}">${statusText}</span>
+      </div>
+      ${liveDisplay}
+      <div class="result-grid">
+        <div class="result-item highlight">
+          <div class="result-num">${d.totalDays}</div>
+          <div class="result-label">يوم</div>
+        </div>
+        <div class="result-item">
+          <div class="result-num">${d.totalHrs}</div>
+          <div class="result-label">ساعة</div>
+        </div>
+        <div class="result-item">
+          <div class="result-num">${d.totalMin}</div>
+          <div class="result-label">دقيقة</div>
+        </div>
+        <div class="result-item">
+          <div class="result-num">${d.totalWeeks}</div>
+          <div class="result-label">أسبوع</div>
+        </div>
+      </div>
+      <div class="result-summary">
+        ${isPast
+          ? `مرّ <strong>${d.totalDays} يوم</strong> و <strong>${d.hrs} ساعة</strong> و <strong>${d.mins} دقيقة</strong> منذ هذا الحدث`
+          : `يتبقى <strong>${d.totalDays} يوم</strong> و <strong>${d.hrs} ساعة</strong> و <strong>${d.mins} دقيقة</strong> على هذا الحدث`
+        }
+      </div>
+    `;
+
+    showResult(html);
+  }
+
+  render();
+  liveTimer = setInterval(render, 1000);
+}
+
+// ─────────────────────────────────────────
+// MODE 2 — Period
+// ─────────────────────────────────────────
+function calcPeriod() {
+  clearInterval(liveTimer);
+
+  let startTime, endTime;
+  const now = new Date();
+
+  if(startSource === 'now') {
+    startTime = now;
+  } else {
+    const v = document.getElementById('p-start').value;
+    if(!v) { showError('p-error','الرجاء تحديد وقت البداية'); return; }
+    startTime = new Date(v);
+  }
+
+  if(endSource === 'now') {
+    endTime = now;
+  } else {
+    const v = document.getElementById('p-end').value;
+    if(!v) { showError('p-error','الرجاء تحديد وقت النهاية'); return; }
+    endTime = new Date(v);
+  }
+
+  if(isNaN(startTime) || isNaN(endTime)) { showError('p-error','الأوقات غير صحيحة'); return; }
+  document.getElementById('p-error').classList.remove('show');
+
+  const diff = endTime - startTime;
+  const d = formatDuration(diff);
+  const isNegative = diff < 0;
+
+  const html = `
+    <div class="result-header">
+      <span class="result-title">مدة الفترة</span>
+      <span class="result-status neutral">${isNegative ? 'عكسي' : 'نتيجة'}</span>
+    </div>
+    <div class="result-grid">
+      <div class="result-item highlight">
+        <div class="result-num">${d.totalDays}</div>
+        <div class="result-label">إجمالي أيام</div>
+      </div>
+      <div class="result-item">
+        <div class="result-num">${d.totalHrs}</div>
+        <div class="result-label">إجمالي ساعات</div>
+      </div>
+      <div class="result-item">
+        <div class="result-num">${d.totalMin}</div>
+        <div class="result-label">إجمالي دقائق</div>
+      </div>
+      <div class="result-item">
+        <div class="result-num">${d.totalWeeks}</div>
+        <div class="result-label">أسابيع</div>
+      </div>
+    </div>
+    <div class="result-summary">
+      مدة الفترة: <strong>${d.totalDays} يوم</strong> و <strong>${d.hrs} ساعة</strong> و <strong>${d.mins} دقيقة</strong> و <strong>${d.secs} ثانية</strong>
+      ${d.totalMonths > 0 ? `<br>أو ما يعادل تقريباً <strong>${d.totalMonths} شهر</strong>` : ''}
+    </div>
+  `;
+
+  showResult(html);
+}
+
+// ─────────────────────────────────────────
+// MODE 3 — Days
+// ─────────────────────────────────────────
+function calcDays() {
+  clearInterval(liveTimer);
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  let startStr, endStr;
+
+  if(daysStartSource === 'today') {
+    startStr = todayStr;
+  } else {
+    startStr = document.getElementById('d-start').value;
+    if(!startStr) { showError('d-error','الرجاء تحديد تاريخ البداية'); return; }
+  }
+
+  if(daysEndSource === 'today') {
+    endStr = todayStr;
+  } else {
+    endStr = document.getElementById('d-end').value;
+    if(!endStr) { showError('d-error','الرجاء تحديد تاريخ النهاية'); return; }
+  }
+
+  document.getElementById('d-error').classList.remove('show');
+
+  const extraHrs  = parseInt(document.getElementById('d-hours').value) || 0;
+  const extraMins = parseInt(document.getElementById('d-mins').value) || 0;
+
+  const start = new Date(startStr + 'T00:00:00');
+  const end   = new Date(endStr   + 'T00:00:00');
+  end.setHours(end.getHours() + extraHrs);
+  end.setMinutes(end.getMinutes() + extraMins);
+
+  const diff = end - start;
+  const d = formatDuration(diff);
+  const isPast = diff < 0;
+
+  const html = `
+    <div class="result-header">
+      <span class="result-title">حسبة الأيام</span>
+      <span class="result-status ${isPast ? 'past' : 'future'}">${isPast ? 'في الماضي' : 'في المستقبل'}</span>
+    </div>
+    <div class="result-grid">
+      <div class="result-item highlight">
+        <div class="result-num">${d.totalDays}</div>
+        <div class="result-label">يوم</div>
+      </div>
+      <div class="result-item">
+        <div class="result-num">${d.totalWeeks}</div>
+        <div class="result-label">أسبوع</div>
+      </div>
+      <div class="result-item">
+        <div class="result-num">${d.totalMonths}</div>
+        <div class="result-label">شهر تقريباً</div>
+      </div>
+      <div class="result-item">
+        <div class="result-num">${d.totalHrs}</div>
+        <div class="result-label">ساعة</div>
+      </div>
+    </div>
+    <div class="result-summary">
+      ${isPast ? 'مرّ' : 'يتبقى'} <strong>${d.totalDays} يوم</strong>
+      ${extraHrs || extraMins ? ` و <strong>${extraHrs} ساعة</strong> و <strong>${extraMins} دقيقة</strong>` : ''}
+      ${d.totalMonths > 0 ? ` — ما يعادل <strong>${d.totalMonths} شهراً</strong> تقريباً` : ''}
+    </div>
+  `;
+
+  showResult(html);
+}
+
+// ─────────────────────────────────────────
+// Init: set default datetime to now
+// ─────────────────────────────────────────
+(function() {
+  const now = new Date();
+  const pad2 = n => String(n).padStart(2,'0');
+  const localDT = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}T${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+  const localD  = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+
+  document.getElementById('r-event-time').value = localDT;
+  document.getElementById('p-start').value = localDT;
+  document.getElementById('p-end').value = localDT;
+  document.getElementById('d-start').value = localD;
+  document.getElementById('d-end').value = localD;
+})();
+</script>
+
+</body>
+</html>
