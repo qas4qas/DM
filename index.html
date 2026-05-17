@@ -192,12 +192,10 @@
         استخدم زوايا الورقة السفلية لتقليب الصفحات
     </div>
 
-    <!-- زر لوحة التحكم -->
     <div class="fixed bottom-6 right-6 z-[200]">
         <button onclick="openAuthModal()" class="bg-slate-800 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center hover:bg-black transition-all">⚙️</button>
     </div>
 
-    <!-- Auth Modal -->
     <div id="authModal" class="modal-overlay">
         <div class="bg-white p-8 rounded-2xl w-80 shadow-2xl text-center">
             <h3 class="text-xl font-bold mb-4">لوحة الإدارة</h3>
@@ -209,18 +207,17 @@
         </div>
     </div>
 
-    <!-- Admin Panel -->
     <div id="adminPanel" class="modal-overlay">
         <div class="bg-white p-8 rounded-2xl w-full max-w-md shadow-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-slate-800">تعليمات التحديث</h2>
-                <button onclick="closeModal('adminPanel')" class="text-slate-400 hover:text-red-500 text-2xl">&times;</button>
+                <button onclick="closeModal('adminPanel')" class="text-slate-400 hover:text-red-500 text-2xl">×</button>
             </div>
             <div class="space-y-4 text-right">
                 <p class="text-sm text-slate-600 leading-relaxed">
                     يتم جلب البيانات تلقائياً من ملف Google Sheets. لتعديل المشاريع أو إضافة صور جديدة، يرجى استخدام الرابط التالي:
                 </p>
-                <a href="https://docs.google.com/spreadsheets/d/1v-AAsf7-D2qC9j5X4h9q08H1S8eL3j9u7G1T-R-h8Yw/edit" target="_blank" class="block w-full bg-green-100 text-green-700 p-4 rounded-xl text-center font-bold hover:bg-green-200 transition border border-green-200">
+                <a href="https://docs.google.com/spreadsheets/d/1CCPddo8SxadcuVr6wfluK0wGQ0VUctYiL5TECO8Mivw/edit" target="_blank" class="block w-full bg-green-100 text-green-700 p-4 rounded-xl text-center font-bold hover:bg-green-200 transition border border-green-200">
                     📂 فتح ملف البيانات (Google Sheets)
                 </a>
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
@@ -237,8 +234,10 @@
     </div>
 
     <script>
-        // الرابط المباشر للملف المنشور كـ CSV
-        const SPREADSHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQSgvwhA6oY1ESj_I5_8nyWlpnpUll-xrUKUe16btvf7te5CX1_lsFOCx1PiQ4EP4WYtcuVHXsKvfsA/pub?output=csv&cache-bust=${Date.now()}`;
+        // الرابط الجديد بعد تحديث المعرف ID
+        // تم استخدام المعرف: 1CCPddo8SxadcuVr6wfluK0wGQ0VUctYiL5TECO8Mivw
+        const SPREADSHEET_ID = '1CCPddo8SxadcuVr6wfluK0wGQ0VUctYiL5TECO8Mivw';
+        const SPREADSHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&cache-bust=${Date.now()}`;
 
         let projects = [];
         let currentPage = 0;
@@ -249,16 +248,16 @@
             if (url.includes("drive.google.com")) {
                 const fileId = url.match(/\/d\/([^/]+)/)?.[1] || url.match(/id=([^&]+)/)?.[1];
                 if (fileId) {
-                    return `https://lh3.googleusercontent.com/u/0/d/${fileId}`;
+                    // تصحيح الرابط المباشر للصور في قوقل درايف
+                    return `https://lh3.googleusercontent.com/d/${fileId}`;
                 }
             }
             return url;
         }
 
-        // دالة متطورة لتحليل CSV تدعم الفواصل داخل النصوص الطويلة
         function parseCSV(csv) {
             const result = [];
-            const rows = csv.split(/\r?\n/).slice(1); // تجاهل صف العنوان
+            const rows = csv.split(/\r?\n/).slice(1); 
             
             rows.forEach(row => {
                 if (!row.trim()) return;
@@ -286,7 +285,7 @@
         async function fetchLiveProjects() {
             try {
                 const response = await fetch(SPREADSHEET_CSV_URL, { cache: "no-store" });
-                if (!response.ok) throw new Error("فشل في جلب البيانات من جوجل");
+                if (!response.ok) throw new Error("تأكد من عمل 'نشر على الويب' للملف بصيغة CSV");
                 
                 const csvData = await response.text();
                 const dataRows = parseCSV(csvData);
@@ -305,7 +304,8 @@
                 console.error("Error:", error);
                 document.getElementById('loading').innerHTML = `
                     <div class="text-center p-8 bg-white rounded-2xl shadow-xl">
-                        <p class='text-red-500 font-bold mb-4'>⚠️ ${error.message}</p>
+                        <p class='text-red-500 font-bold mb-4'>⚠️ خطأ: ${error.message}</p>
+                        <p class='text-xs text-slate-500 mb-4'>تأكد من خيار (File > Share > Publish to Web > CSV)</p>
                         <button onclick="location.reload()" class="bg-blue-600 text-white px-6 py-2 rounded-lg">إعادة المحاولة</button>
                     </div>
                 `;
@@ -343,7 +343,7 @@
                 
                 page.innerHTML = `
                     <div class="left-side">
-                        <img src="${proj.url}" alt="${proj.title}" onerror="this.src='https://via.placeholder.com/600x800?text=يرجى+التأكد+من+صلاحية+رابط+الصورة'">
+                        <img src="${proj.url}" alt="${proj.title}" onerror="this.src='https://via.placeholder.com/600x800?text=رابط+الصورة+غير+صحيح'">
                     </div>
                     <div class="right-side">
                         <h2 class="text-2xl md:text-3xl font-bold text-blue-800 mb-4 border-b-4 border-blue-600 inline-block pb-1">${proj.title}</h2>
