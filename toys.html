@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الكروت المتشابهة</title>
+    <style>
+        :root {
+            --primary-color: #4a5568;
+            --bg-color: #f7fafc;
+            --card-back: #2d3748;
+            --card-front: #ffffff;
+            --success-color: #48bb78;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--primary-color);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+            color: #1a202c;
+        }
+
+        .game-status {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        /* حاوية اللعبة المرنة */
+        .game-container {
+            display: grid;
+            gap: 15px;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            perspective: 1000px; /* يعطي تأثير ثلاثي الأبعاد عند الانقلاب */
+        }
+
+        /* تصميم الكرت */
+        .card {
+            aspect-ratio: 1;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card.matched {
+            transform: rotateY(180deg);
+            opacity: 0.6;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            user-select: none;
+        }
+
+        /* ظهر الكرت */
+        .card-back {
+            background-color: var(--card-back);
+            color: white;
+            border: 2px solid #4a5568;
+        }
+
+        .card-back::after {
+            content: "؟";
+            font-size: 1.8rem;
+            font-weight: bold;
+            opacity: 0.5;
+        }
+
+        /* وجه الكرت الداخلي */
+        .card-front {
+            background-color: var(--card-front);
+            transform: rotateY(180deg);
+            border: 2px solid #e2e8f0;
+        }
+
+        /* نافذة الفوز والانتقال */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 80%;
+        }
+
+        button {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #2b6cb0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>لعبة تطابق الكروت</h1>
+        <div class="game-status" id="stage-display">المرحلة: 1 / 5</div>
+    </header>
+
+    <div class="game-container" id="game-board"></div>
+
+    <!-- نافذة التهنيئة والانتقال للمرحلة التالية -->
+    <div class="modal" id="win-modal">
+        <div class="modal-content">
+            <h2 id="modal-title">أحسنت!</h2>
+            <p id="modal-message">تم اجتياز المرحلة بنجاح.</p>
+            <button id="next-stage-btn" onclick="nextStage()">المرحلة التالية</button>
+        </div>
+    </div>
+
+    <script>
+        // قائمة الرموز المتنوعة (حيوانات، حروف، أرقام)
+        const itemPool = [
+            '🦁', '🦊', '🐱', '🐼', '🐨', '🐰', '🐯', '🐸', '🐵', '🦉',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'M', 'N',
+            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
+        ];
+
+        // إعدادات المراحل الخمسة
+        const stages = [
+            { id: 1, cardsCount: 9, columns: 3 },
+            { id: 2, cardsCount: 12, columns: 4 },
+            { id: 3, cardsCount: 20, columns: 5 },
+            { id: 4, cardsCount: 26, columns: 6 },
+            { id: 5, cardsCount: 30, columns: 6 }
+        ];
+
+        let currentStageIndex = 0;
+        let flippedCards = [];
+        let lockBoard = false;
+        let matchedCount = 0;
+        let totalPairs = 0;
+
+        const gameBoard = document.getElementById('game-board');
+        const stageDisplay = document.getElementById('stage-display');
+        const winModal = document.getElementById('win-modal');
+
+        // بدء اللعبة لأول مرة
+        initGame();
+
+        function initGame() {
+            const currentStage = stages[currentStageIndex];
+            stageDisplay.textContent = `المرحلة: ${currentStage.id} / 5`;
+            
+            // ضبط عدد الأعمدة في الـ Grid تلقائياً بناءً على المرحلة
+            gameBoard.style.gridTemplateColumns = `repeat(${currentStage.columns}, 1fr)`;
+            gameBoard.innerHTML = '';
+            
+            flippedCards = [];
+            lockBoard = false;
+            matchedCount = 0;
+
+            // توليد الكروت لهذه المرحلة
+            const stageItems = generateStageItems(currentStage.cardsCount);
+            
+            // إنشاء عناصر الكروت في الـ DOM
+            stageItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.value = item;
+                card.dataset.index = index;
+
+                card.innerHTML = `
+                    <div class="card-face card-back"></div>
+                    <div class="card-front card-face">${item}</div>
+                `;
+
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        // دالة لتجهيز وعشوائية الكروت
+        function generateStageItems(count) {
+            // حساب عدد الأزواج المطلوبة
+            // إذا كان العدد فردي (مثل المرحلة الأولى 9)، نترك كرت واحد بدون شبيه كـ "تحدي" أو كرت إضافي
+            const pairsCount = Math.floor(count / 2);
+            totalPairs = pairsCount; 
+
+            // خلط المسبح الرئيسي واختيار عناصر فريدة
+            const shuffledPool = [...itemPool].sort(() => 0.5 - Math.random());
+            const selectedItems = shuffledPool.slice(0, pairsCount);
+
+            // مضاعفة العناصر لعمل أزواج
+            let stageItems = [...selectedItems, ...selectedItems];
+
+            // إذا كان العدد فردي، نضيف عنصراً إضافياً فريداً
+            if (count % 2 !== 0) {
+                stageItems.push(shuffledPool[pairsCount]);
+            }
+
+            // خلط الكروت النهائية عشوائياً
+            return stageItems.sort(() => 0.5 - Math.random());
+        }
+
+        // دالة قلب الكرت عند الضغط
+        function flipCard() {
+            if (lockBoard) return;
+            if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+
+            // عند قلب كرتين، نقوم بفحصهما
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        // دالة التحقق من تطابق الكرتين
+        function checkMatch() {
+            lockBoard = true;
+            const [card1, card2] = flippedCards;
+
+            // إذا تطابقت القيم واختلفت العناصر نفسها بالـ DOM
+            if (card1.dataset.value === card2.dataset.value && card1.dataset.index !== card2.dataset.index) {
+                // تطابق ناجح
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedCount++;
+                
+                resetTurn();
+                checkStageWin();
+            } else {
+                // لم يتطابقا: ننتظر ثانيتين (2000 مللي ثانية) ثم نعيد قلبهما
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    resetTurn();
+                }, 2000);
+            }
+        }
+
+        function resetTurn() {
+            flippedCards = [];
+            lockBoard = false;
+        }
+
+        // التحقق من الفوز بالمرحلة
+        function checkStageWin() {
+            if (matchedCount === totalPairs) {
+                setTimeout(() => {
+                    showWinModal();
+                }, 600);
+            }
+        }
+
+        function showWinModal() {
+            const isLastStage = currentStageIndex === stages.length - 1;
+            const title = document.getElementById('modal-title');
+            const message = document.getElementById('modal-message');
+            const btn = document.getElementById('next-stage-btn');
+
+            if (isLastStage) {
+                title.textContent = "🎉 مبروك الفوز! 🎉";
+                message.textContent = "لقد عبقرت كافة المراحل الخمسة بنجاح!";
+                btn.textContent = "إعادة اللعب من البداية";
+            } else {
+                title.textContent = "أحسنت صنعاً!";
+                message.textContent = `تخطيت المرحلة ${stages[currentStageIndex].id} بنجاح.`;
+                btn.textContent = "الانتقال للمرحلة التالية";
+            }
+            winModal.style.display = 'flex';
+        }
+
+        function nextStage() {
+            winModal.style.display = 'none';
+            if (currentStageIndex === stages.length - 1) {
+                currentStageIndex = 0; // إعادة اللعب
+            } else {
+                currentStageIndex++; // الانتقال للمرحلة التالية
+            }
+            initGame();
+        }
+    </script>
+</body>
+</html>
