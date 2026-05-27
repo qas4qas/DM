@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الكروت المتشابهة</title>
+    <title>لعبة الكروت المتشابهة المحدثة</title>
     <style>
         :root {
             --primary-color: #4a5568;
             --bg-color: #f7fafc;
             --card-back: #2d3748;
             --card-front: #ffffff;
-            --success-color: #48bb78;
+            --matched-bg: #8b5cf6; /* اللون البنفسجي المودرن للكروت المتطابقة */
+            --matched-text: #ffffff;
         }
 
         body {
@@ -42,14 +43,14 @@
             margin-bottom: 15px;
         }
 
-        /* حاوية اللعبة المرنة */
+        /* حاوية اللعبة */
         .game-container {
             display: grid;
             gap: 15px;
             max-width: 800px;
             width: 100%;
             margin: 0 auto;
-            perspective: 1000px; /* يعطي تأثير ثلاثي الأبعاد عند الانقلاب */
+            perspective: 1000px;
         }
 
         /* تصميم الكرت */
@@ -69,9 +70,22 @@
 
         .card.matched {
             transform: rotateY(180deg);
-            opacity: 0.6;
             cursor: default;
             pointer-events: none;
+        }
+
+        /* تغيير خلفية وجه الكرت عند التطابق للون البنفسجي */
+        .card.matched .card-front {
+            background-color: var(--matched-bg) !important;
+            color: var(--matched-text) !important;
+            border-color: #7c3aed;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: rotateY(180deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.05); }
+            100% { transform: rotateY(180deg) scale(1); }
         }
 
         .card-face {
@@ -83,7 +97,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
             user-select: none;
         }
 
@@ -96,19 +109,21 @@
 
         .card-back::after {
             content: "؟";
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
-        /* وجه الكرت الداخلي */
+        /* وجه الكرت (تم تكبير حجم الرمز إلى 3.2rem ليكون واضحاً جداً) */
         .card-front {
             background-color: var(--card-front);
             transform: rotateY(180deg);
             border: 2px solid #e2e8f0;
+            font-size: 3.2rem; 
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
-        /* نافذة الفوز والانتقال */
+        /* نافذة الفوز */
         .modal {
             display: none;
             position: fixed;
@@ -157,7 +172,6 @@
 
     <div class="game-container" id="game-board"></div>
 
-    <!-- نافذة التهنيئة والانتقال للمرحلة التالية -->
     <div class="modal" id="win-modal">
         <div class="modal-content">
             <h2 id="modal-title">أحسنت!</h2>
@@ -167,16 +181,16 @@
     </div>
 
     <script>
-        // قائمة الرموز المتنوعة (حيوانات، حروف، أرقام)
+        // مسبح الرموز المتنوعة
         const itemPool = [
             '🦁', '🦊', '🐱', '🐼', '🐨', '🐰', '🐯', '🐸', '🐵', '🦉',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'M', 'N',
             '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
         ];
 
-        // إعدادات المراحل الخمسة
+        // إعدادات المراحل الخمسة (تم تعديل الأولى إلى 8 كروت لتصبح زوجية)
         const stages = [
-            { id: 1, cardsCount: 9, columns: 3 },
+            { id: 1, cardsCount: 8, columns: 4 },
             { id: 2, cardsCount: 12, columns: 4 },
             { id: 3, cardsCount: 20, columns: 5 },
             { id: 4, cardsCount: 26, columns: 6 },
@@ -193,14 +207,60 @@
         const stageDisplay = document.getElementById('stage-display');
         const winModal = document.getElementById('win-modal');
 
-        // بدء اللعبة لأول مرة
+        // سياق الصوت التلقائي لإنشاء النغمات دون ملفات خارجية
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // دالة لتوليد نغمات مخصصة
+        function playTone(freq, type, duration, startTime = 0) {
+            initAudio();
+            if (!audioCtx) return;
+
+            setTimeout(() => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.value = freq;
+                
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                // تأثير خفوت تدريجي للصوت لمنع الخشونة
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            }, startTime * 1000);
+        }
+
+        // نغمة الإجابة الصحيحة (نغمتين سريعتين متصاعدتين)
+        function playMatchSound() {
+            playTone(523.25, 'sine', 0.15, 0);    // نغمة C5
+            playTone(659.25, 'sine', 0.25, 0.08); // نغمة E5
+        }
+
+        // نغمة الفوز واكتمال المرحلة (معزوفة تصاعدية احتفالية)
+        function playWinSound() {
+            playTone(523.25, 'triangle', 0.15, 0);    // C5
+            playTone(587.33, 'triangle', 0.15, 0.1);  // D5
+            playTone(659.25, 'triangle', 0.15, 0.2);  // E5
+            playTone(783.99, 'triangle', 0.4, 0.3);   // G5
+        }
+
+        // بدء اللعبة
         initGame();
 
         function initGame() {
             const currentStage = stages[currentStageIndex];
             stageDisplay.textContent = `المرحلة: ${currentStage.id} / 5`;
             
-            // ضبط عدد الأعمدة في الـ Grid تلقائياً بناءً على المرحلة
             gameBoard.style.gridTemplateColumns = `repeat(${currentStage.columns}, 1fr)`;
             gameBoard.innerHTML = '';
             
@@ -208,10 +268,8 @@
             lockBoard = false;
             matchedCount = 0;
 
-            // توليد الكروت لهذه المرحلة
             const stageItems = generateStageItems(currentStage.cardsCount);
             
-            // إنشاء عناصر الكروت في الـ DOM
             stageItems.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.classList.add('card');
@@ -228,59 +286,46 @@
             });
         }
 
-        // دالة لتجهيز وعشوائية الكروت
         function generateStageItems(count) {
-            // حساب عدد الأزواج المطلوبة
-            // إذا كان العدد فردي (مثل المرحلة الأولى 9)، نترك كرت واحد بدون شبيه كـ "تحدي" أو كرت إضافي
-            const pairsCount = Math.floor(count / 2);
-            totalPairs = pairsCount; 
+            totalPairs = count / 2; 
 
-            // خلط المسبح الرئيسي واختيار عناصر فريدة
             const shuffledPool = [...itemPool].sort(() => 0.5 - Math.random());
-            const selectedItems = shuffledPool.slice(0, pairsCount);
+            const selectedItems = shuffledPool.slice(0, totalPairs);
 
-            // مضاعفة العناصر لعمل أزواج
             let stageItems = [...selectedItems, ...selectedItems];
-
-            // إذا كان العدد فردي، نضيف عنصراً إضافياً فريداً
-            if (count % 2 !== 0) {
-                stageItems.push(shuffledPool[pairsCount]);
-            }
-
-            // خلط الكروت النهائية عشوائياً
             return stageItems.sort(() => 0.5 - Math.random());
         }
 
-        // دالة قلب الكرت عند الضغط
         function flipCard() {
+            // تفعيل نظام الصوت عند أول تفاعل للمستخدم (سياسة المتصفحات الحديثة)
+            initAudio(); 
+
             if (lockBoard) return;
             if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
 
             this.classList.add('flipped');
             flippedCards.push(this);
 
-            // عند قلب كرتين، نقوم بفحصهما
             if (flippedCards.length === 2) {
                 checkMatch();
             }
         }
 
-        // دالة التحقق من تطابق الكرتين
         function checkMatch() {
             lockBoard = true;
             const [card1, card2] = flippedCards;
 
-            // إذا تطابقت القيم واختلفت العناصر نفسها بالـ DOM
             if (card1.dataset.value === card2.dataset.value && card1.dataset.index !== card2.dataset.index) {
-                // تطابق ناجح
+                // تطابق صحيح
                 card1.classList.add('matched');
                 card2.classList.add('matched');
                 matchedCount++;
                 
+                playMatchSound(); // تشغيل صوت الإجابة الصحيحة
                 resetTurn();
                 checkStageWin();
             } else {
-                // لم يتطابقا: ننتظر ثانيتين (2000 مللي ثانية) ثم نعيد قلبهما
+                // لم يتطابقا: يعودان للوضع الطبيعي بعد ثانيتين تماماً
                 setTimeout(() => {
                     card1.classList.remove('flipped');
                     card2.classList.remove('flipped');
@@ -294,10 +339,10 @@
             lockBoard = false;
         }
 
-        // التحقق من الفوز بالمرحلة
         function checkStageWin() {
             if (matchedCount === totalPairs) {
                 setTimeout(() => {
+                    playWinSound(); // تشغيل صوت اكتمال المرحلة
                     showWinModal();
                 }, 600);
             }
@@ -310,11 +355,11 @@
             const btn = document.getElementById('next-stage-btn');
 
             if (isLastStage) {
-                title.textContent = "🎉 مبروك الفوز! 🎉";
-                message.textContent = "لقد عبقرت كافة المراحل الخمسة بنجاح!";
-                btn.textContent = "إعادة اللعب من البداية";
+                title.textContent = "🎉 مبروك الفوز النهائي! 🎉";
+                message.textContent = "لقد أكملت كافة المراحل بنجاح وبكفاءة عالية!";
+                btn.textContent = "إعادة اللعب من جديد";
             } else {
-                title.textContent = "أحسنت صنعاً!";
+                title.textContent = "ممتاز جداً!";
                 message.textContent = `تخطيت المرحلة ${stages[currentStageIndex].id} بنجاح.`;
                 btn.textContent = "الانتقال للمرحلة التالية";
             }
@@ -324,9 +369,9 @@
         function nextStage() {
             winModal.style.display = 'none';
             if (currentStageIndex === stages.length - 1) {
-                currentStageIndex = 0; // إعادة اللعب
+                currentStageIndex = 0;
             } else {
-                currentStageIndex++; // الانتقال للمرحلة التالية
+                currentStageIndex++;
             }
             initGame();
         }
