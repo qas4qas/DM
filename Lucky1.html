@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doing Ideas — اختر مهمتك</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #1a1a26;
+    --border: #2a2a40;
+    --accent: #f0c040;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --glow: rgba(240,192,64,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(240,192,64,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,192,64,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Noise overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .logo-mark {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-size: clamp(36px, 8vw, 64px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+
+  h1 span.gold { color: var(--accent); }
+  h1 span.dim { color: var(--muted); font-weight: 300; }
+
+  .subtitle {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 300;
+  }
+
+  /* PHASE: Input */
+  #phase-input { display: block; }
+  #phase-wheel { display: none; }
+  #phase-result { display: none; }
+
+  /* Tasks input area */
+  .input-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .input-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent3), var(--accent), var(--accent2));
+  }
+
+  .section-label {
+    font-size: 13px;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Task list */
+  #task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.25s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .task-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    width: 22px;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  .task-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .task-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(240,192,64,0.1);
+  }
+
+  .task-input::placeholder { color: var(--muted); }
+
+  .remove-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .remove-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(255,107,53,0.1);
+  }
+
+  .add-task-btn {
+    width: 100%;
+    background: none;
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .add-task-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(240,192,64,0.05);
+  }
+
+  .task-count-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    width: 100%;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    pointer-events: none;
+  }
+
+  .btn-primary:hover {
+    background: #f5cc50;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(240,192,64,0.3);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-secondary {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--muted);
+    background: var(--surface);
+  }
+
+  .btn-accent2 {
+    background: var(--accent2);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+  }
+
+  .btn-accent2:hover {
+    background: #ff7a4a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(255,107,53,0.3);
+  }
+
+  /* ===== WHEEL PHASE ===== */
+  .wheel-phase-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  /* Slot machine style */
+  .slot-container {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slot-container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent3), var(--accent), var(--accent2));
+    z-index: 2;
+  }
+
+  .slot-viewport {
+    height: 220px;
+    overflow: hidden;
+    border-radius: 10px;
+    position: relative;
+  }
+
+  /* Top/bottom fade */
+  .slot-viewport::before,
+  .slot-viewport::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 70px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .slot-viewport::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--card), transparent);
+  }
+
+  .slot-viewport::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--card), transparent);
+  }
+
+  /* Center highlight */
+  .slot-highlight {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 64px;
+    transform: translateY(-50%);
+    border-top: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
+    background: rgba(240,192,64,0.07);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  #slot-reel {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    width: 100%;
+    will-change: transform;
+  }
+
+  .slot-item {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 0 20px;
+    text-align: center;
+    color: var(--muted);
+    transition: color 0.1s;
+  }
+
+  .slot-item.center {
+    color: var(--text);
+    font-size: 20px;
+  }
+
+  /* Speed indicator */
+  .spin-status {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    height: 20px;
+  }
+
+  /* Result phase */
+  .result-card {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    padding: 40px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(240,192,64,0.12);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent3), var(--accent), var(--accent2));
+  }
+
+  .result-emoji {
+    font-size: 48px;
+    margin-bottom: 12px;
+    display: block;
+    animation: bounce 0.6s 0.3s ease both;
+  }
+
+  @keyframes bounce {
+    0%   { transform: scale(0) rotate(-10deg); }
+    70%  { transform: scale(1.2) rotate(3deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  .result-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .result-task {
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .result-sub {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 999;
+    animation: confettiFall linear forwards;
+  }
+
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Error shake */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25%      { transform: translateX(-8px); }
+    75%      { transform: translateX(8px); }
+  }
+
+  .shake { animation: shake 0.3s ease; }
+
+  /* Pulse for spinning */
+  @keyframes pulse-glow {
+    0%,100% { box-shadow: 0 0 0 rgba(240,192,64,0); }
+    50%      { box-shadow: 0 0 40px rgba(240,192,64,0.2); }
+  }
+
+  .spinning .slot-container {
+    animation: pulse-glow 0.8s ease infinite;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-mark">Doing Ideas</div>
+    <h1><span class="gold">اختر</span> <span class="dim">مهمتك</span><br>بالحظ 🎲</h1>
+    <p class="subtitle">أدخل مهامك، ودع القدر يختار لك</p>
+  </div>
+
+  <!-- PHASE 1: INPUT -->
+  <div id="phase-input">
+    <div class="input-section">
+      <div class="section-label">المهام</div>
+      <div id="task-list"></div>
+      <button class="add-task-btn" onclick="addTask()">
+        <span>＋</span> إضافة مهمة
+      </button>
+      <p class="task-count-note" id="count-note">أضف من 2 إلى 10 مهام</p>
+    </div>
+
+    <button class="btn-primary" id="spin-start-btn" onclick="startSpin()">
+      <span>🎰</span> اسحب الحظ!
+    </button>
+  </div>
+
+  <!-- PHASE 2: WHEEL / SPIN -->
+  <div id="phase-wheel">
+    <div class="wheel-phase-inner" id="wheel-inner">
+      <div class="slot-container" id="slot-machine">
+        <div class="slot-viewport">
+          <div class="slot-highlight"></div>
+          <div id="slot-reel"></div>
+        </div>
+      </div>
+      <div class="spin-status" id="spin-status">جارٍ الاختيار...</div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: RESULT -->
+  <div id="phase-result">
+    <div class="result-card">
+      <span class="result-emoji" id="result-emoji">🎯</span>
+      <div class="result-label">مهمتك اليوم هي</div>
+      <div class="result-task" id="result-task"></div>
+      <div class="result-sub">القدر اختار، والآن دورك! 💪</div>
+      <div class="action-row">
+        <button class="btn-secondary" onclick="resetAll()">🔄 البداية من جديد</button>
+        <button class="btn-accent2" onclick="trySpin()">🎲 جرب حظك مجدداً</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let tasks = [];
+let isSpinning = false;
+let animFrame = null;
+const ITEM_H = 64; // px, must match .slot-item height
+const emojis = ['🎯','🔥','⚡','✨','🚀','💡','🎪','🌟','💥','🎊'];
+
+// ─── Task Management ──────────────────────────────────────────────────────────
+function renderTasks() {
+  const list = document.getElementById('task-list');
+  list.innerHTML = '';
+  tasks.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'task-row';
+    row.innerHTML = `
+      <span class="task-num">${String(i+1).padStart(2,'0')}</span>
+      <input class="task-input" type="text" placeholder="اكتب مهمتك هنا…"
+             value="${escHtml(t)}"
+             oninput="tasks[${i}] = this.value; updateUI()"
+             onkeydown="if(event.key==='Enter') addTask()">
+      <button class="remove-btn" onclick="removeTask(${i})" title="حذف">✕</button>
+    `;
+    list.appendChild(row);
+    // focus new empty
+    if (t === '') {
+      setTimeout(() => row.querySelector('input').focus(), 50);
+    }
+  });
+  updateUI();
+}
+
+function addTask() {
+  if (tasks.length >= 10) return;
+  tasks.push('');
+  renderTasks();
+}
+
+function removeTask(i) {
+  if (tasks.length <= 1) return;
+  tasks.splice(i, 1);
+  renderTasks();
+}
+
+function updateUI() {
+  const filled = tasks.filter(t => t.trim() !== '');
+  const note = document.getElementById('count-note');
+  const btn = document.getElementById('spin-start-btn');
+  note.textContent = `${tasks.length} مهمة مضافة · ${filled.length} مكتملة`;
+  btn.disabled = filled.length < 2;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Spin Logic ───────────────────────────────────────────────────────────────
+function startSpin() {
+  const filled = tasks.filter(t => t.trim() !== '');
+  if (filled.length < 2) {
+    shakeEl(document.getElementById('spin-start-btn'));
+    return;
+  }
+
+  // Switch phases
+  show('phase-wheel');
+  hide('phase-input');
+  hide('phase-result');
+
+  buildReel(filled);
+  animateSpin(filled);
+}
+
+function buildReel(filled) {
+  const reel = document.getElementById('slot-reel');
+  reel.innerHTML = '';
+  // Build extended list: repeat many times for scroll effect
+  const extended = [];
+  for (let i = 0; i < 30; i++) {
+    extended.push(...filled);
+  }
+  extended.forEach(text => {
+    const item = document.createElement('div');
+    item.className = 'slot-item';
+    item.textContent = text;
+    reel.appendChild(item);
+  });
+}
+
+function animateSpin(filled) {
+  const reel = document.getElementById('slot-reel');
+  const status = document.getElementById('spin-status');
+  const slotMachine = document.getElementById('slot-machine');
+
+  document.getElementById('wheel-inner').classList.add('spinning');
+
+  const chosen = filled[Math.floor(Math.random() * filled.length)];
+  const totalItems = reel.children.length;
+
+  // Find a landing index near the end that matches chosen task
+  let landingIndex = -1;
+  // Search from 70% through the list
+  const searchStart = Math.floor(totalItems * 0.6);
+  for (let i = searchStart; i < totalItems; i++) {
+    if (reel.children[i].textContent === chosen) {
+      landingIndex = i;
+      break;
+    }
+  }
+  if (landingIndex === -1) landingIndex = totalItems - filled.length;
+
+  // The reel offset so that landingIndex is centered
+  // Viewport height = 220, item center = 220/2 - 64/2 = 78
+  const centerOffset = 78;
+  const targetY = -(landingIndex * ITEM_H) + centerOffset;
+
+  // Duration: 5-8 seconds
+  const duration = 5500 + Math.random() * 2500;
+  const startTime = performance.now();
+  let currentY = 0;
+
+  const phases = ['⚡ سريع جداً...','🌀 يتمهل...','🎯 يقترب...','✨ اختار!'];
+
+  function easeOut(t) {
+    // Cubic ease-out
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  // Start far back (fast scroll)
+  const startY = -50 * ITEM_H; // start partway in
+
+  function tick(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOut(progress);
+
+    currentY = startY + (targetY - startY) * eased;
+    reel.style.transform = `translateY(${currentY}px)`;
+
+    // Phase labels
+    if (progress < 0.3)       status.textContent = phases[0];
+    else if (progress < 0.6)  status.textContent = phases[1];
+    else if (progress < 0.88) status.textContent = phases[2];
+    else                      status.textContent = phases[3];
+
+    // Highlight center item
+    const centerItemIndex = Math.round(-currentY / ITEM_H);
+    Array.from(reel.children).forEach((el, i) => {
+      el.classList.toggle('center', i === centerItemIndex);
+    });
+
+    if (progress < 1) {
+      animFrame = requestAnimationFrame(tick);
+    } else {
+      // Snap cleanly
+      reel.style.transform = `translateY(${targetY}px)`;
+      document.getElementById('wheel-inner').classList.remove('spinning');
+      setTimeout(() => showResult(chosen), 400);
+    }
+  }
+
+  animFrame = requestAnimationFrame(tick);
+}
+
+// ─── Result ───────────────────────────────────────────────────────────────────
+function showResult(task) {
+  hide('phase-wheel');
+  show('phase-result');
+
+  document.getElementById('result-task').textContent = task;
+  document.getElementById('result-emoji').textContent =
+    emojis[Math.floor(Math.random() * emojis.length)];
+
+  launchConfetti();
+}
+
+function trySpin() {
+  const filled = tasks.filter(t => t.trim() !== '');
+  hide('phase-result');
+  show('phase-wheel');
+  buildReel(filled);
+  animateSpin(filled);
+}
+
+function resetAll() {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  tasks = ['', '', ''];
+  hide('phase-result');
+  hide('phase-wheel');
+  show('phase-input');
+  renderTasks();
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.task-input');
+    if (inputs[0]) inputs[0].focus();
+  }, 50);
+}
+
+// ─── Confetti ─────────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const colors = ['#f0c040','#ff6b35','#7c3aed','#22c55e','#3b82f6','#ec4899'];
+  for (let i = 0; i < 55; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: -10px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        width: ${4 + Math.random() * 8}px;
+        height: ${4 + Math.random() * 8}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        animation-duration: ${2 + Math.random() * 2}s;
+        animation-delay: 0s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4500);
+    }, i * 40);
+  }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+function shakeEl(el) {
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+  setTimeout(() => el.classList.remove('shake'), 350);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  tasks = ['', '', ''];
+  renderTasks();
+  // Focus first input
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.task-input');
+    if (inputs[0]) inputs[0].focus();
+  }, 100);
+});
+</script>
+</body>
+</html>
