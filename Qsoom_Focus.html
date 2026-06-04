@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Qsoom Focus Area</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -41,7 +41,6 @@
     direction: rtl;
   }
 
-  /* ─── NOISE TEXTURE OVERLAY ─── */
   body::before {
     content: '';
     position: fixed; inset: 0;
@@ -49,36 +48,53 @@
     pointer-events: none; z-index: 0; opacity: 0.4;
   }
 
-  /* ─── HEADER ─── */
   header {
     position: sticky; top: 0; z-index: 100;
     background: rgba(10,12,16,0.94);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
+    padding: 0 1.5rem;
   }
   .header-inner {
     max-width: 1100px; margin: 0 auto;
     display: flex; align-items: center;
     justify-content: space-between;
-    height: 58px; gap: 12px;
+    min-height: 58px;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0;
   }
-  .logo {
-    display: flex; align-items: center;
-    flex-shrink: 0; gap: 0;
+
+  .logo-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
   }
+  .logo { display: flex; align-items: center; }
   .logo img {
-    height: 44px; width: auto;
+    height: 40px; width: auto;
     object-fit: contain;
     filter: brightness(1.05);
   }
+  .logo-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-1);
+    letter-spacing: -0.3px;
+    line-height: 1;
+    border-right: 2px solid var(--border-active);
+    padding-right: 14px;
+  }
+  .logo-title span { color: var(--accent); }
+
   .header-stats-row {
-    display: flex; gap: 8px; align-items: center;
-    flex: 1; justify-content: flex-end;
+    display: flex; gap: 6px; align-items: center;
+    flex-wrap: wrap; justify-content: flex-end;
   }
   .stat-chip {
     background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: 14px; padding: 4px 12px;
+    border-radius: 14px; padding: 4px 10px;
     font-size: 11.5px; color: var(--text-2);
     display: flex; align-items: center; gap: 5px;
     white-space: nowrap;
@@ -88,20 +104,20 @@
   .header-clock {
     font-family: var(--mono); font-size: 11.5px; color: var(--text-1);
     background: var(--bg-card); border: 1px solid var(--border-active);
-    border-radius: 7px; padding: 4px 12px; letter-spacing: 0.5px;
+    border-radius: 7px; padding: 4px 10px; letter-spacing: 0.5px;
     white-space: nowrap; font-weight: 500;
   }
 
-  /* ─── FOCUS BANNER ─── */
   #focus-banner {
     display: block;
     background: linear-gradient(135deg, #0e1a2e, #0a1628);
     border: 1px solid var(--border-active);
     border-radius: var(--radius);
-    padding: 1.5rem 2rem;
+    padding: 1.5rem;
     margin-bottom: 1.5rem;
     position: relative;
     overflow: hidden;
+    animation: slideIn 0.4s ease;
   }
   #focus-banner::before {
     content: '';
@@ -110,17 +126,16 @@
     background: radial-gradient(ellipse at right, rgba(59,130,246,0.12), transparent 70%);
     pointer-events: none;
   }
-  #focus-banner { display: block; animation: slideIn 0.4s ease; }
   @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   .banner-label {
     font-size: 11px; color: var(--accent); font-family: var(--mono);
     letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;
   }
-  .banner-task { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .banner-meta { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 16px; }
+  .banner-task { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .banner-meta { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   #banner-timer {
-    font-family: var(--mono); font-size: 36px; font-weight: 500;
-    color: var(--accent); min-width: 100px;
+    font-family: var(--mono); font-size: 34px; font-weight: 500;
+    color: var(--accent); min-width: 90px;
   }
   #banner-timer.warning { color: var(--accent-warn); animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -132,7 +147,6 @@
     height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2));
     border-radius: 2px; transition: width 1s linear;
   }
-  /* idle banner state */
   #focus-banner.idle {
     background: rgba(22,26,34,0.6);
     border-color: var(--border);
@@ -145,44 +159,40 @@
   .banner-idle-icon { font-size: 28px; opacity: 0.4; }
   .banner-idle-text { font-size: 15px; color: var(--text-2); }
 
-  /* ─── MAIN LAYOUT ─── */
   main {
     max-width: 1100px; margin: 0 auto;
-    padding: 2rem;
+    padding: 1.5rem;
     position: relative; z-index: 1;
   }
 
-  /* ─── SUMMARY CARDS ─── */
   .summary-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
-    margin-bottom: 2rem;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    margin-bottom: 1.5rem;
   }
   .sum-card {
     background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 1rem 1.25rem;
+    border-radius: var(--radius-sm); padding: 0.9rem 1.1rem;
     transition: border-color 0.2s;
   }
   .sum-card:hover { border-color: rgba(255,255,255,0.15); }
   .sum-label { font-size: 11px; color: var(--text-3); letter-spacing: 0.5px; margin-bottom: 6px; }
-  .sum-val { font-size: 24px; font-weight: 700; }
+  .sum-val { font-size: 22px; font-weight: 700; }
   .sum-val.blue { color: var(--accent); }
   .sum-val.green { color: var(--accent-done); }
   .sum-val.amber { color: var(--accent-warn); }
-  .sum-val.red { color: var(--accent-danger); }
 
-  /* ─── TABLE SECTION ─── */
   .section-header {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 1rem;
+    margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;
   }
   .section-title {
     font-size: 14px; font-weight: 600; color: var(--text-2);
     letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--mono);
   }
-  .filter-group { display: flex; gap: 6px; }
+  .filter-group { display: flex; gap: 5px; flex-wrap: wrap; }
   .filter-btn {
     background: var(--bg-card); border: 1px solid var(--border);
-    color: var(--text-2); border-radius: 6px; padding: 4px 12px;
+    color: var(--text-2); border-radius: 6px; padding: 4px 10px;
     font-size: 12px; font-family: var(--font); cursor: pointer;
     transition: all 0.15s;
   }
@@ -191,238 +201,171 @@
     color: var(--accent);
   }
 
-  /* ─── TASK TABLE ─── */
   .task-table-wrap {
     background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden;
+    border-radius: var(--radius); overflow: hidden; overflow-x: auto;
   }
-  .task-table {
-    width: 100%; border-collapse: collapse;
-  }
+  .task-table { width: 100%; border-collapse: collapse; min-width: 580px; }
   .task-table thead th {
-    padding: 12px 16px; text-align: right;
+    padding: 12px 14px; text-align: right;
     font-size: 11px; color: var(--text-3); font-weight: 500;
     letter-spacing: 0.8px; text-transform: uppercase;
     border-bottom: 1px solid var(--border);
     background: rgba(0,0,0,0.2);
   }
-  .task-table thead th:first-child { padding-right: 20px; }
+  .task-table thead th:first-child { padding-right: 16px; }
   .task-row {
     border-bottom: 1px solid var(--border);
-    transition: background 0.15s;
-    cursor: grab;
+    transition: background 0.15s; cursor: grab;
   }
   .task-row:last-child { border-bottom: none; }
   .task-row:hover { background: rgba(255,255,255,0.03); }
-  .task-row.active-task {
-    background: var(--bg-active) !important;
-    border-right: 3px solid var(--accent);
-  }
-  .task-row.active-task td { font-size: 15px; }
+  .task-row.active-task { background: var(--bg-active) !important; border-right: 3px solid var(--accent); }
   .task-row.done-task { opacity: 0.5; }
   .task-row.done-task .task-name { text-decoration: line-through; color: var(--text-3); }
   .task-row.dragging { opacity: 0.4; }
   .task-row.drag-over { border-top: 2px solid var(--accent); }
+  .task-table td { padding: 12px 14px; vertical-align: middle; font-size: 14px; }
+  .task-table td:first-child { padding-right: 16px; }
 
-  .task-table td {
-    padding: 14px 16px; vertical-align: middle; font-size: 14px;
-  }
-  .task-table td:first-child { padding-right: 20px; }
-
-  .drag-handle {
-    color: var(--text-3); cursor: grab; font-size: 16px; padding-left: 8px;
-    user-select: none;
-  }
+  .drag-handle { color: var(--text-3); cursor: grab; font-size: 16px; padding-left: 8px; user-select: none; }
   .drag-handle:hover { color: var(--text-2); }
-
   .task-name { font-weight: 500; color: var(--text-1); }
   .task-name-edit {
     background: none; border: none; color: var(--text-1);
     font-family: var(--font); font-size: 14px; font-weight: 500;
-    width: 100%; outline: none; border-bottom: 1px solid var(--accent);
-    padding: 2px 4px;
+    width: 100%; outline: none; border-bottom: 1px solid var(--accent); padding: 2px 4px;
   }
 
   .time-badge {
     display: inline-flex; align-items: center; gap: 5px;
     background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2);
     color: var(--accent); border-radius: 6px;
-    padding: 3px 10px; font-size: 12px; font-family: var(--mono);
-    white-space: nowrap;
+    padding: 3px 8px; font-size: 12px; font-family: var(--mono); white-space: nowrap;
   }
 
   .status-badge {
     display: inline-flex; align-items: center; gap: 5px;
-    border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 500;
-    white-space: nowrap;
+    border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; white-space: nowrap;
   }
-  .status-badge.not-started {
-    background: rgba(82,93,112,0.2); color: var(--text-2);
-    border: 1px solid rgba(82,93,112,0.3);
-  }
-  .status-badge.in-progress {
-    background: rgba(59,130,246,0.15); color: var(--accent);
-    border: 1px solid rgba(59,130,246,0.3);
-  }
-  .status-badge.paused {
-    background: rgba(245,158,11,0.12); color: var(--accent-warn);
-    border: 1px solid rgba(245,158,11,0.3);
-  }
-  .status-badge.done {
-    background: rgba(34,197,94,0.12); color: var(--accent-done);
-    border: 1px solid rgba(34,197,94,0.3);
-  }
-  .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    display: inline-block;
-  }
+  .status-badge.not-started { background: rgba(82,93,112,0.2); color: var(--text-2); border: 1px solid rgba(82,93,112,0.3); }
+  .status-badge.in-progress { background: rgba(59,130,246,0.15); color: var(--accent); border: 1px solid rgba(59,130,246,0.3); }
+  .status-badge.paused { background: rgba(245,158,11,0.12); color: var(--accent-warn); border: 1px solid rgba(245,158,11,0.3); }
+  .status-badge.done { background: rgba(34,197,94,0.12); color: var(--accent-done); border: 1px solid rgba(34,197,94,0.3); }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
   .dot.not-started { background: var(--text-3); }
   .dot.in-progress { background: var(--accent); animation: blink 1.5s infinite; }
   .dot.paused { background: var(--accent-warn); }
   .dot.done { background: var(--accent-done); }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  .row-timer {
-    font-family: var(--mono); font-size: 13px; color: var(--accent);
-    min-width: 60px; display: inline-block;
-  }
+  .row-timer { font-family: var(--mono); font-size: 13px; color: var(--accent); min-width: 55px; display: inline-block; }
   .row-timer.done-timer { color: var(--accent-done); }
 
   .check-btn {
     background: none; border: 2px solid var(--border);
     width: 24px; height: 24px; border-radius: 50%;
     cursor: pointer; color: var(--text-3); font-size: 12px;
-    display: inline-flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
+    display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;
   }
   .check-btn:hover { border-color: var(--accent-done); color: var(--accent-done); }
   .check-btn.checked { background: var(--accent-done); border-color: var(--accent-done); color: #fff; }
 
-  /* ─── ACTION BUTTONS ─── */
   .btn-start {
     background: linear-gradient(135deg, var(--accent), #2563eb);
-    border: none; color: #fff;
-    border-radius: 8px; padding: 6px 12px;
-    font-size: 12px; font-weight: 600; font-family: var(--font);
-    cursor: pointer; transition: all 0.2s;
-    display: inline-flex; align-items: center; gap: 5px;
-    white-space: nowrap; width: 80px; justify-content: center;
+    border: none; color: #fff; border-radius: 8px; padding: 6px 10px;
+    font-size: 12px; font-weight: 600; font-family: var(--font); cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; min-width: 72px; justify-content: center;
   }
   .btn-start:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
-  .btn-start:active { transform: translateY(0); }
 
   .btn-stop {
     background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4);
-    color: var(--accent-warn); border-radius: 8px; padding: 6px 12px;
-    font-size: 12px; font-weight: 600; font-family: var(--font);
-    cursor: pointer; transition: all 0.2s;
-    display: inline-flex; align-items: center; gap: 5px;
-    white-space: nowrap; width: 80px; justify-content: center;
+    color: var(--accent-warn); border-radius: 8px; padding: 6px 10px;
+    font-size: 12px; font-weight: 600; font-family: var(--font); cursor: pointer; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; min-width: 72px; justify-content: center;
   }
   .btn-stop:hover { background: rgba(245,158,11,0.25); }
 
   .btn-edit {
-    background: none; border: 1px solid var(--border);
-    color: var(--text-3); border-radius: 6px; padding: 5px 10px;
-    font-size: 12px; cursor: pointer; transition: all 0.15s;
-    margin-right: 4px;
+    background: none; border: 1px solid var(--border); color: var(--text-3);
+    border-radius: 6px; padding: 5px 8px; font-size: 12px; cursor: pointer; transition: all 0.15s; margin-right: 3px;
   }
   .btn-edit:hover { border-color: var(--accent); color: var(--accent); }
 
   .btn-delete {
-    background: none; border: 1px solid var(--border);
-    color: var(--text-3); border-radius: 6px; padding: 5px 10px;
-    font-size: 12px; cursor: pointer; transition: all 0.15s;
+    background: none; border: 1px solid var(--border); color: var(--text-3);
+    border-radius: 6px; padding: 5px 8px; font-size: 12px; cursor: pointer; transition: all 0.15s;
   }
   .btn-delete:hover { border-color: var(--accent-danger); color: var(--accent-danger); background: rgba(239,68,68,0.08); }
 
-  /* ─── EMPTY STATE ─── */
-  .empty-state {
-    text-align: center; padding: 4rem 2rem;
-    color: var(--text-3);
-  }
-  .empty-icon { font-size: 48px; margin-bottom: 1rem; opacity: 0.4; }
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-3); }
+  .empty-icon { font-size: 40px; margin-bottom: 1rem; opacity: 0.4; }
   .empty-text { font-size: 16px; margin-bottom: 6px; color: var(--text-2); }
   .empty-sub { font-size: 13px; }
 
-  /* ─── ADD TASK FORM ─── */
   .add-section {
     background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1.5rem 2rem;
-    margin-top: 1.5rem;
-    transition: border-color 0.2s;
+    border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1.5rem; transition: border-color 0.2s;
   }
   .add-section:focus-within { border-color: rgba(59,130,246,0.3); }
-  .add-section-title {
-    font-size: 13px; font-weight: 600; color: var(--text-2);
-    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
-  }
-  .add-form-row {
-    display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: end;
-  }
+  .add-section-title { font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .add-form-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: end; }
   .form-group { display: flex; flex-direction: column; gap: 6px; }
   .form-label { font-size: 11px; color: var(--text-3); letter-spacing: 0.5px; }
   .form-input {
     background: rgba(0,0,0,0.3); border: 1px solid var(--border);
     color: var(--text-1); border-radius: var(--radius-sm);
-    padding: 9px 14px; font-size: 14px; font-family: var(--font);
-    outline: none; transition: border-color 0.2s;
-    width: 100%;
+    padding: 9px 12px; font-size: 14px; font-family: var(--font); outline: none; transition: border-color 0.2s; width: 100%;
   }
   .form-input:focus { border-color: var(--accent); }
   .form-input::placeholder { color: var(--text-3); }
   .form-select {
     background: rgba(0,0,0,0.3); border: 1px solid var(--border);
     color: var(--text-1); border-radius: var(--radius-sm);
-    padding: 9px 14px; font-size: 14px; font-family: var(--font);
-    outline: none; transition: border-color 0.2s; cursor: pointer;
-    min-width: 180px;
+    padding: 9px 12px; font-size: 14px; font-family: var(--font); outline: none; transition: border-color 0.2s; cursor: pointer; min-width: 130px;
   }
   .form-select:focus { border-color: var(--accent); }
   .form-select option { background: var(--bg-card); }
 
   .btn-add {
     background: linear-gradient(135deg, var(--accent-2), #059669);
-    border: none; color: #fff;
-    border-radius: 8px; padding: 9px 20px;
-    font-size: 14px; font-weight: 700; font-family: var(--font);
-    cursor: pointer; transition: all 0.2s;
-    white-space: nowrap; align-self: end;
-    display: flex; align-items: center; gap: 6px;
+    border: none; color: #fff; border-radius: 8px; padding: 9px 18px;
+    font-size: 14px; font-weight: 700; font-family: var(--font); cursor: pointer; transition: all 0.2s;
+    white-space: nowrap; align-self: end; display: flex; align-items: center; gap: 6px;
   }
   .btn-add:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(6,214,160,0.3); }
   .btn-add:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
-  /* ─── NOTIFICATION TOAST ─── */
   #toast {
-    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(100px);
     background: var(--bg-card); border: 1px solid var(--border);
     color: var(--text-1); border-radius: 10px; padding: 12px 20px;
     font-size: 14px; z-index: 1000; transition: transform 0.3s ease;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 10px; max-width: 90vw;
   }
   #toast.show { transform: translateX(-50%) translateY(0); }
   #toast.success { border-color: rgba(34,197,94,0.4); }
   #toast.info { border-color: rgba(59,130,246,0.4); }
 
-  /* ─── COMPLETION MODAL ─── */
   #completion-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.7); z-index: 500;
-    align-items: center; justify-content: center;
+    align-items: center; justify-content: center; padding: 1rem;
   }
   #completion-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
   .completion-card {
     background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: 20px; padding: 3rem; text-align: center;
-    max-width: 400px; width: 90%;
+    border-radius: 20px; padding: 2.5rem 2rem; text-align: center;
+    max-width: 400px; width: 100%;
     animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
   }
   @keyframes popIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
-  .completion-emoji { font-size: 60px; margin-bottom: 1rem; }
-  .completion-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .completion-emoji { font-size: 56px; margin-bottom: 1rem; }
+  .completion-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
   .completion-sub { font-size: 14px; color: var(--text-2); margin-bottom: 2rem; }
   .btn-close-modal {
     background: linear-gradient(135deg, var(--accent-done), #16a34a);
@@ -430,84 +373,123 @@
     font-size: 15px; font-weight: 700; font-family: var(--font); cursor: pointer;
   }
 
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 768px) {
-    main { padding: 1rem; }
-    .summary-grid { grid-template-columns: repeat(2, 1fr); }
-    .add-form-row { grid-template-columns: 1fr; }
-    .task-table thead { display: none; }
-    .task-table td { display: block; padding: 6px 14px; }
-    .task-table td::before { content: attr(data-label); color: var(--text-3); font-size: 11px; display: block; margin-bottom: 2px; }
-    .task-table tr { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; display: block; }
-    .header-left { display: none; }
-  }
-
-  /* ─── SCROLLBAR ─── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg-deep); }
-  ::-webkit-scrollbar-thumb { background: var(--bg-card-hover); border-radius: 3px; }
-
-  /* ─── SOUND WAVE ANIMATION FOR ACTIVE ─── */
-  .sound-wave {
-    display: inline-flex; align-items: center; gap: 2px; margin-right: 6px;
-  }
-  .wave-bar {
-    width: 3px; background: var(--accent);
-    border-radius: 2px; animation: wave 0.8s ease infinite;
-  }
+  .sound-wave { display: inline-flex; align-items: center; gap: 2px; margin-right: 6px; }
+  .wave-bar { width: 3px; background: var(--accent); border-radius: 2px; animation: wave 0.8s ease infinite; }
   .wave-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
   .wave-bar:nth-child(2) { height: 14px; animation-delay: 0.15s; }
   .wave-bar:nth-child(3) { height: 10px; animation-delay: 0.3s; }
   .wave-bar:nth-child(4) { height: 16px; animation-delay: 0.1s; }
-  @keyframes wave {
-    0%,100% { transform: scaleY(1); }
-    50% { transform: scaleY(0.4); }
-  }
+  @keyframes wave { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(0.4); } }
 
-  /* ─── PRIORITY INDICATOR ─── */
-  .priority-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    display: inline-block; margin-left: 6px;
-    flex-shrink: 0;
-  }
+  .priority-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 6px; flex-shrink: 0; }
   .priority-high { background: var(--accent-danger); }
   .priority-med { background: var(--accent-warn); }
   .priority-low { background: var(--text-3); }
 
-  /* ─── COL WIDTHS ─── */
-  .col-order { width: 40px; text-align: center; }
-  .col-task { width: auto; min-width: 180px; }
-  .col-time { width: 130px; }
-  .col-status { width: 130px; }
-  .col-counter { width: 90px; }
-  .col-done { width: 60px; text-align: center; }
-  .col-action { width: 90px; }
-  .col-ops { width: 90px; text-align: center; }
+  .col-order { width: 36px; text-align: center; }
+  .col-task { width: auto; min-width: 160px; }
+  .col-time { width: 120px; }
+  .col-status { width: 110px; }
+  .col-counter { width: 80px; }
+  .col-done { width: 50px; text-align: center; }
+  .col-action { width: 85px; }
+  .col-ops { width: 80px; text-align: center; }
 
-  /* priority select in form */
   .priority-select {
     background: rgba(0,0,0,0.3); border: 1px solid var(--border);
     color: var(--text-1); border-radius: var(--radius-sm);
-    padding: 9px 14px; font-size: 14px; font-family: var(--font);
-    outline: none; transition: border-color 0.2s; cursor: pointer;
+    padding: 9px 12px; font-size: 14px; font-family: var(--font); outline: none; transition: border-color 0.2s; cursor: pointer;
   }
   .priority-select:focus { border-color: var(--accent); }
   .priority-select option { background: var(--bg-card); }
 
   .footer-note {
     text-align: center; font-size: 12px; color: var(--text-3);
-    margin-top: 3rem; padding-bottom: 2rem;
-    font-family: var(--mono);
+    margin-top: 3rem; padding-bottom: 2rem; font-family: var(--mono);
   }
+
+  /* ─── TABLETS ─── */
+  @media (max-width: 900px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .header-clock { display: none; }
+  }
+
+  /* ─── MOBILE ─── */
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    .header-inner { padding: 8px 0; gap: 6px; }
+    .logo-block { gap: 8px; }
+    .logo img { height: 30px; }
+    .logo-title { font-size: 15px; padding-right: 10px; }
+    .stat-chip { font-size: 10.5px; padding: 3px 8px; }
+    .stat-chip .chip-label { display: none; }
+
+    main { padding: 0.9rem; }
+    #focus-banner { padding: 1rem; margin-bottom: 1rem; }
+    .banner-task { font-size: 16px; }
+    #banner-timer { font-size: 26px; }
+
+    .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1rem; }
+    .sum-val { font-size: 20px; }
+    .sum-card { padding: 0.75rem; }
+
+    /* Mobile: switch table to card layout */
+    .task-table-wrap { overflow-x: unset; border-radius: var(--radius); }
+    .task-table { min-width: unset; }
+    .task-table thead { display: none; }
+    .task-table tbody { display: flex; flex-direction: column; gap: 8px; padding: 8px; background: transparent; }
+    .task-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-rows: auto auto auto;
+      gap: 6px 8px;
+      border: 1px solid var(--border) !important;
+      border-right-width: 1px !important;
+      border-radius: 10px;
+      padding: 10px;
+      cursor: default;
+      background: var(--bg-card);
+    }
+    .task-row.active-task { border-color: var(--border-active) !important; background: var(--bg-active) !important; }
+    .task-table td { padding: 0; display: block; border: none; font-size: 13px; }
+
+    .col-order  { grid-column: 1; grid-row: 1; align-self: center; }
+    .col-task   { grid-column: 2; grid-row: 1; align-self: center; }
+    .col-done   { grid-column: 3; grid-row: 1; align-self: center; text-align: left; }
+    .col-time   { grid-column: 1 / 3; grid-row: 2; }
+    .col-status { grid-column: 3; grid-row: 2; text-align: right; }
+    .col-counter{ grid-column: 1; grid-row: 3; align-self: center; }
+    .col-action { grid-column: 2; grid-row: 3; }
+    .col-ops    { grid-column: 3; grid-row: 3; text-align: left; }
+
+    /* Empty state row stays normal */
+    .task-table tbody tr.empty-row { display: table-row; border: none !important; background: transparent !important; border-radius: 0 !important; padding: 0; }
+    .task-table tbody tr.empty-row td { display: table-cell; }
+
+    .add-section { padding: 1rem; }
+    .add-form-row { grid-template-columns: 1fr; }
+    .form-select { min-width: unset; width: 100%; }
+    .btn-add { width: 100%; justify-content: center; }
+
+    .filter-group { gap: 4px; }
+    .filter-btn { font-size: 11px; padding: 3px 8px; }
+    .section-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-deep); }
+  ::-webkit-scrollbar-thumb { background: var(--bg-card-hover); border-radius: 3px; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="header-inner">
-    <div class="logo">
-      <img src="images/images/qsoom-focus.png" alt="Qsoom Focus Area">
+    <div class="logo-block">
+      <div class="logo">
+        <img src="images/images/qsoom-focus.png" alt="Qsoom Focus Area">
+      </div>
+      <div class="logo-title">مهام <span>التركيز</span></div>
     </div>
     <div class="header-stats-row">
       <div class="stat-chip"><span class="chip-label">المهام</span> <span id="stat-total">0</span></div>
@@ -520,7 +502,6 @@
 
 <main>
 
-  <!-- FOCUS BANNER -->
   <div id="focus-banner" class="idle">
     <div id="banner-active-content" style="display:none;">
       <div class="banner-label">
@@ -551,27 +532,13 @@
     </div>
   </div>
 
-  <!-- SUMMARY CARDS -->
   <div class="summary-grid">
-    <div class="sum-card">
-      <div class="sum-label">إجمالي المهام</div>
-      <div class="sum-val blue" id="card-total">0</div>
-    </div>
-    <div class="sum-card">
-      <div class="sum-label">قيد التنفيذ</div>
-      <div class="sum-val amber" id="card-progress">0</div>
-    </div>
-    <div class="sum-card">
-      <div class="sum-label">مكتملة</div>
-      <div class="sum-val green" id="card-done">0</div>
-    </div>
-    <div class="sum-card">
-      <div class="sum-label">لم تبدأ</div>
-      <div class="sum-val" id="card-pending" style="color:var(--text-2)">0</div>
-    </div>
+    <div class="sum-card"><div class="sum-label">إجمالي المهام</div><div class="sum-val blue" id="card-total">0</div></div>
+    <div class="sum-card"><div class="sum-label">قيد التنفيذ</div><div class="sum-val amber" id="card-progress">0</div></div>
+    <div class="sum-card"><div class="sum-label">مكتملة</div><div class="sum-val green" id="card-done">0</div></div>
+    <div class="sum-card"><div class="sum-label">لم تبدأ</div><div class="sum-val" id="card-pending" style="color:var(--text-2)">0</div></div>
   </div>
 
-  <!-- TASK TABLE -->
   <div class="section-header">
     <div class="section-title">قائمة المهام</div>
     <div class="filter-group">
@@ -598,7 +565,7 @@
         </tr>
       </thead>
       <tbody id="task-body">
-        <tr>
+        <tr class="empty-row">
           <td colspan="8">
             <div class="empty-state">
               <div class="empty-icon">📋</div>
@@ -611,11 +578,8 @@
     </table>
   </div>
 
-  <!-- ADD TASK FORM -->
   <div class="add-section">
-    <div class="add-section-title">
-      <span>➕</span> إضافة مهمة جديدة
-    </div>
+    <div class="add-section-title"><span>➕</span> إضافة مهمة جديدة</div>
     <div class="add-form-row">
       <div class="form-group" style="grid-column: 1/-1;">
         <label class="form-label">اسم المهمة</label>
@@ -627,8 +591,8 @@
     <div class="add-form-row" style="margin-top:12px;">
       <div class="form-group">
         <label class="form-label">الزمن المتوقع</label>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <select class="form-select" id="input-hours" style="min-width:90px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <select class="form-select" id="input-hours" style="min-width:100px;">
             <option value="0" selected>0 ساعة</option>
             <option value="1">1 ساعة</option>
             <option value="2">2 ساعة</option>
@@ -639,7 +603,7 @@
             <option value="7">7 ساعات</option>
           </select>
           <span style="color:var(--text-3);font-size:13px;">:</span>
-          <select class="form-select" id="input-minutes" style="min-width:110px;">
+          <select class="form-select" id="input-minutes" style="min-width:120px;">
             <option value="0">0 دقيقة</option>
             <option value="5">5 دقائق</option>
             <option value="10">10 دقائق</option>
@@ -664,17 +628,13 @@
           <option value="low">⚪ منخفضة</option>
         </select>
       </div>
-      <button class="btn-add" id="btn-add-task" onclick="addTask()">
-        ✦ إضافة للقائمة
-      </button>
+      <button class="btn-add" id="btn-add-task" onclick="addTask()">✦ إضافة</button>
     </div>
   </div>
 
   <div class="footer-note">Qsoom Focus Area — ابدأ بالأهم، وأنهِ ما بدأت</div>
-
 </main>
 
-<!-- COMPLETION MODAL -->
 <div id="completion-overlay" onclick="closeModal()">
   <div class="completion-card" onclick="event.stopPropagation()">
     <div class="completion-emoji">🎉</div>
@@ -684,7 +644,6 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast">
   <span id="toast-icon">ℹ️</span>
   <span id="toast-msg">رسالة</span>
@@ -698,56 +657,97 @@
   let currentFilter = 'all';
   let dragSrcId = null;
 
+  // ─── BACKGROUND TIMER TRACKING ───
+  // We record the real wall-clock timestamp when a task timer starts/resumes.
+  // On every tick we compute elapsed from Date.now() instead of incrementing a counter.
+  // This means pausing the browser tab or switching apps has ZERO effect on accuracy.
+  let timerStartEpoch = null;    // Date.now() when current run started
+  let timerStartRemaining = 0;   // task.remaining at that moment
+
   // ─── LIVE CLOCK ───
   function updateClock() {
     const now = new Date();
     const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const day = days[now.getDay()];
-    const date = now.getDate();
-    const month = months[now.getMonth()];
-    const hh = now.getHours().toString().padStart(2,'0');
-    const mm = now.getMinutes().toString().padStart(2,'0');
-    const ss = now.getSeconds().toString().padStart(2,'0');
-    document.getElementById('live-clock').textContent =
-      `${day} ${date} ${month}  -  ${hh} : ${mm} : ${ss}`;
+    const d = days[now.getDay()], date = now.getDate(), m = months[now.getMonth()];
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('live-clock').textContent = `${d} ${date} ${m}  -  ${hh} : ${mm} : ${ss}`;
   }
   setInterval(updateClock, 1000); updateClock();
 
-  // ─── SAVE ───
-  function save() {
-    localStorage.setItem('qsoom_tasks', JSON.stringify(tasks));
-  }
+  function save() { localStorage.setItem('qsoom_tasks', JSON.stringify(tasks)); }
 
-  // ─── TIME LABEL ───
   function timeLabel(secs) {
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
+    const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60);
     if (h === 0) return m + ' دقيقة';
     if (m === 0) return h === 1 ? 'ساعة كاملة' : h + ' ساعات';
     return (h === 1 ? 'ساعة' : h + ' ساعات') + ' و' + m + ' دقيقة';
   }
 
-  // ─── TOTAL COMPLETED TIME ───
   function getTotalCompletedSeconds() {
-    return tasks.filter(t => t.done).reduce((sum, t) => sum + (t.elapsed || t.duration), 0);
+    return tasks.filter(t => t.done).reduce((s, t) => s + (t.elapsed || t.duration), 0);
   }
   function formatTotalTime(secs) {
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
+    const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60);
     if (h === 0) return m + ' دقيقة';
     if (m === 0) return h + ' س';
     return h + 'س ' + m + 'د';
   }
 
-  // ─── FORMAT TIMER ───
   function formatTime(sec) {
-    const m = Math.floor(sec / 60).toString().padStart(2, '0');
-    const s = (sec % 60).toString().padStart(2, '0');
-    return m + ':' + s;
+    return String(Math.floor(sec / 60)).padStart(2,'0') + ':' + String(sec % 60).padStart(2,'0');
   }
 
-  // ─── TIME PREVIEW ───
+  // Compute current remaining using real wall-clock difference
+  function getCurrentRemaining() {
+    if (!activeTaskId || timerStartEpoch === null) return null;
+    const elapsedMs = Date.now() - timerStartEpoch;
+    return Math.max(0, timerStartRemaining - Math.floor(elapsedMs / 1000));
+  }
+
+  // ─── TICK — runs every second when page is in foreground ───
+  function tick() {
+    if (!activeTaskId) return;
+    const task = tasks.find(t => t.id === activeTaskId);
+    if (!task) { clearInterval(timerInterval); return; }
+    const remaining = getCurrentRemaining();
+    task.remaining = remaining;
+    task.elapsed = task.duration - remaining;
+    updateTimerDisplay(activeTaskId, remaining);
+    updateBanner(task);
+    if (remaining <= 0) {
+      clearInterval(timerInterval); timerInterval = null;
+      task.status = 'done'; task.done = true;
+      activeTaskId = null; timerStartEpoch = null;
+      save(); render(); setBannerIdle();
+      showCompletion(task.name);
+    } else {
+      save();
+    }
+  }
+
+  // ─── PAGE VISIBILITY: catch-up when tab returns to foreground ───
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && activeTaskId) {
+      const task = tasks.find(t => t.id === activeTaskId);
+      if (!task) return;
+      const remaining = getCurrentRemaining();
+      task.remaining = remaining;
+      task.elapsed = task.duration - remaining;
+      updateTimerDisplay(activeTaskId, remaining);
+      updateBanner(task);
+      if (remaining <= 0) {
+        clearInterval(timerInterval); timerInterval = null;
+        task.status = 'done'; task.done = true;
+        activeTaskId = null; timerStartEpoch = null;
+        save(); render(); setBannerIdle();
+        showCompletion(task.name);
+      }
+    }
+  });
+
   function updateTimePreview() {
     const h = parseInt(document.getElementById('input-hours').value) || 0;
     const m = parseInt(document.getElementById('input-minutes').value) || 0;
@@ -759,14 +759,11 @@
     el.textContent = timeLabel(total);
   }
   document.addEventListener('DOMContentLoaded', () => {
-    const hSel = document.getElementById('input-hours');
-    const mSel = document.getElementById('input-minutes');
-    if (hSel) hSel.addEventListener('change', updateTimePreview);
-    if (mSel) mSel.addEventListener('change', updateTimePreview);
+    document.getElementById('input-hours').addEventListener('change', updateTimePreview);
+    document.getElementById('input-minutes').addEventListener('change', updateTimePreview);
     updateTimePreview();
   });
 
-  // ─── ADD TASK ───
   function addTask() {
     const nameEl = document.getElementById('input-task-name');
     const name = nameEl.value.trim();
@@ -776,88 +773,51 @@
     const priority = document.getElementById('input-priority').value;
     if (!name) { nameEl.focus(); showToast('❗ أدخل اسم المهمة أولاً', 'info'); return; }
     if (duration === 0) { showToast('❗ حدد وقتاً للمهمة', 'info'); return; }
-    const task = {
-      id: Date.now().toString(),
-      name, duration, priority,
-      status: 'not-started',
-      remaining: duration,
-      elapsed: 0,
-      done: false
-    };
-    tasks.push(task);
-    save();
-    nameEl.value = '';
-    render();
+    tasks.push({ id: Date.now().toString(), name, duration, priority, status: 'not-started', remaining: duration, elapsed: 0, done: false });
+    save(); nameEl.value = ''; render();
     showToast('✅ تمت إضافة المهمة', 'success');
   }
 
-  // ─── DELETE TASK ───
   function deleteTask(id) {
     if (activeTaskId === id) stopTimer();
     tasks = tasks.filter(t => t.id !== id);
-    save(); render();
-    showToast('🗑 تم حذف المهمة', 'info');
+    save(); render(); showToast('🗑 تم حذف المهمة', 'info');
   }
 
-  // ─── TOGGLE DONE ───
   function toggleDone(id) {
     const t = tasks.find(t => t.id === id);
     if (!t) return;
     if (activeTaskId === id) stopTimer();
-    t.done = !t.done;
-    t.status = t.done ? 'done' : 'not-started';
+    t.done = !t.done; t.status = t.done ? 'done' : 'not-started';
     save(); render();
   }
 
-  // ─── EDIT TASK ───
   function editTask(id) {
     const t = tasks.find(t => t.id === id);
     if (!t) return;
     const nameCell = document.getElementById('name-' + id);
-    const currentText = nameCell.textContent;
     nameCell.innerHTML = `<input class="task-name-edit" id="edit-${id}" value="${t.name}" maxlength="100">`;
     const inp = document.getElementById('edit-' + id);
     inp.focus(); inp.select();
-    function save_edit() {
-      const val = inp.value.trim();
-      if (val) { t.name = val; save(); }
-      render();
-    }
+    const save_edit = () => { const v = inp.value.trim(); if (v) { t.name = v; save(); } render(); };
     inp.addEventListener('blur', save_edit);
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); if (e.key === 'Escape') { render(); } });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); if (e.key === 'Escape') render(); });
   }
 
-  // ─── START/STOP TIMER ───
   function startTimer(id) {
-    if (activeTaskId && activeTaskId !== id) {
-      showToast('⚠️ أوقف المهمة الحالية أولاً', 'info'); return;
-    }
+    if (activeTaskId && activeTaskId !== id) { showToast('⚠️ أوقف المهمة الحالية أولاً', 'info'); return; }
     const t = tasks.find(t => t.id === id);
     if (!t || t.done) return;
     activeTaskId = id;
     t.status = 'in-progress';
+    // Record wall-clock anchor
+    timerStartEpoch = Date.now();
+    timerStartRemaining = t.remaining;
     save(); render();
-    // show active banner
     document.getElementById('focus-banner').classList.remove('idle');
     document.getElementById('banner-active-content').style.display = 'block';
     document.getElementById('banner-idle-content').style.display = 'none';
-    timerInterval = setInterval(() => {
-      const task = tasks.find(t => t.id === id);
-      if (!task) { clearInterval(timerInterval); return; }
-      task.remaining = Math.max(0, task.remaining - 1);
-      task.elapsed++;
-      updateTimerDisplay(id, task.remaining);
-      updateBanner(task);
-      if (task.remaining <= 0) {
-        clearInterval(timerInterval);
-        task.status = 'done'; task.done = true;
-        activeTaskId = null;
-        save(); render();
-        // reset banner to idle
-        setBannerIdle();
-        showCompletion(task.name);
-      }
-    }, 1000);
+    timerInterval = setInterval(tick, 1000);
     updateBanner(t);
   }
 
@@ -865,10 +825,13 @@
     if (!activeTaskId) return;
     clearInterval(timerInterval); timerInterval = null;
     const t = tasks.find(t => t.id === activeTaskId);
-    if (t) { t.status = 'paused'; save(); }
-    activeTaskId = null;
-    render();
-    setBannerIdle();
+    if (t) {
+      const r = getCurrentRemaining();
+      if (r !== null) { t.remaining = r; t.elapsed = t.duration - r; }
+      t.status = 'paused'; save();
+    }
+    activeTaskId = null; timerStartEpoch = null;
+    render(); setBannerIdle();
     showToast('⏸ تم إيقاف المهمة مؤقتاً', 'info');
   }
 
@@ -879,23 +842,14 @@
     document.getElementById('banner-timer').classList.remove('warning');
   }
 
-  function toggleTimer(id) {
-    if (activeTaskId === id) stopTimer();
-    else startTimer(id);
-  }
+  function toggleTimer(id) { if (activeTaskId === id) stopTimer(); else startTimer(id); }
 
-  // ─── UPDATE TIMER DISPLAY ───
   function updateTimerDisplay(id, remaining) {
     const el = document.getElementById('timer-' + id);
-    if (el) {
-      el.textContent = formatTime(remaining);
-      if (remaining < 60) el.classList.add('warning');
-    }
-    // update header completed time stat accurately
+    if (el) { el.textContent = formatTime(remaining); if (remaining < 60) el.classList.add('warning'); }
     document.getElementById('stat-time').textContent = formatTotalTime(getTotalCompletedSeconds());
   }
 
-  // ─── BANNER ───
   function updateBanner(task) {
     document.getElementById('banner-task-name').textContent = task.name;
     document.getElementById('banner-task-time').textContent = timeLabel(task.duration);
@@ -903,43 +857,29 @@
     document.getElementById('banner-timer').textContent = formatTime(task.remaining);
     const pct = ((task.duration - task.remaining) / task.duration) * 100;
     document.getElementById('banner-progress-bar').style.width = pct + '%';
-    if (task.remaining < 60) {
-      document.getElementById('banner-timer').classList.add('warning');
-    }
+    if (task.remaining < 60) document.getElementById('banner-timer').classList.add('warning');
   }
 
-  // ─── FILTER ───
   function filterTasks(f, btn) {
     currentFilter = f;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    render();
+    btn.classList.add('active'); render();
   }
 
-  // ─── STATUS LABEL ───
   function statusLabel(s) {
-    if (s === 'not-started') return 'لم تبدأ';
-    if (s === 'in-progress') return 'جارية';
-    if (s === 'paused') return 'متوقفة';
-    if (s === 'done') return 'مكتملة';
-    return s;
+    return { 'not-started': 'لم تبدأ', 'in-progress': 'جارية', 'paused': 'متوقفة', 'done': 'مكتملة' }[s] || s;
   }
 
-  // ─── PRIORITY DOT ───
-  function priorityDot(p) {
-    return `<span class="priority-dot priority-${p||'med'}"></span>`;
-  }
+  function priorityDot(p) { return `<span class="priority-dot priority-${p||'med'}"></span>`; }
 
-  // ─── RENDER ───
   function render() {
     const tbody = document.getElementById('task-body');
-    let filtered = tasks.filter(t => {
+    const filtered = tasks.filter(t => {
       if (currentFilter === 'all') return true;
       if (currentFilter === 'done') return t.done;
       return t.status === currentFilter && !t.done;
     });
 
-    // Update stats
     const total = tasks.length;
     const done = tasks.filter(t => t.done).length;
     const inProg = tasks.filter(t => t.status === 'in-progress' && !t.done).length;
@@ -953,7 +893,7 @@
     document.getElementById('card-pending').textContent = pending;
 
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="8"><div class="empty-state">
         <div class="empty-icon">📋</div>
         <div class="empty-text">${currentFilter === 'all' ? 'لا توجد مهام بعد' : 'لا توجد مهام في هذه الفئة'}</div>
         <div class="empty-sub">${currentFilter === 'all' ? 'أضف مهمتك الأولى من الأسفل' : 'جرب تصفية مختلفة'}</div>
@@ -961,7 +901,7 @@
       return;
     }
 
-    tbody.innerHTML = filtered.map((t, idx) => {
+    tbody.innerHTML = filtered.map(t => {
       const isActive = activeTaskId === t.id;
       const rowClass = `task-row ${isActive ? 'active-task' : ''} ${t.done ? 'done-task' : ''}`;
       const actionBtn = isActive
@@ -975,32 +915,24 @@
           ondragover="dragOver(event,'${t.id}')"
           ondrop="dragDrop('${t.id}')"
           ondragleave="dragLeave(this)">
-        <td class="col-order">
-          <span class="drag-handle" title="اسحب لإعادة الترتيب">⠿</span>
-        </td>
+        <td class="col-order"><span class="drag-handle" title="اسحب لإعادة الترتيب">⠿</span></td>
         <td class="col-task" data-label="المهمة">
           <div style="display:flex;align-items:center;gap:6px;">
             ${priorityDot(t.priority)}
             <span class="task-name" id="name-${t.id}">${t.name}</span>
           </div>
         </td>
-        <td class="col-time" data-label="الزمن">
-          <span class="time-badge">⏱ ${timeLabel(t.duration)}</span>
-        </td>
+        <td class="col-time" data-label="الزمن"><span class="time-badge">⏱ ${timeLabel(t.duration)}</span></td>
         <td class="col-status" data-label="الحالة">
           <span class="status-badge ${t.status}">
-            <span class="dot ${t.status}"></span>
-            ${statusLabel(t.status)}
+            <span class="dot ${t.status}"></span>${statusLabel(t.status)}
           </span>
         </td>
         <td class="col-counter" data-label="العداد">
-          <span class="row-timer ${t.done ? 'done-timer' : ''}" id="timer-${t.id}">
-            ${formatTime(t.remaining)}
-          </span>
+          <span class="row-timer ${t.done ? 'done-timer' : ''}" id="timer-${t.id}">${formatTime(t.remaining)}</span>
         </td>
         <td class="col-done" data-label="الإنجاز">
-          <button class="check-btn ${t.done ? 'checked' : ''}"
-            onclick="toggleDone('${t.id}')" title="${t.done ? 'إلغاء الإنجاز' : 'تحديد كمنجز'}">
+          <button class="check-btn ${t.done ? 'checked' : ''}" onclick="toggleDone('${t.id}')" title="${t.done ? 'إلغاء الإنجاز' : 'تحديد كمنجز'}">
             ${t.done ? '✓' : ''}
           </button>
         </td>
@@ -1013,66 +945,46 @@
     }).join('');
   }
 
-  // ─── DRAG & DROP ───
-  function dragStart(id) {
-    dragSrcId = id;
-    setTimeout(() => {
-      const el = document.querySelector(`.task-row[draggable]`);
-      if (el) el.classList.add('dragging');
-    }, 0);
-  }
+  function dragStart(id) { dragSrcId = id; }
   function dragOver(e, id) {
     e.preventDefault();
     document.querySelectorAll('.task-row').forEach(r => r.classList.remove('drag-over'));
-    const row = e.currentTarget;
-    if (row && dragSrcId !== id) row.classList.add('drag-over');
+    if (dragSrcId !== id) e.currentTarget.classList.add('drag-over');
   }
   function dragLeave(el) { el.classList.remove('drag-over'); }
   function dragDrop(targetId) {
     document.querySelectorAll('.task-row').forEach(r => r.classList.remove('drag-over','dragging'));
     if (!dragSrcId || dragSrcId === targetId) return;
-    const srcIdx = tasks.findIndex(t => t.id === dragSrcId);
-    const tgtIdx = tasks.findIndex(t => t.id === targetId);
-    if (srcIdx < 0 || tgtIdx < 0) return;
-    const [moved] = tasks.splice(srcIdx, 1);
-    tasks.splice(tgtIdx, 0, moved);
-    dragSrcId = null;
-    save(); render();
+    const si = tasks.findIndex(t => t.id === dragSrcId);
+    const ti = tasks.findIndex(t => t.id === targetId);
+    if (si < 0 || ti < 0) return;
+    const [moved] = tasks.splice(si, 1);
+    tasks.splice(ti, 0, moved);
+    dragSrcId = null; save(); render();
   }
 
-  // ─── TOAST ───
   function showToast(msg, type='info') {
-    const toast = document.getElementById('toast');
+    const t = document.getElementById('toast');
     document.getElementById('toast-msg').textContent = msg;
-    toast.className = 'show ' + type;
-    setTimeout(() => toast.className = '', 2500);
+    t.className = 'show ' + type;
+    setTimeout(() => t.className = '', 2500);
   }
 
-  // ─── COMPLETION MODAL ───
   function showCompletion(taskName) {
     document.getElementById('modal-title').textContent = `أنجزت: ${taskName}`;
-    document.getElementById('modal-sub').textContent = `عمل رائع! تقدم للمهمة التالية بكل ثقة.`;
+    document.getElementById('modal-sub').textContent = 'عمل رائع! تقدم للمهمة التالية بكل ثقة.';
     document.getElementById('completion-overlay').classList.add('show');
   }
-  function closeModal() {
-    document.getElementById('completion-overlay').classList.remove('show');
-  }
+  function closeModal() { document.getElementById('completion-overlay').classList.remove('show'); }
 
-  // ─── RESUME ACTIVE TASK ON RELOAD ───
-  (function resumeOnLoad() {
+  // On page load: if a task was "in-progress" when page closed, mark it paused
+  (function init() {
     const active = tasks.find(t => t.status === 'in-progress');
-    if (active) {
-      active.status = 'paused';
-      save();
-    }
-    setBannerIdle();
-    render();
+    if (active) { active.status = 'paused'; save(); }
+    setBannerIdle(); render();
   })();
 
-  // ─── KEYBOARD SHORTCUT: ESC to stop ───
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && activeTaskId) stopTimer();
-  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && activeTaskId) stopTimer(); });
 </script>
 </body>
 </html>
