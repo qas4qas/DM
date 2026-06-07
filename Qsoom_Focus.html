@@ -66,38 +66,25 @@
   }
 
   .logo-block {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-shrink: 0;
+    display: flex; align-items: center; gap: 14px; flex-shrink: 0;
   }
   .logo { display: flex; align-items: center; }
-  .logo img {
-    height: 40px; width: auto;
-    object-fit: contain;
-    filter: brightness(1.05);
-  }
+  .logo img { height: 40px; width: auto; object-fit: contain; filter: brightness(1.05); }
   .logo-title {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--text-1);
-    letter-spacing: -0.3px;
-    line-height: 1;
-    border-right: 2px solid var(--border-active);
-    padding-right: 14px;
+    font-size: 20px; font-weight: 800; color: var(--text-1);
+    letter-spacing: -0.3px; line-height: 1;
+    border-right: 2px solid var(--border-active); padding-right: 14px;
   }
   .logo-title span { color: var(--accent); }
 
   .header-stats-row {
-    display: flex; gap: 6px; align-items: center;
-    flex-wrap: wrap; justify-content: flex-end;
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end;
   }
   .stat-chip {
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: 14px; padding: 4px 10px;
     font-size: 11.5px; color: var(--text-2);
-    display: flex; align-items: center; gap: 5px;
-    white-space: nowrap;
+    display: flex; align-items: center; gap: 5px; white-space: nowrap;
   }
   .stat-chip .chip-label { color: var(--text-3); }
   .stat-chip span { color: var(--text-1); font-weight: 700; }
@@ -113,15 +100,12 @@
     background: linear-gradient(135deg, #0e1a2e, #0a1628);
     border: 1px solid var(--border-active);
     border-radius: var(--radius);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
+    padding: 1.5rem; margin-bottom: 1.5rem;
+    position: relative; overflow: hidden;
     animation: slideIn 0.4s ease;
   }
   #focus-banner::before {
-    content: '';
-    position: absolute; top: 0; right: 0;
+    content: ''; position: absolute; top: 0; right: 0;
     width: 200px; height: 100%;
     background: radial-gradient(ellipse at right, rgba(59,130,246,0.12), transparent 70%);
     pointer-events: none;
@@ -147,32 +131,25 @@
     height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2));
     border-radius: 2px; transition: width 1s linear;
   }
-  #focus-banner.idle {
-    background: rgba(22,26,34,0.6);
-    border-color: var(--border);
-  }
+  #focus-banner.idle { background: rgba(22,26,34,0.6); border-color: var(--border); }
   .banner-idle-content {
     display: flex; align-items: center; justify-content: center;
-    gap: 12px; padding: 0.5rem 0;
-    color: var(--text-3); font-size: 15px;
+    gap: 12px; padding: 0.5rem 0; color: var(--text-3); font-size: 15px;
   }
   .banner-idle-icon { font-size: 28px; opacity: 0.4; }
   .banner-idle-text { font-size: 15px; color: var(--text-2); }
 
   main {
     max-width: 1100px; margin: 0 auto;
-    padding: 1.5rem;
-    position: relative; z-index: 1;
+    padding: 1.5rem; position: relative; z-index: 1;
   }
 
   .summary-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-    margin-bottom: 1.5rem;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem;
   }
   .sum-card {
     background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 0.9rem 1.1rem;
-    transition: border-color 0.2s;
+    border-radius: var(--radius-sm); padding: 0.9rem 1.1rem; transition: border-color 0.2s;
   }
   .sum-card:hover { border-color: rgba(255,255,255,0.15); }
   .sum-label { font-size: 11px; color: var(--text-3); letter-spacing: 0.5px; margin-bottom: 6px; }
@@ -193,12 +170,10 @@
   .filter-btn {
     background: var(--bg-card); border: 1px solid var(--border);
     color: var(--text-2); border-radius: 6px; padding: 4px 10px;
-    font-size: 12px; font-family: var(--font); cursor: pointer;
-    transition: all 0.15s;
+    font-size: 12px; font-family: var(--font); cursor: pointer; transition: all 0.15s;
   }
   .filter-btn:hover, .filter-btn.active {
-    background: var(--accent-glow); border-color: var(--accent);
-    color: var(--accent);
+    background: var(--accent-glow); border-color: var(--accent); color: var(--accent);
   }
 
   .task-table-wrap {
@@ -210,10 +185,10 @@
     padding: 12px 14px; text-align: right;
     font-size: 11px; color: var(--text-3); font-weight: 500;
     letter-spacing: 0.8px; text-transform: uppercase;
-    border-bottom: 1px solid var(--border);
-    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2);
   }
   .task-table thead th:first-child { padding-right: 16px; }
+
   .task-row {
     border-bottom: 1px solid var(--border);
     transition: background 0.15s; cursor: grab;
@@ -221,16 +196,37 @@
   .task-row:last-child { border-bottom: none; }
   .task-row:hover { background: rgba(255,255,255,0.03); }
   .task-row.active-task { background: var(--bg-active) !important; border-right: 3px solid var(--accent); }
-  .task-row.done-task { opacity: 0.5; }
-  .task-row.done-task .task-name { text-decoration: line-through; color: var(--text-3); }
   .task-row.dragging { opacity: 0.4; }
   .task-row.drag-over { border-top: 2px solid var(--accent); }
   .task-table td { padding: 12px 14px; vertical-align: middle; font-size: 14px; }
   .task-table td:first-child { padding-right: 16px; }
 
+  /* ─── DONE ROW: رمادي واضح مع خط مشطوب ─── */
+  .task-row.done-task {
+    opacity: 1;
+    background: rgba(0,0,0,0.15);
+  }
+  .task-row.done-task .task-name {
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    color: var(--text-3);
+  }
+  .task-row.done-task td {
+    color: var(--text-3);
+  }
+  .task-row.done-task .time-badge {
+    opacity: 0.45;
+  }
+  .task-row.done-task .status-badge {
+    opacity: 0.55;
+  }
+  .task-row.done-task .row-timer {
+    color: var(--text-3);
+  }
+
   .drag-handle { color: var(--text-3); cursor: grab; font-size: 16px; padding-left: 8px; user-select: none; }
   .drag-handle:hover { color: var(--text-2); }
-  .task-name { font-weight: 500; color: var(--text-1); }
+  .task-name { font-weight: 500; color: var(--text-1); transition: color 0.2s; }
   .task-name-edit {
     background: none; border: none; color: var(--text-1);
     font-family: var(--font); font-size: 14px; font-weight: 500;
@@ -408,6 +404,18 @@
     margin-top: 3rem; padding-bottom: 2rem; font-family: var(--mono);
   }
 
+  /* ─── فاصل بصري بين المهام النشطة والمنجزة ─── */
+  .done-divider td {
+    padding: 6px 16px;
+    font-size: 11px;
+    color: var(--text-3);
+    font-family: var(--mono);
+    letter-spacing: 1px;
+    background: rgba(0,0,0,0.25);
+    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+  }
+
   /* ─── TABLETS ─── */
   @media (max-width: 900px) {
     .summary-grid { grid-template-columns: repeat(2, 1fr); }
@@ -423,17 +431,13 @@
     .logo-title { font-size: 15px; padding-right: 10px; }
     .stat-chip { font-size: 10.5px; padding: 3px 8px; }
     .stat-chip .chip-label { display: none; }
-
     main { padding: 0.9rem; }
     #focus-banner { padding: 1rem; margin-bottom: 1rem; }
     .banner-task { font-size: 16px; }
     #banner-timer { font-size: 26px; }
-
     .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1rem; }
     .sum-val { font-size: 20px; }
     .sum-card { padding: 0.75rem; }
-
-    /* Mobile: switch table to card layout */
     .task-table-wrap { overflow-x: unset; border-radius: var(--radius); }
     .task-table { min-width: unset; }
     .task-table thead { display: none; }
@@ -452,7 +456,6 @@
     }
     .task-row.active-task { border-color: var(--border-active) !important; background: var(--bg-active) !important; }
     .task-table td { padding: 0; display: block; border: none; font-size: 13px; }
-
     .col-order  { grid-column: 1; grid-row: 1; align-self: center; }
     .col-task   { grid-column: 2; grid-row: 1; align-self: center; }
     .col-done   { grid-column: 3; grid-row: 1; align-self: center; text-align: left; }
@@ -461,16 +464,13 @@
     .col-counter{ grid-column: 1; grid-row: 3; align-self: center; }
     .col-action { grid-column: 2; grid-row: 3; }
     .col-ops    { grid-column: 3; grid-row: 3; text-align: left; }
-
-    /* Empty state row stays normal */
     .task-table tbody tr.empty-row { display: table-row; border: none !important; background: transparent !important; border-radius: 0 !important; padding: 0; }
     .task-table tbody tr.empty-row td { display: table-cell; }
-
+    .done-divider { display: none; }
     .add-section { padding: 1rem; }
     .add-form-row { grid-template-columns: 1fr; }
     .form-select { min-width: unset; width: 100%; }
     .btn-add { width: 100%; justify-content: center; }
-
     .filter-group { gap: 4px; }
     .filter-btn { font-size: 11px; padding: 3px 8px; }
     .section-header { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -656,13 +656,8 @@
   let timerInterval = null;
   let currentFilter = 'all';
   let dragSrcId = null;
-
-  // ─── BACKGROUND TIMER TRACKING ───
-  // We record the real wall-clock timestamp when a task timer starts/resumes.
-  // On every tick we compute elapsed from Date.now() instead of incrementing a counter.
-  // This means pausing the browser tab or switching apps has ZERO effect on accuracy.
-  let timerStartEpoch = null;    // Date.now() when current run started
-  let timerStartRemaining = 0;   // task.remaining at that moment
+  let timerStartEpoch = null;
+  let timerStartRemaining = 0;
 
   // ─── LIVE CLOCK ───
   function updateClock() {
@@ -700,14 +695,12 @@
     return String(Math.floor(sec / 60)).padStart(2,'0') + ':' + String(sec % 60).padStart(2,'0');
   }
 
-  // Compute current remaining using real wall-clock difference
   function getCurrentRemaining() {
     if (!activeTaskId || timerStartEpoch === null) return null;
-    const elapsedMs = Date.now() - timerStartEpoch;
-    return Math.max(0, timerStartRemaining - Math.floor(elapsedMs / 1000));
+    return Math.max(0, timerStartRemaining - Math.floor((Date.now() - timerStartEpoch) / 1000));
   }
 
-  // ─── TICK — runs every second when page is in foreground ───
+  // ─── TICK ───
   function tick() {
     if (!activeTaskId) return;
     const task = tasks.find(t => t.id === activeTaskId);
@@ -728,7 +721,7 @@
     }
   }
 
-  // ─── PAGE VISIBILITY: catch-up when tab returns to foreground ───
+  // ─── PAGE VISIBILITY ───
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && activeTaskId) {
       const task = tasks.find(t => t.id === activeTaskId);
@@ -764,6 +757,7 @@
     updateTimePreview();
   });
 
+  // ─── ADD TASK ───
   function addTask() {
     const nameEl = document.getElementById('input-task-name');
     const name = nameEl.value.trim();
@@ -773,7 +767,14 @@
     const priority = document.getElementById('input-priority').value;
     if (!name) { nameEl.focus(); showToast('❗ أدخل اسم المهمة أولاً', 'info'); return; }
     if (duration === 0) { showToast('❗ حدد وقتاً للمهمة', 'info'); return; }
-    tasks.push({ id: Date.now().toString(), name, duration, priority, status: 'not-started', remaining: duration, elapsed: 0, done: false });
+    tasks.push({
+      id: Date.now().toString(),
+      name, duration, priority,
+      status: 'not-started',
+      remaining: duration,
+      elapsed: 0,
+      done: false
+    });
     save(); nameEl.value = ''; render();
     showToast('✅ تمت إضافة المهمة', 'success');
   }
@@ -784,11 +785,22 @@
     save(); render(); showToast('🗑 تم حذف المهمة', 'info');
   }
 
+  // ─── TOGGLE DONE ───
+  // عند الإلغاء: يُعاد الوقت الأصلي كاملاً كأن المهمة لم تنجز
   function toggleDone(id) {
     const t = tasks.find(t => t.id === id);
     if (!t) return;
     if (activeTaskId === id) stopTimer();
-    t.done = !t.done; t.status = t.done ? 'done' : 'not-started';
+    t.done = !t.done;
+    if (t.done) {
+      // إنجاز: حفظ الوقت المتبقي للمرجعية ثم إكمال
+      t.status = 'done';
+    } else {
+      // إلغاء الإنجاز: إعادة المهمة لحالتها الأصلية بوقت كامل
+      t.status = 'not-started';
+      t.remaining = t.duration;   // ← إعادة الوقت الأصلي كاملاً
+      t.elapsed = 0;               // ← تصفير الوقت المنقضي
+    }
     save(); render();
   }
 
@@ -810,7 +822,6 @@
     if (!t || t.done) return;
     activeTaskId = id;
     t.status = 'in-progress';
-    // Record wall-clock anchor
     timerStartEpoch = Date.now();
     timerStartRemaining = t.remaining;
     save(); render();
@@ -872,23 +883,31 @@
 
   function priorityDot(p) { return `<span class="priority-dot priority-${p||'med'}"></span>`; }
 
+  // ─── RENDER ───
   function render() {
     const tbody = document.getElementById('task-body');
-    const filtered = tasks.filter(t => {
+
+    // ─── ترتيب: المهام النشطة أولاً ثم المنجزة في الأسفل ───
+    const active = tasks.filter(t => !t.done);
+    const done   = tasks.filter(t => t.done);
+    const sorted = [...active, ...done];
+
+    const filtered = sorted.filter(t => {
       if (currentFilter === 'all') return true;
       if (currentFilter === 'done') return t.done;
       return t.status === currentFilter && !t.done;
     });
 
-    const total = tasks.length;
-    const done = tasks.filter(t => t.done).length;
-    const inProg = tasks.filter(t => t.status === 'in-progress' && !t.done).length;
+    // إحصائيات
+    const total   = tasks.length;
+    const doneCount = tasks.filter(t => t.done).length;
+    const inProg  = tasks.filter(t => t.status === 'in-progress' && !t.done).length;
     const pending = tasks.filter(t => t.status === 'not-started').length;
     document.getElementById('stat-total').textContent = total;
-    document.getElementById('stat-done').textContent = done;
+    document.getElementById('stat-done').textContent = doneCount;
     document.getElementById('stat-time').textContent = formatTotalTime(getTotalCompletedSeconds());
     document.getElementById('card-total').textContent = total;
-    document.getElementById('card-done').textContent = done;
+    document.getElementById('card-done').textContent = doneCount;
     document.getElementById('card-progress').textContent = inProg;
     document.getElementById('card-pending').textContent = pending;
 
@@ -901,21 +920,35 @@
       return;
     }
 
-    tbody.innerHTML = filtered.map(t => {
+    let html = '';
+    let dividerInserted = false;
+
+    filtered.forEach(t => {
+      // فاصل بصري عند أول مهمة منجزة (فقط في عرض الكل)
+      if (t.done && !dividerInserted && currentFilter === 'all') {
+        const activeShown = filtered.filter(x => !x.done).length;
+        if (activeShown > 0) {
+          html += `<tr class="done-divider"><td colspan="8">✓ &nbsp; المهام المنجزة</td></tr>`;
+        }
+        dividerInserted = true;
+      }
+
       const isActive = activeTaskId === t.id;
       const rowClass = `task-row ${isActive ? 'active-task' : ''} ${t.done ? 'done-task' : ''}`;
       const actionBtn = isActive
         ? `<button class="btn-stop" onclick="toggleTimer('${t.id}')">⏸ إيقاف</button>`
         : t.done
-          ? `<span style="color:var(--accent-done);font-size:13px;font-weight:600">✓ مكتمل</span>`
+          ? `<span style="color:var(--text-3);font-size:12px;">—</span>`
           : `<button class="btn-start" onclick="toggleTimer('${t.id}')">▶ بدء</button>`;
 
-      return `<tr class="${rowClass}" draggable="true"
+      html += `<tr class="${rowClass}" draggable="${!t.done}"
           ondragstart="dragStart('${t.id}')"
           ondragover="dragOver(event,'${t.id}')"
           ondrop="dragDrop('${t.id}')"
           ondragleave="dragLeave(this)">
-        <td class="col-order"><span class="drag-handle" title="اسحب لإعادة الترتيب">⠿</span></td>
+        <td class="col-order">
+          ${!t.done ? `<span class="drag-handle" title="اسحب لإعادة الترتيب">⠿</span>` : ''}
+        </td>
         <td class="col-task" data-label="المهمة">
           <div style="display:flex;align-items:center;gap:6px;">
             ${priorityDot(t.priority)}
@@ -932,22 +965,33 @@
           <span class="row-timer ${t.done ? 'done-timer' : ''}" id="timer-${t.id}">${formatTime(t.remaining)}</span>
         </td>
         <td class="col-done" data-label="الإنجاز">
-          <button class="check-btn ${t.done ? 'checked' : ''}" onclick="toggleDone('${t.id}')" title="${t.done ? 'إلغاء الإنجاز' : 'تحديد كمنجز'}">
+          <button class="check-btn ${t.done ? 'checked' : ''}"
+            onclick="toggleDone('${t.id}')"
+            title="${t.done ? 'إلغاء الإنجاز وإعادة الوقت' : 'تحديد كمنجز'}">
             ${t.done ? '✓' : ''}
           </button>
         </td>
         <td class="col-action" data-label="الإجراء">${actionBtn}</td>
         <td class="col-ops" data-label="خيارات">
-          <button class="btn-edit" onclick="editTask('${t.id}')" title="تعديل">✎</button>
+          ${!t.done ? `<button class="btn-edit" onclick="editTask('${t.id}')" title="تعديل">✎</button>` : ''}
           <button class="btn-delete" onclick="deleteTask('${t.id}')" title="حذف">✕</button>
         </td>
       </tr>`;
-    }).join('');
+    });
+
+    tbody.innerHTML = html;
   }
 
-  function dragStart(id) { dragSrcId = id; }
+  // ─── DRAG & DROP (للمهام غير المنجزة فقط) ───
+  function dragStart(id) {
+    const t = tasks.find(t => t.id === id);
+    if (t && t.done) return;
+    dragSrcId = id;
+  }
   function dragOver(e, id) {
     e.preventDefault();
+    const tgt = tasks.find(t => t.id === id);
+    if (tgt && tgt.done) return;
     document.querySelectorAll('.task-row').forEach(r => r.classList.remove('drag-over'));
     if (dragSrcId !== id) e.currentTarget.classList.add('drag-over');
   }
@@ -958,6 +1002,8 @@
     const si = tasks.findIndex(t => t.id === dragSrcId);
     const ti = tasks.findIndex(t => t.id === targetId);
     if (si < 0 || ti < 0) return;
+    const tgt = tasks[ti];
+    if (tgt && tgt.done) return; // لا تسحب فوق منجزة
     const [moved] = tasks.splice(si, 1);
     tasks.splice(ti, 0, moved);
     dragSrcId = null; save(); render();
@@ -977,7 +1023,6 @@
   }
   function closeModal() { document.getElementById('completion-overlay').classList.remove('show'); }
 
-  // On page load: if a task was "in-progress" when page closed, mark it paused
   (function init() {
     const active = tasks.find(t => t.status === 'in-progress');
     if (active) { active.status = 'paused'; save(); }
