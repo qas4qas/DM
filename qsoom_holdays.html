@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qsoom Holidays — حاسبة اجازات الموظف</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef2f6;--surface:#ffffff;--surface-muted:#f5f8fa;--surface-sunken:#e9eef3;
+    --border:#d8e0e8;--border-strong:#c2cdd7;
+    --text:#202a36;--text-secondary:#5b6675;--text-muted:#8a93a1;
+    --accent:#0067c0;--accent-dark:#00497a;--accent-soft:#e6f1fb;--accent-soft-strong:#cfe6f9;
+    --holiday-bg:#fffbeb;--holiday-border:#d97706;--holiday-fg:#92400e;
+    --amber-soft:#fdf1de;--amber-strong:#ca5010;
+    --green:#0e700e;--green-soft:#e1f5e1;
+    --red:#c42b1c;--red-soft:#fbe7e7;
+    --radius-lg:16px;--radius-md:12px;--radius-sm:8px;
+    --shadow-card:0 1px 2px rgba(20,30,45,.04),0 6px 18px -8px rgba(20,30,45,.12);
+    --shadow-pop:0 10px 30px -10px rgba(15,40,70,.25);
+    --font-d:'Tajawal','Segoe UI',Tahoma,Arial,sans-serif;
+    --font-b:'IBM Plex Sans Arabic','Tajawal','Segoe UI',Tahoma,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1100px 480px at 90% -10%,#f3f8fc 0%,transparent 60%),
+      radial-gradient(900px 420px at -10% 0%,#eaf1f8 0%,transparent 55%),var(--bg);
+    color:var(--text);font-family:var(--font-b);line-height:1.5;min-height:100vh;
+    display: flex;flex-direction: column;
+  }
+  button{font-family:inherit;}
+  h1,h2,h3{font-family:var(--font-d);margin:0;}
+  p{margin:0;}
+  ::selection{background:var(--accent-soft-strong);}
+  :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px;}
+  .app{max-width:1100px;margin:0 auto;padding:28px 20px 40px;flex: 1;width: 100%;}
+
+  /* --- Topbar --- */
+  .topbar{display:flex;align-items:center;gap:16px;margin-bottom:26px;}
+  .brand-mark{width:52px;height:52px;border-radius:14px;flex:0 0 auto;
+    background:linear-gradient(155deg,var(--accent) 0%,var(--accent-dark) 100%);
+    display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-pop);}
+  .brand-mark svg{width:28px;height:28px;}
+  .topbar h1{font-size:22px;font-weight:800;color:var(--text);letter-spacing:.2px;}
+  .topbar .brand-sub{font-size:12.5px;color:var(--text-muted);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--font-d);font-weight:700;margin-top:2px;}
+
+  /* --- Balance grid --- */
+  .balance-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+  .balance-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-card);transition: transform 0.2s;}
+  .balance-table:hover{transform: translateY(-2px);}
+  .balance-table h3{text-align:center;margin-bottom:16px;font-size:18px;font-weight:800;padding-bottom:8px;border-bottom:2px solid var(--surface-sunken);}
+  .balance-table.available h3{color: var(--accent);}
+  .balance-table.consumed h3{color: var(--amber-strong);}
+  .balance-row{display:flex;justify-content:space-between;padding:12px 10px;border-bottom:1px solid var(--surface-muted);font-weight:600;font-size:14.5px;}
+  .balance-row:last-child{border-bottom:none;font-weight:700;background: var(--surface-muted);border-radius: var(--radius-sm);}
+  .balance-row .val-tag{background: var(--surface-sunken);padding: 2px 10px;border-radius: 20px;font-family: var(--font-d);font-weight: 800;}
+  .balance-table.available .balance-row:last-child .val-tag{background: var(--accent-soft);color: var(--accent-dark);}
+  .balance-table.consumed .balance-row:last-child .val-tag{background: var(--red-soft);color: var(--red);}
+
+  /* --- Calendar card --- */
+  .calendar-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card);padding:18px 20px 20px;margin-bottom:20px;}
+  .calendar-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .calendar-toolbar-title{font-family:var(--font-d);font-weight:700;font-size:16px;color:var(--text);}
+  .calendar-toolbar-sub{font-size:12px;color:var(--text-muted);font-weight:500;margin-top:2px;}
+  .nav-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);
+    background:var(--surface-muted);color:var(--text-secondary);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:background .15s,border-color .15s,transform .1s;}
+  .nav-btn:hover:not(:disabled){background:var(--accent-soft);border-color:var(--accent-soft-strong);color:var(--accent-dark);}
+  .nav-btn:active:not(:disabled){transform:scale(.94);}
+  .nav-btn:disabled{opacity:.35;cursor:default;}
+  .nav-btn svg{width:16px;height:16px;}
+
+  .calendar-panels{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+  .calendar-panel{min-width:0;}
+  .panel-month-label{text-align:center;margin-bottom:4px;}
+  .panel-month-greg{font-size:14.5px;font-weight:800;color:var(--text);font-family:var(--font-d);}
+  .panel-month-hijri{font-size:11px;color:var(--text-muted);font-weight:600;margin-top:2px;}
+  .weekday-row,.day-grid{display:grid;grid-template-columns:repeat(7,1fr);}
+  .weekday-row{margin-bottom:5px;}
+  .weekday-cell{text-align:center;font-size:11px;font-weight:700;color:var(--text-muted);padding:5px 0;}
+  .weekday-cell.weekend{color:var(--amber-strong);}
+
+  /* --- Day cells --- */
+  .day-grid{gap:3px;}
+  .day-cell{
+    position:relative;aspect-ratio:1/1.08;border-radius:9px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    border:1px solid transparent;cursor:pointer;
+    transition:background .12s,border-color .12s,transform .08s;
+  }
+  .day-cell.outside{visibility:hidden;pointer-events:none;}
+  .day-num{font-size:18px;font-weight:900;color:var(--text);line-height:1;}
+  .hijri-sub{font-size:12px;font-weight:800;color:var(--text-muted);line-height:1;}
+  .hijri-sub.hijri-new-month{color:var(--accent-dark);font-weight:700;}
+  .day-cell.weekend-day{background:var(--surface-sunken);}
+  .day-cell.weekend-day .day-num{color:var(--text-secondary);}
+  .day-cell:hover:not(.taken):not(.outside){border-color:var(--accent);background:var(--accent-soft);}
+  .day-cell.today{box-shadow:inset 0 0 0 2px var(--accent-dark);}
+  .day-cell.today .day-num{font-weight:800;color:var(--accent-dark);}
+  .day-cell.in-range{background:var(--accent-soft-strong);}
+  .day-cell.range-start,.day-cell.range-end{background:var(--accent);border-color:var(--accent-dark);}
+  .day-cell.range-start .day-num,.day-cell.range-end .day-num{color:#fff;font-weight:800;}
+  .day-cell.range-start .hijri-sub,.day-cell.range-end .hijri-sub{color:rgba(255,255,255,.8);}
+  .day-cell.taken{background:color-mix(in srgb,var(--p-color) 14%,white);cursor:default;
+    box-shadow:inset 0 -3px 0 var(--p-color);}
+  .day-cell.taken .day-num{color:var(--text);}
+
+  .day-cell.holiday{background:var(--holiday-bg);border-color:#fde68a;}
+  .day-cell.holiday .day-num{color:var(--holiday-fg);}
+  .day-cell.holiday .hijri-sub{color:#b45309;}
+  .day-cell.holiday:hover:not(.taken){border-color:var(--holiday-border);background:#fef3c7;}
+
+  .holiday-dot{width:4px;height:4px;border-radius:50%;background:var(--holiday-border);position:absolute;bottom:4px;}
+
+  .school-year-start{box-shadow:inset 0 0 0 2.5px #7c3aed !important;background: #f3e8ff !important;}
+  .school-year-start .day-num{color:#6d28d9 !important;font-weight:900;}
+
+  .calendar-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;padding-top:14px;
+    border-top:1px dashed var(--border-strong);}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);font-weight:600;}
+  .legend-swatch{width:13px;height:13px;border-radius:4px;flex:0 0 auto;}
+
+  /* --- Selection summary --- */
+  .selection-summary{background:linear-gradient(180deg,var(--accent-soft) 0%,var(--surface) 100%);
+    border:1px solid var(--accent-soft-strong);border-radius:var(--radius-lg);
+    padding:16px 20px;margin-bottom:20px;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    animation:rise .18s ease-out;}
+  @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .selection-info{display:flex;flex-wrap:wrap;gap:22px;}
+  .selection-field{display:flex;flex-direction:column;gap:2px;}
+  .selection-field .label{font-size:11px;color:var(--text-muted);font-weight:700;}
+  .selection-field .value{font-size:14.5px;font-weight:700;color:var(--text);font-family:var(--font-d);}
+  .selection-actions{display:flex;gap:10px;}
+
+  /* --- Buttons --- */
+  .btn{border:none;border-radius:10px;padding:10px 18px;font-size:13.5px;font-weight:700;
+    cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+    transition:background .15s,box-shadow .15s,transform .08s;font-family:var(--font-b);}
+  .btn svg{width:15px;height:15px;}
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 16px -6px rgba(0,103,192,.5);}
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid var(--border-strong);}
+  .btn-ghost:hover{background:var(--surface-muted);}
+  .btn-danger-ghost{background:transparent;color:var(--red);border:1px solid var(--red-soft);}
+  .btn-danger-ghost:hover{background:var(--red-soft);}
+
+  /* --- Periods --- */
+  .periods-section{margin-bottom:24px;}
+  .periods-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
+  .periods-header h2{font-size:16px;font-weight:800;}
+  .count-pill{font-size:11.5px;font-weight:700;color:var(--text-secondary);
+    background:var(--surface-muted);border:1px solid var(--border);padding:3px 10px;border-radius999px;}
+  .periods-list{display:flex;flex-direction:column;gap:10px;}
+  .period-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);
+    padding:13px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-card);
+    border-inline-start:4px solid var(--p-color,var(--accent));}
+  .period-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;}
+  .period-title-wrap{flex:1;}
+  .period-title{font-family:var(--font-d);font-weight:800;font-size:15px;color:var(--text);display:flex;align-items:center;gap:8px;}
+  .period-range{font-size:12.5px;color:var(--text-secondary);margin-top:2px;font-weight:500;}
+  .period-stats{display:flex;gap:16px;flex:0 0 auto;margin-inline-end:10px;}
+  .period-stat{text-align:center;background:var(--surface-muted);padding:4px 10px;border-radius:8px;border:1px solid var(--border);}
+  .period-stat .num{font-family:var(--font-d);font-weight:800;font-size:15px;color:var(--text);}
+  .period-stat .lbl{font-size:10.5px;color:var(--text-muted);font-weight:600;}
+  
+  .period-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);
+    background:var(--surface-muted);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex:0 0 auto;transition:.15s;}
+  .period-btn:hover{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft-strong);}
+  .period-remove:hover{background:var(--red-soft);color:var(--red);border-color:var(--red-soft);}
+  .period-btn svg{width:14px;height:14px;}
+  
+  .empty-state{text-align:center;color:var(--text-muted);font-size:13.5px;font-weight:500;
+    padding:26px 16px;background:var(--surface-muted);border:1px dashed var(--border-strong);border-radius:var(--radius-md);}
+
+  /* --- Official holidays card --- */
+  .holiday-card{background:var(--surface);border:1px solid #fde68a;
+    border-inline-start:4px solid var(--holiday-border);
+    border-radius:var(--radius-lg);box-shadow:var(--shadow-card);margin-bottom:20px;overflow:hidden;}
+  .holiday-card-header{display:flex;align-items:flex-start;gap:12px;padding:16px 20px;cursor:pointer;
+    user-select:none;transition:background .15s;}
+  .holiday-card-header:hover{background:var(--holiday-bg);}
+  .holiday-icon{width:34px;height:34px;border-radius:10px;flex:0 0 auto;
+    background:var(--amber-soft);color:var(--amber-strong);display:flex;align-items:center;justify-content:center;}
+  .holiday-icon svg{width:18px;height:18px;}
+  .holiday-header-text{flex:1;min-width:0;}
+  .holiday-header-text h2{font-size:15px;font-weight:800;color:var(--text);}
+  .holiday-card-sub{font-size:12px;color:var(--text-secondary);font-weight:500;margin-top:4px;}
+  .holiday-chevron{width:28px;height:28px;border-radius:8px;flex:0 0 auto;
+    background:var(--surface-muted);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;color:var(--text-muted);}
+  .holiday-chevron svg{width:14px;height:14px;transition:transform .28s ease;}
+  .holiday-chevron.open svg{transform:rotate(180deg);}
+
+  .holiday-list-wrap{max-height:0;overflow:hidden;transition:max-height .32s ease;}
+  .holiday-list-wrap.open{max-height:1200px;}
+  .holiday-list{display:flex;flex-direction:column;gap:8px;padding:0 20px 16px;}
+  .holiday-row{display:flex;align-items:center;gap:12px;padding:10px 12px;
+    background:var(--surface-muted);border:1px solid var(--border);border-radius:var(--radius-sm);}
+  .holiday-swatch{width:9px;height:36px;border-radius:4px;flex:0 0 auto;
+    background:linear-gradient(180deg,#fde68a,#d97706);}
+  .holiday-row-main{flex:1;min-width:0;}
+  .holiday-row-title{font-weight:700;font-size:13.5px;color:var(--text);font-family:var(--font-d);}
+  .holiday-row-dates{font-size:11.5px;color:var(--text-secondary);margin-top:3px;font-weight:500;
+    display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .hijri-tag{font-size:10.5px;color:var(--text-muted);background:var(--surface);
+    border:1px solid var(--border);padding:1px 8px;border-radius:999px;white-space:nowrap;}
+  .holiday-row-days{font-size:11.5px;font-weight:700;color:var(--text-secondary);flex:0 0 auto;
+    background:var(--surface);border:1px solid var(--border);padding:4px 11px;border-radius:999px;white-space:nowrap;}
+
+  /* --- Actions bar --- */
+  .actions-bar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:20px;}
+
+  /* --- Footer --- */
+  .site-footer {
+    background: #1e293b;color: #cbd5e1;padding: 16px 20px;text-align: center;
+    font-size: 13px;border-top: 4px solid var(--accent);margin-top: auto;
+  }
+  .site-footer p { margin: 4px 0; font-weight: 500;}
+  .site-footer a { color: #38bdf8; text-decoration: none; font-weight: 600; margin-inline-start: 4px;}
+  .site-footer a:hover { text-decoration: underline; }
+
+  /* --- Toast --- */
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--text);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;
+    box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;transition:.25s;z-index:50;white-space:nowrap;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* --- Print --- */
+  #printArea{display:none;}
+  @page{size:A4;margin:14mm 18mm;}
+  @media print{
+    body *{visibility:hidden;}
+    #printArea,#printArea *{visibility:visible;}
+    #printArea{display:block;position:absolute;inset:0;}
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+
+  /* --- Responsive --- */
+  @media(max-width:880px){
+    .balance-grid{grid-template-columns:1fr;}
+    .calendar-panels{grid-template-columns:1fr;}
+  }
+  @media(max-width:560px){
+    .app{padding:18px 12px 30px;}
+    .topbar h1{font-size:18px;}
+    .stat-value{font-size:24px;}
+    .period-card{flex-wrap:wrap;}
+    .period-stats{width:100%;justify-content:flex-start;margin-top:6px;margin-inline-end:0;}
+    .selection-summary{flex-direction:column;align-items:stretch;}
+    .selection-actions{justify-content:stretch;}
+    .selection-actions .btn{flex:1;justify-content:center;}
+    .actions-bar{flex-wrap:wrap;}
+    .actions-bar .btn{flex:1;justify-content:center;}
+    .holiday-row{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18"/><path d="M8 2v4M16 2v4"/><path d="M8.5 14l2 2 4-4"/></svg>
+    </div>
+    <div>
+      <h1>حاسبة اجازات الموظف</h1>
+      <p class="brand-sub">Qsoom Holidays</p>
+    </div>
+  </header>
+
+  <section class="balance-grid" id="balanceGrid" aria-label="ملخص الرصيد"></section>
+
+  <section class="calendar-card">
+    <div class="calendar-toolbar">
+      <button class="nav-btn" id="prevMonth" aria-label="الشهر السابق">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div style="text-align:center;">
+        <div class="calendar-toolbar-title">اختر تواريخ الإجازة من التقويم</div>
+        <div class="calendar-toolbar-sub">العام الهجري 1448 — أم القرى &nbsp;|&nbsp; اضغط يوماً لبدء التحديد، ثم اضغط يوماً آخر لتحديد نهاية الفترة</div>
+      </div>
+      <button class="nav-btn" id="nextMonth" aria-label="الشهر القادم">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="calendar-panels" id="calendarPanels"></div>
+    <div class="calendar-legend">
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--accent);"></span>التحديد الحالي</div>
+      <div class="legend-item"><span class="legend-swatch" style="box-shadow:inset 0 0 0 2px var(--accent-dark);background:#fff;"></span>اليوم الحالي</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--surface-sunken);border:1px solid var(--border);"></span>عطلة أسبوعية (جمعة/سبت)</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--holiday-bg);border:2px solid #fde68a;"></span>عطلة رسمية — قابلة للاختيار</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:color-mix(in srgb,var(--accent) 14%,white);box-shadow:inset 0 -3px 0 var(--accent);"></span>فترة مضافة</div>
+      <div class="legend-item"><span class="legend-swatch" style="box-shadow:inset 0 0 0 2.5px #7c3aed;background:#f3e8ff;"></span>🟣 بداية العام الدراسي 1449هـ</div>
+      <div class="legend-item" style="color:var(--accent-dark);font-size:11px;">🔵 أول يوم هجري</div>
+    </div>
+  </section>
+
+  <section class="selection-summary" id="selectionSummary" hidden>
+    <div class="selection-info">
+      <div class="selection-field"><span class="label">من تاريخ</span><span class="value" id="selFrom">—</span></div>
+      <div class="selection-field"><span class="label">إلى تاريخ</span><span class="value" id="selTo">—</span></div>
+      <div class="selection-field"><span class="label">عدد الأيام الفعلي</span><span class="value" id="selActual">—</span></div>
+      <div class="selection-field"><span class="label">شامل الويكند</span><span class="value" id="selTotal">—</span></div>
+    </div>
+    <div class="selection-actions">
+      <button class="btn btn-ghost" id="cancelSelection">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        إلغاء
+      </button>
+      <button class="btn btn-primary" id="confirmSelection">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg>
+        تأكيد وإضافة الفترة
+      </button>
+    </div>
+  </section>
+
+  <section class="periods-section">
+    <div class="periods-header">
+      <h2>الفترات المضافة</h2>
+      <span class="count-pill" id="periodsCount">0 فترة</span>
+    </div>
+    <div class="periods-list" id="periodsList"></div>
+    <p class="empty-state" id="emptyPeriods">لم تتم إضافة أي فترة إجازة بعد. اختر الأيام من التقويم أعلاه ثم اضغط «تأكيد وإضافة الفترة».</p>
+  </section>
+
+  <section class="holiday-card">
+    <div class="holiday-card-header" id="holidayToggleBtn" role="button" tabindex="0" aria-expanded="false">
+      <div class="holiday-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L14.7 3.86a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+      </div>
+      <div class="holiday-header-text">
+        <h2>العطل الرسمية المرجعية — اضغط للعرض / الإخفاء</h2>
+        <p class="holiday-card-sub">هذه الفترات إجازات رسمية وفق التقويم الدراسي 1448هـ (أم القرى). مظللة في التقويم باللون الذهبي ولا تزال قابلة للاختيار إذا لم يكن الموظف خاضعاً لها.</p>
+      </div>
+      <div class="holiday-chevron" id="holidayChevron">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+    <div class="holiday-list-wrap" id="holidayListWrap">
+      <div class="holiday-list" id="holidayList"></div>
+    </div>
+  </section>
+
+  <div class="actions-bar">
+    <button class="btn btn-danger-ghost" id="resetBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+      إعادة تعيين الكل
+    </button>
+    <button class="btn btn-primary" id="printBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 01-1-1v-6a1 1 0 011-1h16a1 1 0 011 1v6a1 1 0 01-1 1h-2M6 14h12v7H6z"/></svg>
+      طباعة ملخص الإجازات
+    </button>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <p>هذه الصفحة من تصميم Qasim Omeish</p>
+  <p>للتواصل: <a href="mailto:Qas4qas2@gmail.com">Qas4qas2@gmail.com</a></p>
+</footer>
+
+<div id="printArea"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ═══════════════ Formatters ═══════════════ */
+const AR_DATE      = new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn',{day:'numeric',month:'long',year:'numeric'});
+const AR_MONTH_YR  = new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn',{month:'long',year:'numeric'});
+const WEEKDAYS     = ['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+const HIJRI_MONTHS = ['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
+const ORDINALS     = ['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة','التاسعة','العاشرة'];
+const PALETTE      = ['#0067c0','#107c91','#6b5cd6','#3a6ea5','#1f8a70','#0b6e9e'];
+
+/* ═══════════════ Umm al-Qura Hijri helper ═══════════════ */
+const UQ_FMT = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',
+  {year:'numeric',month:'numeric',day:'numeric'});
+
+function getHijri(d){
+  const p = {};
+  UQ_FMT.formatToParts(d).forEach(x=>{ if(x.type!=='literal') p[x.type]=parseInt(x.value); });
+  return p;
+}
+function getHijriMonthsLabel(year,month){
+  const days = new Date(year,month+1,0).getDate();
+  const seen = new Map();
+  for(let d=1;d<=days;d++){
+    const date = new Date(year,month,d);
+    const h = getHijri(date);
+    const key = h.year+'-'+h.month;
+    if(!seen.has(key)) seen.set(key,{name:HIJRI_MONTHS[h.month-1],year:h.year});
+  }
+  const arr=[...seen.values()];
+  if(arr.length===1) return arr[0].name+' '+arr[0].year+'هـ';
+  const sameYear = arr.every(x=>x.year===arr[0].year);
+  if(sameYear) return arr.map(x=>x.name).join(' — ')+' '+arr[0].year+'هـ';
+  return arr.map(x=>x.name+' '+x.year).join(' — ')+'هـ';
+}
+
+/* ═══════════════ Find 1 Muharram ═══════════════ */
+function findGregorianFor1Muharram(hYear){
+  const ANCHOR = new Date(2022,6,30);
+  const DIFF_YEARS = hYear - 1444;
+  const approx = new Date(ANCHOR.getTime() + DIFF_YEARS * 354.367 * 86400000);
+  const start   = new Date(approx.getTime() - 25*86400000);
+  for(let i=0;i<50;i++){
+    const d = new Date(start.getTime()+i*86400000);
+    const h = getHijri(d);
+    if(h.year===hYear && h.month===1 && h.day===1) return d;
+  }
+  return approx;
+}
+
+const START_DATE = findGregorianFor1Muharram(1448);
+const END_DATE   = findGregorianFor1Muharram(1449);
+const CAL_MIN = {year:START_DATE.getFullYear(), month:START_DATE.getMonth()};
+const CAL_MAX = {year:END_DATE.getFullYear(),   month:END_DATE.getMonth()};
+
+/* ═══════════════ Constants & Official Holidays ═══════════════ */
+const STORAGE_KEY     = 'qsoom_holidays_periods_v3';
+const BASIC_BALANCE = 36; const SEPARATE_BALANCE = 10; const EMERGENCY_BAL = 5;
+
+const OFFICIAL_HOLIDAYS = [
+  {label:'اليوم الوطني',                startG:'2026-09-23', endG:'2026-09-26', hijri:'12–15 ربيع الآخر 1448هـ'},
+  {label:'إجازة الخريف — نهاية الربع الأول', startG:'2026-11-19', endG:'2026-11-27', hijri:'10–18 جمادى الأولى 1448هـ'},
+  {label:'منتصف العام الدراسي',          startG:'2027-01-15', endG:'2027-01-23', hijri:'30 رجب – 8 شعبان 1448هـ'},
+  {label:'يوم التأسيس',                 startG:'2027-02-22', endG:'2027-02-25', hijri:'12–15 رمضان 1448هـ'},
+  {label:'عيد الفطر',                   startG:'2027-02-28', endG:'2027-03-15', hijri:'18 رمضان – 1 شوال 1448هـ'},
+  {label:'عيد الأضحى',                  startG:'2027-05-07', endG:'2027-05-22', hijri:'1–16 ذو الحجة 1448هـ'},
+  {label:'نهاية العام الدراسي',          startG:'2027-06-24', endG:'2027-06-24', hijri:'تبدأ في 1 محرم 1449هـ', openEnded:true},
+];
+
+/* ═══════════════ State ═══════════════ */
+let periods    = [];
+let selStart   = null, selEnd = null, hoverKey = null;
+const today    = new Date(); today.setHours(0,0,0,0);
+let viewYear   = CAL_MIN.year, viewMonth = CAL_MIN.month;
+
+/* ═══════════════ Utils ═══════════════ */
+function pad(n){ return String(n).padStart(2,'0'); }
+function toKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function fromKey(k){ const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d); }
+function isWeekend(d){ const w=d.getDay(); return w===5||w===6; }
+function addMonths(y,m,n){ const d=new Date(y,m+n,1); return {year:d.getFullYear(),month:d.getMonth()}; }
+function eachDate(sk,ek){ const a=[],e=fromKey(ek); let c=fromKey(sk); while(c<=e){a.push(new Date(c));c.setDate(c.getDate()+1);} return a; }
+function rangeStats(sk,ek){ const ds=eachDate(sk,ek),tot=ds.length,wk=ds.filter(isWeekend).length; return{total:tot,weekend:wk,actual:tot-wk}; }
+
+/* ═══════════════ Persistence ═══════════════ */
+function storageGet(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){return null;} }
+function storageSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function storageDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+function persist() { storageSet(STORAGE_KEY, periods); }
+
+/* ═══════════════ Toast ═══════════════ */
+let _tt=null;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2600);}
+
+/* ═══════════════ Derived ═══════════════ */
+function sortedPeriods(){ return [...periods].sort((a,b)=>a.startKey.localeCompare(b.startKey)); }
+function decoratedPeriods(){
+  return sortedPeriods().map((p,i)=>{
+    const s=rangeStats(p.startKey,p.endKey);
+    const defaultLabel = i < ORDINALS.length ? 'الفترة ' + ORDINALS[i] : 'الفترة رقم ' + (i + 1);
+    return{...p,...s,index:i,color:PALETTE[i%PALETTE.length],
+      label: p.customLabel || defaultLabel};
+  });
+}
+function dayOwnerMap(){ const m=new Map(); decoratedPeriods().forEach(p=>eachDate(p.startKey,p.endKey).forEach(d=>m.set(toKey(d),p))); return m; }
+function holidayOwnerMap(){ const m=new Map(); OFFICIAL_HOLIDAYS.forEach(h=>eachDate(h.startG,h.endG).forEach(d=>m.set(toKey(d),h))); return m; }
+
+/* ═══════════════ Balance Deductions Logic ═══════════════ */
+function calculateBalances(){
+  let basicUsed=0, separateUsed=0, emergencyUsed=0;
+  decoratedPeriods().forEach(p=>{
+    if(p.actual >= 5){ 
+      basicUsed += p.actual; 
+    } else { 
+      basicUsed += p.actual; 
+      separateUsed += p.actual; 
+    }
+  });
+  if(basicUsed > BASIC_BALANCE){
+    emergencyUsed = basicUsed - BASIC_BALANCE;
+    basicUsed = BASIC_BALANCE;
+  }
+  return {
+    basicUsed, separateUsed, emergencyUsed,
+    basicRem: BASIC_BALANCE - basicUsed,
+    separateRem: SEPARATE_BALANCE - separateUsed,
+    emergencyRem: EMERGENCY_BAL - emergencyUsed
+  };
+}
+
+function renderBalance(){
+ const b = calculateBalances();
+ document.getElementById('balanceGrid').innerHTML=`
+ <div class="balance-table available">
+   <h3>الرصيد المتاح والمسموح</h3>
+   <div class="balance-row"><span>الرصيد الأساسي الكلي</span><span class="val-tag">${BASIC_BALANCE} يوم</span></div>
+   <div class="balance-row"><span>حد الأيام المتفرقة (أقل من 5 أيام)</span><span class="val-tag">${SEPARATE_BALANCE} يوم</span></div>
+   <div class="balance-row"><span>الحد الأقصى للاضطراري</span><span class="val-tag">${EMERGENCY_BAL} يوم</span></div>
+   <div class="balance-row"><span>إجمالي الرصيد المتبقي</span><span class="val-tag">${b.basicRem} يوم</span></div>
+ </div>
+ <div class="balance-table consumed">
+   <h3>الرصيد المستهلك والمخصوم</h3>
+   <div class="balance-row"><span>المستهلك من الرصيد الأساسي</span><span class="val-tag">${b.basicUsed} يوم</span></div>
+   <div class="balance-row"><span>المستهلك من رصيد المتفرقة</span><span class="val-tag">${b.separateUsed} / ${SEPARATE_BALANCE} يوم</span></div>
+   <div class="balance-row"><span>المتحول إلى رصيد اضطراري</span><span class="val-tag">${b.emergencyUsed} يوم</span></div>
+   <div class="balance-row"><span>إجمالي الأيام الفعلية المستهلكة</span><span class="val-tag">${decoratedPeriods().reduce((s,p)=>s+p.actual,0)} يوم</span></div>
+ </div>`;
+}
+
+/* ═══════════════ Calendar rendering ═══════════════ */
+function buildMonthCells(year,month){
+  const first=new Date(year,month,1), sw=first.getDay(), dim=new Date(year,month+1,0).getDate();
+  const total=Math.ceil((sw+dim)/7)*7, cells=[];
+  for(let i=0;i<total;i++){ const n=i-sw+1; cells.push((n<1||n>dim)?null:new Date(year,month,n)); }
+  return cells;
+}
+
+function renderCalendarPanel(year, month, ownerMap, holMap){
+  const cells=buildMonthCells(year,month);
+  const wdRow=WEEKDAYS.map((w,i)=>`<div class="weekday-cell ${i===5||i===6?'weekend':''}">${w}</div>`).join('');
+
+  const grid=cells.map(d=>{
+    if(!d) return '<div class="day-cell outside"></div>';
+    const key=toKey(d);
+    const cls=['day-cell'];
+    let style='', title='';
+    if(isWeekend(d)) cls.push('weekend-day');
+    if(toKey(today)===key) cls.push('today');
+
+    const owner=ownerMap.get(key);
+    const holiday=holMap.get(key);
+
+    if(owner){
+      cls.push('taken');
+      style=` style="--p-color:${owner.color}"`;
+      title=` title="${owner.label}: ${AR_DATE.format(fromKey(owner.startKey))} → ${AR_DATE.format(fromKey(owner.endKey))}"`;
+    } else if(holiday){
+      cls.push('holiday');
+      title=` title="${holiday.label} (${holiday.hijri})"`;
+    }
+
+    const h=getHijri(d);
+    const isNewHijriMonth=(h.day===1);
+    const hijriLabel = isNewHijriMonth
+      ? `<span class="hijri-sub hijri-new-month">🔵 ${HIJRI_MONTHS[h.month-1].slice(0,4)}</span>`
+      : `<span class="hijri-sub">${h.day}</span>`;
+      
+    // 1449-03-10 Hijri School Year Start Check (~ Mid July 2027)
+    const isSchoolStart=(h.year===1449 && h.month===3 && h.day===10);
+    if(isSchoolStart) {
+      cls.push('school-year-start');
+      title='بداية العام الدراسي الجديد 1449هـ';
+    }
+    const holidayDot = holiday && !owner ? '<span class="holiday-dot"></span>' : '';
+
+    return `<div class="${cls.join(' ')}"${style}${title}><span class="day-num">${d.getDate()}</span>${hijriLabel}${holidayDot}</div>`;
+  }).join('');
+
+  const hijriLabel=getHijriMonthsLabel(year,month);
+  return `
+    <div class="panel-month-label">
+      <div class="panel-month-greg">${AR_MONTH_YR.format(new Date(year,month,1))}</div>
+      <div class="panel-month-hijri">${hijriLabel}</div>
+    </div>
+    <div class="weekday-row">${wdRow}</div>
+    <div class="day-grid">${grid}</div>`;
+}
+
+function applySelectionVisuals(){
+  const cells=document.querySelectorAll('#calendarPanels .day-cell[data-date]');
+  let lo=null,hi=null,single=null;
+  if(selStart && selEnd){lo=selStart<selEnd?selStart:selEnd;hi=selStart<selEnd?selEnd:selStart;}
+  else if(selStart && hoverKey && hoverKey!==selStart){lo=selStart<hoverKey?selStart:hoverKey;hi=selStart<hoverKey?hoverKey:selStart;}
+  else if(selStart){single=selStart;}
+  cells.forEach(cell=>{
+    cell.classList.remove('range-start','range-end','in-range');
+    if(cell.classList.contains('taken')) return;
+    const k=cell.getAttribute('data-date');
+    if(single){if(k===single)cell.classList.add('range-start');return;}
+    if(!lo)return;
+    if(k===lo)cell.classList.add('range-start');
+    else if(k===hi)cell.classList.add('range-end');
+    else if(k>lo&&k<hi)cell.classList.add('in-range');
+  });
+}
+
+function renderCalendars(){
+  const ownerMap=dayOwnerMap(), holMap=holidayOwnerMap();
+  const next=addMonths(viewYear,viewMonth,1);
+  document.getElementById('calendarPanels').innerHTML=`
+    <div class="calendar-panel" id="panel0">${renderCalendarPanel(viewYear,viewMonth,ownerMap,holMap)}</div>
+    <div class="calendar-panel" id="panel1">${renderCalendarPanel(next.year,next.month,ownerMap,holMap)}</div>`;
+
+  document.querySelectorAll('#calendarPanels .day-cell:not(.outside)').forEach((cell,idx)=>{
+    const dayNum=cell.querySelector('.day-num');
+    if(!dayNum) return;
+    const panelEl=cell.closest('.calendar-panel');
+    const isSecond=panelEl&&panelEl.id==='panel1';
+    const py=isSecond?next.year:viewYear;
+    const pm=isSecond?next.month:viewMonth;
+    const dayN=parseInt(dayNum.textContent);
+    if(!isNaN(dayN)) cell.setAttribute('data-date', toKey(new Date(py,pm,dayN)));
+  });
+
+  applySelectionVisuals();
+  updateNavButtons();
+}
+
+function updateNavButtons(){
+  const prev=document.getElementById('prevMonth'), nxt=document.getElementById('nextMonth');
+  const atMin=(viewYear===CAL_MIN.year&&viewMonth===CAL_MIN.month);
+  const next=addMonths(viewYear,viewMonth,1);
+  const atMax=(next.year>CAL_MAX.year||(next.year===CAL_MAX.year&&next.month>CAL_MAX.month));
+  prev.disabled=atMin; nxt.disabled=atMax;
+}
+
+/* ═══════════════ Selection logic ═══════════════ */
+function onDayClick(key){
+  const owner=dayOwnerMap().get(key);
+  if(owner){showToast('هذا اليوم ضمن «'+owner.label+'» المضافة بالفعل');return;}
+
+  if(!selStart){
+    selStart=key;selEnd=null;
+  } else if(!selEnd){
+    if(key===selStart){selEnd=key;}
+    else if(key<selStart){selStart=key;}
+    else{selEnd=key;}
+  } else {
+    selStart=key;selEnd=null;
+  }
+
+  if(selStart && selEnd){
+    const lo=selStart,hi=selEnd;
+    const om=dayOwnerMap();
+    if(eachDate(lo,hi).some(d=>om.has(toKey(d)))){
+      showToast('النطاق يتقاطع مع فترة مضافة مسبقاً');
+      selStart=key;selEnd=null;
+    }
+  }
+  hoverKey=null;
+  applySelectionVisuals();
+  renderSelectionSummary();
+}
+
+function renderSelectionSummary(){
+  const box=document.getElementById('selectionSummary');
+  if(!selStart){box.hidden=true;return;}
+  const sk=selStart,ek=selEnd||selStart;
+  const lo=sk<ek?sk:ek,hi=sk<ek?ek:sk;
+  const s=rangeStats(lo,hi);
+  document.getElementById('selFrom').textContent=AR_DATE.format(fromKey(lo));
+  document.getElementById('selTo').textContent=AR_DATE.format(fromKey(hi));
+  document.getElementById('selActual').textContent=s.actual+' يوم';
+  document.getElementById('selTotal').textContent=s.total+' يوم';
+  box.hidden=false;
+}
+
+function clearSelection(){selStart=null;selEnd=null;hoverKey=null;applySelectionVisuals();renderSelectionSummary();}
+
+/* ═══════════════ Periods Management ═══════════════ */
+async function confirmSelection(){
+  if(!selStart)return;
+  const sk=selStart,ek=selEnd||selStart;
+  const lo=sk<ek?sk:ek,hi=sk<ek?ek:sk;
+  periods.push({
+    id:Date.now()+'-'+Math.random().toString(36).slice(2,6),
+    startKey:lo,
+    endKey:hi,
+    customLabel: ''
+  });
+  persist();clearSelection();renderAll();showToast('تمت إضافة الفترة بنجاح ✓');
+}
+
+async function removePeriod(id){
+  periods=periods.filter(p=>p.id!==id);
+  persist();renderAll();showToast('تم حذف الفترة');
+}
+
+async function renamePeriod(id){
+  const p = periods.find(x=>x.id===id);
+  if(!p) return;
+  const currentLabel = p.customLabel || '';
+  const newName = prompt('أدخل الاسم الجديد المخصص لهذه الفترة:', currentLabel);
+  if(newName !== null){
+    p.customLabel = newName.trim();
+    persist();
+    renderAll();
+    showToast('تم تحديث اسم الفترة بنجاح ✓');
+  }
+}
+
+function renderPeriods(){
+  const list=decoratedPeriods();
+  document.getElementById('periodsCount').textContent=list.length+(list.length===1?' فترة':' فترات');
+  document.getElementById('emptyPeriods').style.display=list.length?'none':'block';
+  document.getElementById('periodsList').innerHTML=list.map(p=>`
+    <div class="period-card" style="--p-color:${p.color}">
+      <div class="period-main">
+        <div class="period-title-wrap">
+          <div class="period-title">${p.label}</div>
+          <div class="period-range">من ${AR_DATE.format(fromKey(p.startKey))} إلى ${AR_DATE.format(fromKey(p.endKey))}</div>
+        </div>
+      </div>
+      <div class="period-stats">
+        <div class="period-stat"><div class="num">${p.actual}</div><div class="lbl">فعلي</div></div>
+        <div class="period-stat"><div class="num">${p.total}</div><div class="lbl">شامل الويكند</div></div>
+      </div>
+      <button class="period-btn period-rename" data-id="${p.id}" title="تعديل اسم الفترة">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      </button>
+      <button class="period-btn period-remove" data-id="${p.id}" title="حذف الفترة">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>
+      </button>
+    </div>`).join('');
+    
+  document.getElementById('periodsList').querySelectorAll('.period-remove').forEach(b=>
+    b.addEventListener('click',()=>removePeriod(b.getAttribute('data-id'))));
+    
+  document.getElementById('periodsList').querySelectorAll('.period-rename').forEach(b=>
+    b.addEventListener('click',()=>renamePeriod(b.getAttribute('data-id'))));
+}
+
+/* ═══════════════ Holiday list ═══════════════ */
+function renderHolidayList(){
+  document.getElementById('holidayList').innerHTML=OFFICIAL_HOLIDAYS.map(h=>{
+    const s=fromKey(h.startG),e=fromKey(h.endG);
+    let datesText=h.openEnded?'تبدأ في '+AR_DATE.format(s)+' (مفتوحة النهاية)':
+      (h.startG===h.endG?AR_DATE.format(s):'من '+AR_DATE.format(s)+' إلى '+AR_DATE.format(e));
+    const days=h.openEnded?'—':(rangeStats(h.startG,h.endG).total+' يوم');
+    return `
+      <div class="holiday-row">
+        <span class="holiday-swatch"></span>
+        <div class="holiday-row-main">
+          <div class="holiday-row-title">${h.label}</div>
+          <div class="holiday-row-dates">${datesText}&ensp;<span class="hijri-tag">${h.hijri}</span></div>
+        </div>
+        <div class="holiday-row-days">${days}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ═══════════════ Professional Print View (A4) ═══════════════ */
+function buildPrintView(){
+  const list=decoratedPeriods();
+  const b=calculateBalances();
+  const now=AR_DATE.format(new Date());
+
+  const balRows = `
+    <tr>
+      <td style="padding:10px; border:1px solid #cbd5e1; font-weight:bold; background:#f8fafc;">الأساسي (الكلي: 36)</td>
+      <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${b.basicUsed} يوم مخصوم</td>
+      <td style="padding:10px; border:1px solid #cbd5e1; text-align:center; font-weight:bold; color:var(--accent); background:#f0fdf4;">${b.basicRem} يوم متبقي</td>
+    </tr>
+    <tr>
+      <td style="padding:10px; border:1px solid #cbd5e1; font-weight:bold; background:#f8fafc;">المتفرقة (الحد الأقصى: 10)</td>
+      <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${b.separateUsed} يوم مخصوم</td>
+      <td style="padding:10px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">الحد المتبقي: ${b.separateRem} يوم</td>
+    </tr>
+    <tr>
+      <td style="padding:10px; border:1px solid #cbd5e1; font-weight:bold; background:#f8fafc;">الاضطراري الزائد (الحد الأقصى: 5)</td>
+      <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${b.emergencyUsed} يوم مخصوم</td>
+      <td style="padding:10px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">الحد المتبقي: ${b.emergencyRem} يوم</td>
+    </tr>
+  `;
+
+  const periodRows=list.map(p=>`
+    <tr>
+      <td style="padding:9px 12px;border:1px solid #cbd5e1;border-inline-start:4px solid ${p.color};font-weight:700;">${p.label}</td>
+      <td style="padding:9px 12px;border:1px solid #cbd5e1;text-align:center;">${AR_DATE.format(fromKey(p.startKey))}</td>
+      <td style="padding:9px 12px;border:1px solid #cbd5e1;text-align:center;">${AR_DATE.format(fromKey(p.endKey))}</td>
+      <td style="padding:9px 12px;border:1px solid #cbd5e1;text-align:center;font-weight:800;background:#f1f5f9;">${p.actual}</td>
+      <td style="padding:9px 12px;border:1px solid #cbd5e1;text-align:center;color:#64748b;">${p.weekend}</td>
+      <td style="padding:9px 12px;border:1px solid #cbd5e1;text-align:center;font-weight:800;color:var(--accent);">${p.total}</td>
+    </tr>`).join('') || `<tr><td colspan="6" style="padding:20px;text-align:center;color:#8a93a1;border:1px solid #cbd5e1;font-style:italic;">لم يتم إدخال أو تحديد فترات إجازة بعد.</td></tr>`;
+
+  document.getElementById('printArea').innerHTML=`
+<div style="font-family:'Tajawal','Segoe UI',sans-serif;direction:rtl;color:#0f172a;padding:10px;">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #0067c0;padding-bottom:12px;margin-bottom:24px;">
+    <div>
+      <div style="font-size:24px;font-weight:900;color:#0067c0;">تقرير بيان فترات وإجازات الموظف</div>
+      <div style="font-size:12px;font-weight:700;color:#64748b;margin-top:4px;letter-spacing:1px;">Qsoom Holidays — حاسبة الموظف الذكية</div>
+    </div>
+    <div style="text-align:left;font-size:11px;color:#334155;line-height:1.4;">
+      <div>تاريخ وطباعة التقرير</div>
+      <div style="font-weight:700;font-size:12px;color:#0f172a;">${now}</div>
+      <div style="color:#64748b;margin-top:2px;">نظام الحساب: تقويم أم القرى 1448هـ</div>
+    </div>
+  </div>
+
+  <div style="font-size:14px;font-weight:800;color:#1e293b;margin-bottom:10px;border-inline-start:3px solid var(--accent);padding-inline-start:8px;">أولاً: الموقف الحالي للأرصدة وعمليات الخصم</div>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:26px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+    <thead>
+      <tr style="background:#0f172a;color:#ffffff;text-align:right;">
+        <th style="padding:10px;border:1px solid #cbd5e1;">نوع الرصيد الخاضع للاحتساب</th>
+        <th style="padding:10px;border:1px solid #cbd5e1;text-align:center;">الأيام المستهلكة / المخصومة</th>
+        <th style="padding:10px;border:1px solid #cbd5e1;text-align:center;">الوضعية الحالية للرصيد</th>
+      </tr>
+    </thead>
+    <tbody>${balRows}</tbody>
+  </table>
+
+  <div style="font-size:14px;font-weight:800;color:#1e293b;margin-bottom:10px;border-inline-start:3px solid var(--accent);padding-inline-start:8px;">ثانياً: تفصيل وجدولة فترات الإجازات المدخلة (${list.length} فترة)</div>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead>
+      <tr style="background:#f1f5f9;color:#0f172a;text-align:right;font-weight:800;">
+        <th style="padding:10px;border:1px solid #cbd5e1;">مسمى فترة الإجازة</th>
+        <th style="padding:10px;border:1px solid #cbd5e1;text-align:center;">من تاريخ</th>
+        <th style="padding:10px;border:1px solid #cbd5e1;text-align:center;">إلى تاريخ</th>
+        <th style="padding:10px;border:1px solid #cbd5e1;text-align:center;">أيام فعلية</th>
+        <th style="padding:10px;border:1px solid #cbd5e1;text-align:center;">عطلة نهاية أسبوع</th>
+        <th style="padding:10px;border:1px solid #cbd5e1;text-align:center;">المجموع الكلي</th>
+      </tr>
+    </thead>
+    <tbody>${periodRows}</tbody>
+    ${list.length?`
+    <tfoot>
+      <tr style="background:#f8fafc;font-weight:800;border-top:2px solid #0f172a;">
+        <td colspan="3" style="padding:10px;border:1px solid #cbd5e1;text-align:left;">إجمالي الأيام المسجلة بالتقرير:</td>
+        <td style="padding:10px;border:1px solid #cbd5e1;text-align:center;color:#0067c0;font-size:14px;background:#f0f9ff;">${list.reduce((s,p)=>s+p.actual,0)}</td>
+        <td style="padding:10px;border:1px solid #cbd5e1;text-align:center;color:#64748b;">${list.reduce((s,p)=>s+p.weekend,0)}</td>
+        <td style="padding:10px;border:1px solid #cbd5e1;text-align:center;color:#0067c0;font-size:14px;background:#f0f9ff;">${list.reduce((s,p)=>s+p.total,0)}</td>
+      </tr>
+    </tfoot>`:''}
+  </table>
+
+  <div style="margin-top:40px;padding-top:12px;border-top:1px dashed #cbd5e1;font-size:11px;color:#64748b;display:flex;justify-content:space-between;align-items:center;">
+    <span>هذه الصفحة من تصميم Qasim Omeish — Qas4qas2@gmail.com</span>
+    <span style="font-weight:bold;color:#0f172a;">Qsoom Holidays</span>
+  </div>
+</div>`;
+}
+
+/* ═══════════════ Wiring & Init ═══════════════ */
+function renderAll(){ renderBalance();renderCalendars();renderPeriods();renderSelectionSummary(); }
+
+document.getElementById('prevMonth').addEventListener('click',()=>{
+  const m=addMonths(viewYear,viewMonth,-1);
+  if(m.year<CAL_MIN.year||(m.year===CAL_MIN.year&&m.month<CAL_MIN.month))return;
+  viewYear=m.year;viewMonth=m.month;renderCalendars();
+});
+document.getElementById('nextMonth').addEventListener('click',()=>{
+  const m=addMonths(viewYear,viewMonth,1);
+  if(m.year>CAL_MAX.year||(m.year===CAL_MAX.year&&m.month>CAL_MAX.month))return;
+  viewYear=m.year;viewMonth=m.month;renderCalendars();
+});
+
+const calEl=document.getElementById('calendarPanels');
+calEl.addEventListener('click',e=>{
+  const cell=e.target.closest('.day-cell[data-date]');
+  if(cell) onDayClick(cell.getAttribute('data-date'));
+});
+calEl.addEventListener('mouseover',e=>{
+  if(!(selStart&&!selEnd))return;
+  const cell=e.target.closest('.day-cell[data-date]');
+  if(!cell)return;
+  const k=cell.getAttribute('data-date');
+  if(k!==hoverKey){hoverKey=k;applySelectionVisuals();}
+});
+calEl.addEventListener('mouseleave',()=>{
+  if(selStart&&!selEnd&&hoverKey){hoverKey=null;applySelectionVisuals();}
+});
+
+document.getElementById('cancelSelection').addEventListener('click',clearSelection);
+document.getElementById('confirmSelection').addEventListener('click',confirmSelection);
+document.getElementById('printBtn').addEventListener('click',()=>{ buildPrintView();setTimeout(()=>window.print(),80); });
+
+document.getElementById('resetBtn').addEventListener('click',async()=>{
+  if(!periods.length){showToast('لا توجد بيانات لإعادة تعيينها');return;}
+  if(!confirm('سيتم حذف جميع فترات الإجازة المضافة. هل أنت متأكد؟'))return;
+  periods=[]; storageDel(STORAGE_KEY); clearSelection(); renderAll(); showToast('تمت إعادة التعيين');
+});
+
+const holidayToggleBtn=document.getElementById('holidayToggleBtn');
+const holidayListWrap=document.getElementById('holidayListWrap');
+const holidayChevron=document.getElementById('holidayChevron');
+function toggleHoliday(){
+  const open=holidayListWrap.classList.toggle('open');
+  holidayChevron.classList.toggle('open',open);
+  holidayToggleBtn.setAttribute('aria-expanded',open);
+}
+holidayToggleBtn.addEventListener('click',toggleHoliday);
+
+(function init(){
+  const saved=storageGet(STORAGE_KEY);
+  if(Array.isArray(saved)) periods=saved;
+  renderHolidayList();
+  renderAll();
+})();
+
+})();
+</script>
+</body>
+</html>
