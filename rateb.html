@@ -151,8 +151,15 @@ button{font-family:inherit;}
 .empty-state .em-t{font-weight:700; color:var(--ink-dim); font-size:14.5px;}
 .empty-state .em-s{font-size:12.5px; margin-top:3px;}
 
-.day-group{margin-bottom:16px;}
-.day-label{font-size:12px; font-weight:700; color:var(--ink-faint); margin:0 4px 8px;}
+.day-group{margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--line);}
+.day-group:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+.day-header{display:flex; align-items:center; justify-content:space-between; margin:0 4px 10px;}
+.day-label{font-size:12px; font-weight:700; color:var(--ink-faint);}
+.day-total-badge{
+  background:var(--orange); color:#fff; font-weight:800; font-size:11.5px;
+  padding:4px 11px; border-radius:100px; white-space:nowrap;
+  box-shadow:0 3px 8px -3px rgba(228,85,10,0.5);
+}
 .expense-item{
   background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-md);
   padding:12px 14px; display:flex; align-items:center; gap:12px; margin-bottom:9px;
@@ -168,10 +175,12 @@ button{font-family:inherit;}
 .exp-cat{font-weight:700; font-size:14px;}
 .exp-amt{font-weight:800; font-size:15px; color:var(--ink); white-space:nowrap;}
 .exp-note{font-size:12px; color:var(--ink-faint); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.exp-del{
+.exp-actions{display:flex; align-items:center; gap:6px; flex:0 0 auto;}
+.exp-edit, .exp-del{
   width:30px;height:30px;flex:0 0 auto; border-radius:10px; border:none; background:var(--bg-soft);
   color:var(--ink-faint); display:flex;align-items:center;justify-content:center; cursor:pointer;
 }
+.exp-edit:active{background:var(--orange-soft2); color:var(--orange-deep);}
 .exp-del:active{background:var(--red-soft); color:var(--red);}
 
 /* ===== Stats ===== */
@@ -413,7 +422,7 @@ button{font-family:inherit;}
 <div class="overlay" id="overlayAdd">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title">إضافة مصروف <span class="x" id="closeAdd">✕</span></div>
+    <div class="sheet-title"><span id="addSheetTitle">إضافة مصروف</span> <span class="x" id="closeAdd">✕</span></div>
 
     <div class="field-label">القيمة</div>
     <div class="amount-input-wrap">
@@ -496,6 +505,7 @@ button{font-family:inherit;}
 
   var state = loadState();
   var selectedCat = CATEGORIES[0].id;
+  var editingId = null; // null = إضافة جديدة، وإلا معرف المصروف الجاري تعديله
 
   function defaultState(){
     return { sources: [ {name:"الراتب", amount: 0} ], expenses: [] };
@@ -667,10 +677,16 @@ button{font-family:inherit;}
     g.order.forEach(function(key){
       var dayDiv = document.createElement('div');
       dayDiv.className = 'day-group';
-      var label = document.createElement('div');
-      label.className = 'day-label';
-      label.textContent = key;
-      dayDiv.appendChild(label);
+
+      var dayTotal = g.groups[key].reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
+
+      var header = document.createElement('div');
+      header.className = 'day-header';
+      header.innerHTML =
+        '<div class="day-label">'+key+'</div>'+
+        '<div class="day-total-badge num">'+fmt(dayTotal)+' ر.س</div>';
+      dayDiv.appendChild(header);
+
       g.groups[key].forEach(function(e){
         var c = catInfo(e.category);
         var item = document.createElement('div');
@@ -681,12 +697,25 @@ button{font-family:inherit;}
             '<div class="exp-top"><div class="exp-cat">'+c.name+'</div><div class="exp-amt num">'+fmt(e.amount)+' ر.س</div></div>'+
             (e.note ? '<div class="exp-note">'+escapeHtml(e.note)+'</div>' : '')+
           '</div>'+
-          '<button class="exp-del" data-id="'+e.id+'" aria-label="حذف">'+
-            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'+
-          '</button>';
+          '<div class="exp-actions">'+
+            '<button class="exp-edit" data-id="'+e.id+'" aria-label="تعديل">'+
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'+
+            '</button>'+
+            '<button class="exp-del" data-id="'+e.id+'" aria-label="حذف">'+
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'+
+            '</button>'+
+          '</div>';
         dayDiv.appendChild(item);
       });
       wrap.appendChild(dayDiv);
+    });
+
+    wrap.querySelectorAll('.exp-edit').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.getAttribute('data-id');
+        var exp = state.expenses.find(function(e){ return String(e.id) === String(id); });
+        if(exp) openAddSheet(exp);
+      });
     });
 
     wrap.querySelectorAll('.exp-del').forEach(function(btn){
@@ -802,10 +831,22 @@ button{font-family:inherit;}
   function openSheet(id){ document.getElementById(id).classList.add('show'); }
   function closeSheet(id){ document.getElementById(id).classList.remove('show'); }
 
-  function openAddSheet(){
-    document.getElementById('expAmount').value = '';
-    document.getElementById('expNote').value = '';
-    selectedCat = CATEGORIES[0].id;
+  function openAddSheet(existingExpense){
+    if(existingExpense){
+      editingId = existingExpense.id;
+      document.getElementById('expAmount').value = existingExpense.amount;
+      document.getElementById('expNote').value = existingExpense.note || '';
+      selectedCat = existingExpense.category;
+      document.getElementById('addSheetTitle').textContent = 'تعديل المصروف';
+      document.getElementById('saveExpense').textContent = 'حفظ التعديل';
+    } else {
+      editingId = null;
+      document.getElementById('expAmount').value = '';
+      document.getElementById('expNote').value = '';
+      selectedCat = CATEGORIES[0].id;
+      document.getElementById('addSheetTitle').textContent = 'إضافة مصروف';
+      document.getElementById('saveExpense').textContent = 'إضافة المصروف';
+    }
     buildCatGrid();
     openSheet('overlayAdd');
     setTimeout(function(){ document.getElementById('expAmount').focus(); }, 300);
@@ -840,25 +881,41 @@ button{font-family:inherit;}
   }
 
   /* ============ Events ============ */
-  document.getElementById('btnAdd').addEventListener('click', openAddSheet);
-  document.getElementById('closeAdd').addEventListener('click', function(){ closeSheet('overlayAdd'); });
-  document.getElementById('overlayAdd').addEventListener('click', function(e){ if(e.target===this) closeSheet('overlayAdd'); });
+  document.getElementById('btnAdd').addEventListener('click', function(){ openAddSheet(); });
+  document.getElementById('closeAdd').addEventListener('click', function(){ editingId = null; closeSheet('overlayAdd'); });
+  document.getElementById('overlayAdd').addEventListener('click', function(e){ if(e.target===this){ editingId = null; closeSheet('overlayAdd'); } });
 
   document.getElementById('saveExpense').addEventListener('click', function(){
     var amt = parseFloat(document.getElementById('expAmount').value);
     if(!amt || amt <= 0){ toast('أدخل قيمة صحيحة للمصروف'); return; }
     var note = document.getElementById('expNote').value.trim();
-    state.expenses.push({
-      id: Date.now() + Math.random().toString(16).slice(2),
-      amount: amt,
-      category: selectedCat,
-      note: note,
-      date: new Date().toISOString()
-    });
-    saveState();
-    render();
-    closeSheet('overlayAdd');
-    toast('تمت إضافة المصروف ✓');
+
+    if(editingId){
+      var exp = state.expenses.find(function(e){ return String(e.id) === String(editingId); });
+      if(exp){
+        exp.amount = amt;
+        exp.category = selectedCat;
+        exp.note = note;
+        // التاريخ الأصلي يبقى كما هو، فقط القيمة والنوع والملاحظة قابلة للتعديل
+      }
+      editingId = null;
+      saveState();
+      render();
+      closeSheet('overlayAdd');
+      toast('تم حفظ التعديل ✓');
+    } else {
+      state.expenses.push({
+        id: Date.now() + Math.random().toString(16).slice(2),
+        amount: amt,
+        category: selectedCat,
+        note: note,
+        date: new Date().toISOString()
+      });
+      saveState();
+      render();
+      closeSheet('overlayAdd');
+      toast('تمت إضافة المصروف ✓');
+    }
   });
 
   document.getElementById('btnManageIncome').addEventListener('click', openIncomeSheet);
