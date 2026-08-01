@@ -10,653 +10,597 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-:root{
-  --bg:       #f2f4f7;
-  --white:    #ffffff;
-  --gray1:    #e8ebf0;
-  --gray2:    #d0d5de;
-  --gray3:    #9aa3b2;
-  --gray4:    #5a6478;
-  --dark:     #1e2533;
-  --orange:   #f47a20;
-  --orange-d: #d9660e;
-  --orange-l: #fff0e5;
-  --orange-m: #ffe0c4;
-  --blue:     #3a7bd5;
-  --green:    #27ae7a;
-  --red:      #e05a3a;
-  --shadow:   0 2px 12px rgba(0,0,0,0.08);
-  --shadow2:  0 4px 20px rgba(0,0,0,0.12);
-  --r:        14px;
-  --rs:       9px;
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f0f2f5;
+  color: #1e2533;
+  min-height: 100vh;
+  padding-bottom: 40px;
 }
 
-html,body{height:100%;overflow:hidden;background:var(--bg);}
+/* ─── HEADER ─────────────────────────── */
+.hdr {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e6ec;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+}
+.hdr img {
+  height: 40px;
+  width: 40px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.hdr-title { font-size: 16px; font-weight: 800; color: #1e2533; }
+.hdr-title span { color: #f47a20; }
+.hdr-sub { font-size: 9px; font-weight: 600; color: #9aa3b2; letter-spacing: 2px; text-transform: uppercase; margin-top: 1px; }
 
-body{
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-  color:var(--dark);
-  display:flex;
-  flex-direction:column;
-  height:100vh;
-  height:-webkit-fill-available;
-}
-
-/* ─── SHELL ─────────────────────────────── */
-.app{
-  display:flex;
-  flex-direction:column;
-  width:100%;
-  max-width:430px;
-  margin:0 auto;
-  height:100%;
-  height:-webkit-fill-available;
-  background:var(--bg);
-  overflow:hidden;
-}
-
-/* ─── HEADER ────────────────────────────── */
-.hdr{
-  flex-shrink:0;
-  background:var(--white);
-  border-bottom:1px solid var(--gray1);
-  padding:10px 16px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  box-shadow:var(--shadow);
-  position:relative;
-  z-index:10;
-}
-.hdr-logo{height:38px;width:38px;object-fit:contain;border-radius:8px;flex-shrink:0;}
-.hdr-info{flex:1;}
-.hdr-title{font-size:15px;font-weight:800;color:var(--dark);letter-spacing:.3px;}
-.hdr-title span{color:var(--orange);}
-.hdr-sub{font-size:9px;font-weight:600;color:var(--gray3);letter-spacing:2px;text-transform:uppercase;margin-top:1px;}
-
-/* ─── SCROLL CONTENT ────────────────────── */
-.scroll{
-  flex:1;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  padding:14px 14px 30px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-.scroll::-webkit-scrollbar{display:none;}
-
-/* ─── CARD ───────────────────────────────── */
-.card{
-  background:var(--white);
-  border-radius:var(--r);
-  box-shadow:var(--shadow);
-  overflow:hidden;
-}
-.card-head{
-  padding:10px 14px 8px;
-  border-bottom:1px solid var(--gray1);
-  display:flex;
-  align-items:center;
-  gap:7px;
-}
-.card-head .icon{
-  width:26px;height:26px;border-radius:7px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;flex-shrink:0;
-}
-.icon-orange{background:var(--orange-l);}
-.icon-blue{background:#e8f0fb;}
-.card-head .title{font-size:13px;font-weight:700;color:var(--dark);}
-.card-body{padding:14px;}
-
-/* ─── TIME ROW ───────────────────────────── */
-.time-row{display:flex;flex-direction:column;gap:8px;}
-
-.field-wrap{}
-.field-lbl{
-  font-size:10px;font-weight:700;letter-spacing:1px;
-  text-transform:uppercase;color:var(--gray3);margin-bottom:5px;
-  display:flex;align-items:center;gap:5px;
-}
-.dot-g{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;}
-.dot-r{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;}
-
-/* source toggle */
-.src-tog{
-  display:flex;
-  background:var(--gray1);
-  border-radius:var(--rs);
-  padding:3px;
-  gap:3px;
-  margin-bottom:6px;
-}
-.stb{
-  flex:1;padding:7px 4px;
-  font-size:12px;font-weight:600;font-family:inherit;
-  border:none;background:transparent;color:var(--gray4);
-  cursor:pointer;border-radius:7px;
-  transition:background .15s,color .15s;
-  text-align:center;
-}
-.stb.on{background:var(--white);color:var(--orange);box-shadow:0 1px 4px rgba(0,0,0,.1);}
-
-/* datetime input */
-.dti{
-  width:100%;padding:9px 11px;
-  background:var(--gray1);
-  border:1.5px solid transparent;
-  border-radius:var(--rs);
-  color:var(--dark);
-  font-size:13px;font-family:inherit;font-weight:500;
-  outline:none;direction:ltr;text-align:left;
-  -webkit-appearance:none;appearance:none;
-  transition:border-color .15s,background .15s;
-}
-.dti:focus{border-color:var(--orange);background:var(--white);}
-.dti::-webkit-calendar-picker-indicator{opacity:.5;cursor:pointer;}
-
-/* divider */
-.divrow{
-  display:flex;align-items:center;gap:8px;
-  font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gray3);
-}
-.divrow::before,.divrow::after{content:'';flex:1;height:1px;background:var(--gray1);}
-
-/* ─── BUTTON ─────────────────────────────── */
-.btn-go{
-  width:100%;padding:13px;
-  background:var(--orange);color:#fff;
-  border:none;border-radius:var(--rs);
-  font-size:15px;font-weight:700;font-family:inherit;
-  cursor:pointer;letter-spacing:.3px;
-  box-shadow:0 3px 14px rgba(244,122,32,.4);
-  transition:transform .1s,background .15s;
-  margin-top:4px;
-}
-.btn-go:active{transform:scale(.97);background:var(--orange-d);}
-
-.btn-clr{
-  width:100%;padding:9px;
-  background:transparent;color:var(--gray3);
-  border:1.5px solid var(--gray2);
-  border-radius:var(--rs);
-  font-size:12px;font-weight:600;font-family:inherit;
-  cursor:pointer;margin-top:6px;
-  transition:color .15s,border-color .15s;
-}
-.btn-clr:active{color:var(--dark);border-color:var(--gray4);}
-
-.err-msg{
-  font-size:11px;font-weight:600;color:var(--red);
-  background:rgba(224,90,58,.08);border:1px solid rgba(224,90,58,.2);
-  border-radius:var(--rs);padding:7px 10px;text-align:center;
-  display:none;margin-top:6px;
-}
-.err-msg.show{display:block;}
-
-/* ─── RESULT ─────────────────────────────── */
-.res-empty{
-  padding:28px 14px;
-  text-align:center;
-  color:var(--gray3);
-}
-.res-empty .ico{font-size:30px;margin-bottom:8px;}
-.res-empty p{font-size:12px;line-height:1.7;}
-
-/* status badge */
-.status-row{display:flex;justify-content:center;margin-bottom:10px;}
-.badge{
-  padding:5px 16px;border-radius:20px;
-  font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
-}
-.badge.fut{background:rgba(39,174,122,.1);color:var(--green);border:1px solid rgba(39,174,122,.25);}
-.badge.pst{background:rgba(244,122,32,.1);color:var(--orange);border:1px solid rgba(244,122,32,.3);}
-.badge.same{background:var(--gray1);color:var(--gray4);border:1px solid var(--gray2);}
-
-/* big display */
-.big-units{
-  display:flex;flex-wrap:wrap;gap:8px;
-  justify-content:center;
-  margin-bottom:12px;
-}
-.unit-box{
-  background:var(--gray1);
-  border-radius:var(--rs);
-  padding:10px 8px;
-  text-align:center;
-  min-width:70px;
-  flex:1;
-  border:1.5px solid transparent;
-  transition:all .2s;
-}
-.unit-box.hi{
-  background:var(--orange-l);
-  border-color:var(--orange-m);
-}
-.unit-num{
-  font-size:32px;font-weight:900;color:var(--dark);
-  line-height:1;direction:ltr;
-  font-variant-numeric:tabular-nums;
-}
-.unit-box.hi .unit-num{color:var(--orange);}
-.unit-lbl{font-size:10px;font-weight:600;color:var(--gray3);margin-top:3px;letter-spacing:.5px;}
-
-/* summary sentence */
-.summ-box{
-  background:var(--orange-l);
-  border:1px solid var(--orange-m);
-  border-radius:var(--rs);
-  padding:11px 14px;
-  font-size:13px;font-weight:500;
-  color:var(--gray4);line-height:1.7;
-  text-align:center;
-}
-.summ-box strong{color:var(--orange);font-weight:700;}
-
-/* mini chart */
-.chart-wrap{margin-top:2px;}
-.chart-row{
-  display:flex;align-items:center;gap:8px;
-  margin-bottom:7px;
-}
-.chart-lbl{font-size:10px;font-weight:600;color:var(--gray4);width:42px;text-align:right;flex-shrink:0;}
-.chart-bar-bg{flex:1;background:var(--gray1);border-radius:4px;height:8px;overflow:hidden;}
-.chart-bar-fill{height:100%;border-radius:4px;background:var(--orange);transition:width .6s ease;}
-.chart-val{font-size:10px;font-weight:700;color:var(--dark);width:32px;flex-shrink:0;}
-
-/* ─── VIRTUAL CALC ───────────────────────── */
-.vcalc-result{
-  background:var(--gray1);border-radius:var(--rs);
-  padding:12px 14px;margin-bottom:10px;
-  min-height:52px;
-  display:flex;flex-direction:column;gap:2px;
-}
-.vc-expr{font-size:11px;color:var(--gray3);font-weight:500;min-height:16px;direction:ltr;text-align:left;}
-.vc-out{
-  font-size:22px;font-weight:800;color:var(--dark);
-  direction:ltr;text-align:left;
-  font-variant-numeric:tabular-nums;
+/* ─── MAIN WRAP ─────────────────────── */
+.wrap {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-/* unit selector */
-.unit-sel{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
-  margin-bottom:8px;
+/* ─── CARD ───────────────────────────── */
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  overflow: visible;
 }
-.usel-btn{
-  padding:8px 4px;border-radius:var(--rs);
-  font-size:12px;font-weight:600;font-family:inherit;
-  border:1.5px solid var(--gray2);background:var(--white);
-  color:var(--gray4);cursor:pointer;
-  transition:all .15s;text-align:center;
+.card-head {
+  padding: 11px 14px;
+  border-bottom: 1px solid #f0f2f5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.usel-btn.on{background:var(--orange);color:#fff;border-color:var(--orange);}
+.card-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.ci-orange { background: #fff0e5; }
+.ci-blue   { background: #e8f0fb; }
+.card-head-title { font-size: 14px; font-weight: 700; color: #1e2533; }
+.card-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
 
-/* op buttons */
-.op-row{display:flex;gap:5px;margin-bottom:8px;}
-.op-btn{
-  flex:1;padding:10px;border-radius:var(--rs);
-  font-size:18px;font-weight:700;font-family:inherit;
-  border:1.5px solid var(--gray2);background:var(--white);
-  color:var(--gray4);cursor:pointer;
-  transition:all .15s;text-align:center;
+/* ─── LABELS ─────────────────────────── */
+.lbl {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: #9aa3b2; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 5px;
 }
-.op-btn.on{background:var(--orange-l);border-color:var(--orange);color:var(--orange);}
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dot-g { background: #27ae7a; }
+.dot-r { background: #e05a3a; }
+
+/* ─── TOGGLE ─────────────────────────── */
+.tog {
+  display: flex;
+  background: #f0f2f5;
+  border-radius: 9px;
+  padding: 3px;
+  gap: 3px;
+  margin-bottom: 7px;
+  width: 100%;
+}
+.tb {
+  flex: 1; padding: 8px 4px;
+  font-size: 13px; font-weight: 600; font-family: inherit;
+  border: none; background: transparent; color: #9aa3b2;
+  cursor: pointer; border-radius: 7px;
+  transition: all .15s; text-align: center;
+}
+.tb.on { background: #fff; color: #f47a20; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }
+
+/* ─── DATETIME INPUT ─────────────────── */
+.dti {
+  width: 100%; padding: 10px 12px;
+  background: #f5f7fa;
+  border: 1.5px solid #e2e6ec;
+  border-radius: 9px;
+  color: #1e2533;
+  font-size: 14px; font-family: inherit; font-weight: 500;
+  outline: none; direction: ltr; text-align: left;
+  -webkit-appearance: none; appearance: none;
+  transition: border-color .15s;
+  display: block;
+}
+.dti:focus { border-color: #f47a20; background: #fff; }
+.dti::-webkit-calendar-picker-indicator { opacity: .5; cursor: pointer; }
+
+/* ─── DIVIDER ────────────────────────── */
+.divrow {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #9aa3b2;
+}
+.divrow::before, .divrow::after { content: ''; flex: 1; height: 1px; background: #e8ebf0; }
+
+/* ─── BUTTONS ────────────────────────── */
+.btn-go {
+  width: 100%; padding: 14px;
+  background: #f47a20; color: #fff;
+  border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 700; font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 3px 14px rgba(244,122,32,.4);
+  transition: transform .1s, background .15s;
+}
+.btn-go:active { transform: scale(.97); background: #d9660e; }
+
+.btn-sec {
+  width: 100%; padding: 10px;
+  background: transparent; color: #9aa3b2;
+  border: 1.5px solid #e2e6ec;
+  border-radius: 10px;
+  font-size: 12px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: all .15s;
+}
+.btn-sec:active { color: #1e2533; border-color: #9aa3b2; }
+
+.err-msg {
+  font-size: 12px; font-weight: 600; color: #e05a3a;
+  background: rgba(224,90,58,.08); border: 1px solid rgba(224,90,58,.2);
+  border-radius: 9px; padding: 8px 12px; text-align: center; display: none;
+}
+.err-msg.show { display: block; }
+
+/* ─── RESULT EMPTY ───────────────────── */
+.res-empty { padding: 30px 14px; text-align: center; color: #9aa3b2; }
+.res-empty .ico { font-size: 32px; margin-bottom: 8px; }
+.res-empty p { font-size: 13px; line-height: 1.7; }
+
+/* ─── RESULT CONTENT ─────────────────── */
+.badge-row { display: flex; justify-content: center; margin-bottom: 12px; }
+.badge {
+  padding: 5px 18px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+}
+.badge.fut { background: rgba(39,174,122,.1); color: #27ae7a; border: 1px solid rgba(39,174,122,.25); }
+.badge.pst { background: rgba(244,122,32,.1); color: #f47a20; border: 1px solid rgba(244,122,32,.3); }
+
+/* units grid */
+.units-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.unit-cell {
+  background: #f5f7fa;
+  border-radius: 10px;
+  padding: 12px 6px;
+  text-align: center;
+  border: 1.5px solid transparent;
+}
+.unit-cell.hi {
+  background: #fff0e5;
+  border-color: #ffd0a8;
+}
+.unit-num {
+  font-size: 30px; font-weight: 900; color: #1e2533;
+  line-height: 1; direction: ltr; font-variant-numeric: tabular-nums;
+}
+.unit-cell.hi .unit-num { color: #f47a20; }
+.unit-lbl { font-size: 10px; font-weight: 600; color: #9aa3b2; margin-top: 4px; }
+
+/* summary */
+.summ {
+  background: #fff8f2;
+  border: 1px solid #ffd0a8;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px; font-weight: 500; color: #5a6478;
+  line-height: 1.8; text-align: center;
+}
+.summ strong { color: #f47a20; font-weight: 700; }
+
+/* chart */
+.chart { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.chart-row { display: flex; align-items: center; gap: 8px; }
+.chart-lbl { font-size: 11px; font-weight: 600; color: #5a6478; width: 48px; text-align: right; flex-shrink: 0; }
+.bar-bg { flex: 1; background: #f0f2f5; border-radius: 4px; height: 9px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; background: #f47a20; }
+.chart-val { font-size: 11px; font-weight: 700; color: #1e2533; width: 38px; flex-shrink: 0; text-align: left; direction: ltr; }
+
+/* ─── VIRTUAL CALC ───────────────────── */
+.vc-display {
+  background: #f5f7fa;
+  border-radius: 10px;
+  padding: 14px;
+  min-height: 62px;
+}
+.vc-expr { font-size: 11px; color: #9aa3b2; font-weight: 500; direction: ltr; text-align: left; min-height: 16px; margin-bottom: 4px; }
+.vc-out  { font-size: 20px; font-weight: 800; color: #1e2533; direction: ltr; text-align: left; line-height: 1.2; }
+
+/* live summary box */
+.vc-summary {
+  background: #fff8f2;
+  border: 1.5px solid #ffd0a8;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vc-summary-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: #f47a20;
+}
+.vc-summary-row {
+  display: flex; align-items: center; gap: 0;
+  background: #fff; border-radius: 8px;
+  border: 1px solid #ffe0c4;
+  overflow: hidden;
+}
+.vc-sum-cell {
+  flex: 1; padding: 10px 8px; text-align: center;
+  border-left: 1px solid #ffe0c4;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.vc-sum-cell:last-child { border-left: none; }
+.vc-sum-lbl { font-size: 9px; font-weight: 600; color: #9aa3b2; letter-spacing: .8px; text-transform: uppercase; }
+.vc-sum-val { font-size: 14px; font-weight: 800; color: #1e2533; direction: ltr; }
+.vc-sum-val.orange { color: #f47a20; font-size: 18px; }
+.vc-sum-val.pending { color: #d0d5de; font-style: italic; font-size: 13px; font-weight: 500; }
+.vc-summary-sentence {
+  font-size: 13px; font-weight: 500; color: #5a6478;
+  line-height: 1.7; text-align: center;
+}
+.vc-summary-sentence strong { color: #f47a20; font-weight: 700; }
+
+/* op row */
+.op-row { display: flex; gap: 8px; }
+.op-btn {
+  flex: 1; padding: 11px;
+  font-size: 15px; font-weight: 700; font-family: inherit;
+  border: 1.5px solid #e2e6ec; background: #fff; color: #9aa3b2;
+  border-radius: 10px; cursor: pointer; transition: all .15s; text-align: center;
+}
+.op-btn.on { background: #fff0e5; border-color: #f47a20; color: #f47a20; }
+
+/* unit pills */
+.unit-pills {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+}
+.up-btn {
+  padding: 9px 4px;
+  font-size: 12px; font-weight: 600; font-family: inherit;
+  border: 1.5px solid #e2e6ec; background: #fff; color: #5a6478;
+  border-radius: 9px; cursor: pointer; transition: all .15s; text-align: center;
+}
+.up-btn.on { background: #f47a20; border-color: #f47a20; color: #fff; }
 
 /* numpad */
-.numpad{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:5px;margin-bottom:8px;
+.numpad {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
 }
-.np-btn{
-  padding:12px 4px;border-radius:var(--rs);
-  font-size:18px;font-weight:700;font-family:inherit;
-  border:none;background:var(--gray1);color:var(--dark);
-  cursor:pointer;transition:background .1s,transform .08s;
-  text-align:center;
+.np {
+  padding: 14px 4px;
+  font-size: 20px; font-weight: 700; font-family: inherit;
+  border: none; background: #f5f7fa; color: #1e2533;
+  border-radius: 10px; cursor: pointer;
+  transition: background .1s, transform .08s; text-align: center;
 }
-.np-btn:active{background:var(--gray2);transform:scale(.95);}
-.np-btn.zero{grid-column:1/3;}
-.np-btn.del{background:var(--orange-l);color:var(--orange);}
-.np-btn.del:active{background:var(--orange-m);}
+.np:active { background: #e2e6ec; transform: scale(.93); }
+.np.zero { grid-column: 1 / 3; }
+.np.del  { background: #fff0e5; color: #f47a20; }
+.np.del:active { background: #ffd0a8; }
 
-/* equals */
-.eq-btn{
-  width:100%;padding:13px;
-  background:var(--orange);color:#fff;
-  border:none;border-radius:var(--rs);
-  font-size:16px;font-weight:700;font-family:inherit;
-  cursor:pointer;box-shadow:0 3px 12px rgba(244,122,32,.35);
-  transition:transform .1s,background .15s;
+.eq-btn {
+  width: 100%; padding: 14px;
+  background: #f47a20; color: #fff;
+  border: none; border-radius: 10px;
+  font-size: 16px; font-weight: 700; font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(244,122,32,.35);
+  transition: transform .1s;
 }
-.eq-btn:active{transform:scale(.97);background:var(--orange-d);}
+.eq-btn:active { transform: scale(.97); background: #d9660e; }
 
-.btn-vc-clr{
-  width:100%;padding:8px;margin-top:5px;
-  background:transparent;color:var(--gray3);
-  border:1.5px solid var(--gray2);border-radius:var(--rs);
-  font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;
-}
-
-@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.anim{animation:up .25s ease;}
-.hidden{display:none!important;}
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
-<div class="app">
 
-<!-- ══ HEADER ══ -->
+<!-- HEADER -->
 <div class="hdr">
-  <img class="hdr-logo"
-       src="https://qas4qas.github.io/DM/images/qaslogo.jpeg"
-       onerror="this.style.display='none'" alt="QAS">
-  <div class="hdr-info">
+  <img src="https://qas4qas.github.io/DM/images/qaslogo.jpeg" onerror="this.style.display='none'" alt="QAS">
+  <div>
     <div class="hdr-title">Q<span>A</span>S Analytics</div>
     <div class="hdr-sub">Time Calculator</div>
   </div>
 </div>
 
-<!-- ══ SCROLLABLE CONTENT ══ -->
-<div class="scroll">
+<div class="wrap">
 
-  <!-- ── PERIOD CALC CARD ── -->
+  <!-- ══ CARD 1: PERIOD CALCULATOR ══ -->
   <div class="card">
     <div class="card-head">
-      <div class="icon icon-orange">⏱</div>
-      <span class="title">حساب الفترة الزمنية</span>
+      <div class="card-icon ci-orange">⏱</div>
+      <span class="card-head-title">حساب الفترة الزمنية</span>
     </div>
     <div class="card-body">
-      <div class="time-row">
 
-        <!-- START -->
-        <div class="field-wrap">
-          <div class="field-lbl"><span class="dot-g"></span> البداية</div>
-          <div class="src-tog">
-            <button class="stb on" id="sc" onclick="setSrc('s','c')">تحديد وقت</button>
-            <button class="stb"    id="sn" onclick="setSrc('s','n')">الآن ↙</button>
-          </div>
-          <div id="sw"><input class="dti" type="datetime-local" id="ts"></div>
+      <!-- START -->
+      <div>
+        <div class="lbl"><span class="dot dot-g"></span> البداية</div>
+        <div class="tog">
+          <button class="tb on" id="sc" onclick="setSrc('s','c')">تحديد وقت</button>
+          <button class="tb"    id="sn" onclick="setSrc('s','n')">الآن ↙</button>
         </div>
-
-        <div class="divrow">إلى</div>
-
-        <!-- END -->
-        <div class="field-wrap">
-          <div class="field-lbl"><span class="dot-r"></span> النهاية</div>
-          <div class="src-tog">
-            <button class="stb on" id="ec" onclick="setSrc('e','c')">تحديد وقت</button>
-            <button class="stb"    id="en" onclick="setSrc('e','n')">الآن ↙</button>
-          </div>
-          <div id="ew"><input class="dti" type="datetime-local" id="te"></div>
-        </div>
-
+        <div id="sw"><input class="dti" type="datetime-local" id="ts"></div>
       </div>
+
+      <div class="divrow">إلى</div>
+
+      <!-- END -->
+      <div>
+        <div class="lbl"><span class="dot dot-r"></span> النهاية</div>
+        <div class="tog">
+          <button class="tb on" id="ec" onclick="setSrc('e','c')">تحديد وقت</button>
+          <button class="tb"    id="en" onclick="setSrc('e','n')">الآن ↙</button>
+        </div>
+        <div id="ew"><input class="dti" type="datetime-local" id="te"></div>
+      </div>
+
       <div class="err-msg" id="er">الرجاء تحديد الأوقات</div>
-      <button class="btn-go" onclick="go()">▶ احسب الفترة</button>
-      <button class="btn-clr" onclick="rst()">✕ مسح</button>
+      <button class="btn-go" onclick="go()">▶&nbsp; احسب الفترة</button>
+      <button class="btn-sec" onclick="rst()">✕ &nbsp;مسح</button>
+
     </div>
   </div>
 
-  <!-- ── RESULT CARD ── -->
-  <div class="card" id="res-card">
+  <!-- ══ CARD 2: RESULT ══ -->
+  <div class="card">
     <div class="card-head">
-      <div class="icon icon-blue">📊</div>
-      <span class="title">النتيجة</span>
+      <div class="card-icon ci-blue">📊</div>
+      <span class="card-head-title">النتيجة</span>
     </div>
     <div class="card-body" id="res-body">
       <div class="res-empty">
         <div class="ico">⏳</div>
-        <p>حدد وقت البداية والنهاية<br>ثم اضغط «احسب الفترة»</p>
+        <p>حدد البداية والنهاية<br>ثم اضغط «احسب الفترة»</p>
       </div>
     </div>
   </div>
 
-  <!-- ── VIRTUAL TIME CALC CARD ── -->
+  <!-- ══ CARD 3: VIRTUAL CALC ══ -->
   <div class="card">
     <div class="card-head">
-      <div class="icon icon-orange">🧮</div>
-      <span class="title">الحاسبة الافتراضية للوقت</span>
+      <div class="card-icon ci-orange">🧮</div>
+      <span class="card-head-title">الحاسبة الافتراضية للوقت</span>
     </div>
     <div class="card-body">
 
       <!-- Display -->
-      <div class="vcalc-result">
+      <div class="vc-display">
         <div class="vc-expr" id="vc-expr">—</div>
         <div class="vc-out"  id="vc-out">حدد وقتاً للبدء</div>
       </div>
 
       <!-- Base time -->
-      <div style="margin-bottom:8px;">
-        <div class="field-lbl" style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray3);margin-bottom:5px;">
-          ⏰ الوقت المطلوب
+      <div>
+        <div class="lbl">⏰ الوقت المطلوب</div>
+        <div class="tog">
+          <button class="tb on" id="vbc" onclick="setVBase('c')">تحديد</button>
+          <button class="tb"    id="vbn" onclick="setVBase('n')">الآن ↙</button>
         </div>
-        <div class="src-tog" style="margin-bottom:6px;">
-          <button class="stb on" id="vc-bc" onclick="setVcBase('c')">تحديد</button>
-          <button class="stb"    id="vc-bn" onclick="setVcBase('n')">الآن ↙</button>
-        </div>
-        <div id="vc-bwrap">
-          <input class="dti" type="datetime-local" id="vc-base">
-        </div>
+        <div id="vbw"><input class="dti" type="datetime-local" id="vb"></div>
       </div>
 
       <!-- Operation -->
-      <div class="op-row">
-        <button class="op-btn on" id="op-plus"  onclick="setOp('+')">＋ إضافة</button>
-        <button class="op-btn"    id="op-minus" onclick="setOp('−')">－ طرح</button>
+      <div>
+        <div class="lbl">العملية</div>
+        <div class="op-row">
+          <button class="op-btn on" id="op-p" onclick="setOp('+')">＋ &nbsp;إضافة</button>
+          <button class="op-btn"    id="op-m" onclick="setOp('−')">－ &nbsp;طرح</button>
+        </div>
       </div>
 
-      <!-- Unit selector -->
-      <div class="unit-sel">
-        <button class="usel-btn" id="u-min"   onclick="setUnit('min','دقيقة')">دقيقة</button>
-        <button class="usel-btn" id="u-hour"  onclick="setUnit('hour','ساعة')">ساعة</button>
-        <button class="usel-btn" id="u-day"   onclick="setUnit('day','يوم')">يوم</button>
-        <button class="usel-btn" id="u-week"  onclick="setUnit('week','أسبوع')">أسبوع</button>
-        <button class="usel-btn" id="u-month" onclick="setUnit('month','شهر')">شهر</button>
-        <button class="usel-btn on" id="u-year"  onclick="setUnit('year','سنة')">سنة</button>
+      <!-- Unit -->
+      <div>
+        <div class="lbl">الوحدة</div>
+        <div class="unit-pills">
+          <button class="up-btn"    id="u-min"   onclick="setU('min','دقيقة')">دقيقة</button>
+          <button class="up-btn"    id="u-hour"  onclick="setU('hour','ساعة')">ساعة</button>
+          <button class="up-btn"    id="u-day"   onclick="setU('day','يوم')">يوم</button>
+          <button class="up-btn"    id="u-week"  onclick="setU('week','أسبوع')">أسبوع</button>
+          <button class="up-btn"    id="u-month" onclick="setU('month','شهر')">شهر</button>
+          <button class="up-btn on" id="u-year"  onclick="setU('year','سنة')">سنة</button>
+        </div>
       </div>
 
-      <!-- Numpad -->
-      <div class="numpad">
-        <button class="np-btn" onclick="numPress('7')">7</button>
-        <button class="np-btn" onclick="numPress('8')">8</button>
-        <button class="np-btn" onclick="numPress('9')">9</button>
-        <button class="np-btn" onclick="numPress('4')">4</button>
-        <button class="np-btn" onclick="numPress('5')">5</button>
-        <button class="np-btn" onclick="numPress('6')">6</button>
-        <button class="np-btn" onclick="numPress('1')">1</button>
-        <button class="np-btn" onclick="numPress('2')">2</button>
-        <button class="np-btn" onclick="numPress('3')">3</button>
-        <button class="np-btn zero" onclick="numPress('0')">0</button>
-        <button class="np-btn del" onclick="numDel()">⌫</button>
+      <!-- Number -->
+      <div>
+        <div class="lbl">الرقم</div>
+        <div class="numpad">
+          <button class="np" onclick="nd('7')">7</button>
+          <button class="np" onclick="nd('8')">8</button>
+          <button class="np" onclick="nd('9')">9</button>
+          <button class="np" onclick="nd('4')">4</button>
+          <button class="np" onclick="nd('5')">5</button>
+          <button class="np" onclick="nd('6')">6</button>
+          <button class="np" onclick="nd('1')">1</button>
+          <button class="np" onclick="nd('2')">2</button>
+          <button class="np" onclick="nd('3')">3</button>
+          <button class="np zero" onclick="nd('0')">0</button>
+          <button class="np del"  onclick="ndel()">⌫</button>
+        </div>
       </div>
 
-      <button class="eq-btn" onclick="vcCalc()">＝ احسب</button>
-      <button class="btn-vc-clr" onclick="vcReset()">✕ مسح الحاسبة</button>
+      <!-- Live summary -->
+      <div class="vc-summary" id="vc-sum">
+        <div class="vc-summary-title">📋 ملخص العملية</div>
+        <div class="vc-summary-row">
+          <div class="vc-sum-cell">
+            <div class="vc-sum-lbl">التاريخ</div>
+            <div class="vc-sum-val" id="vs-date">—</div>
+          </div>
+          <div class="vc-sum-cell">
+            <div class="vc-sum-lbl">العملية</div>
+            <div class="vc-sum-val orange" id="vs-op">＋</div>
+          </div>
+          <div class="vc-sum-cell">
+            <div class="vc-sum-lbl">المقدار</div>
+            <div class="vc-sum-val orange" id="vs-num">؟</div>
+          </div>
+          <div class="vc-sum-cell">
+            <div class="vc-sum-lbl">الوحدة</div>
+            <div class="vc-sum-val" id="vs-unit">سنة</div>
+          </div>
+        </div>
+        <div class="vc-summary-sentence" id="vs-sent">
+          حدد القيم أعلاه ثم اضغط احسب
+        </div>
+      </div>
+
+      <button class="eq-btn" onclick="vcCalc()">＝ &nbsp;احسب</button>
+      <button class="btn-sec" style="margin-top:4px;" onclick="vcRst()">✕ &nbsp;مسح الحاسبة</button>
 
     </div>
   </div>
 
-</div><!-- /scroll -->
-</div><!-- /app -->
+</div><!-- /wrap -->
 
 <script>
-// ══════════════════════════════════════
+// ════════════════════════════════════
 // PERIOD CALCULATOR
-// ══════════════════════════════════════
-let ss='c', es='c', tmr=null;
+// ════════════════════════════════════
+let ss='c', es='c', ptmr=null;
 
 function setSrc(w,t){
-  if(w==='s'){ss=t;sTog('sc','sn',t);document.getElementById('sw').classList.toggle('hidden',t==='n');}
-  else       {es=t;sTog('ec','en',t);document.getElementById('ew').classList.toggle('hidden',t==='n');}
-}
-function sTog(a,b,t){
-  document.getElementById(a).classList.toggle('on',t==='c');
-  document.getElementById(b).classList.toggle('on',t==='n');
-}
-
-function p2(n){return String(Math.abs(Math.floor(n))).padStart(2,'0');}
-
-/* Full breakdown keeping remainders correct */
-function breakdown(ms){
-  if(ms===0) return null;
-  const abs=Math.abs(ms);
-
-  // total units
-  const totalMins  = Math.floor(abs/60000);
-  const totalHours = Math.floor(abs/3600000);
-  const totalDays  = Math.floor(abs/86400000);
-
-  // date-accurate months & years
-  const d1 = ms>0 ? new Date(Date.now()) : new Date(Date.now()+abs);
-  const d2 = ms>0 ? new Date(Date.now()+abs) : new Date(Date.now());
-  // use the actual two times from the calc
-  return null; // placeholder, real calc below
-}
-
-function calcBreakdown(t1ms, t2ms){
-  const ms = t2ms - t1ms;
-  if(ms===0) return {zero:true};
-  const past = ms<0;
-  const abs  = Math.abs(ms);
-
-  const d1 = past ? new Date(t2ms) : new Date(t1ms);
-  const d2 = past ? new Date(t1ms) : new Date(t2ms);
-
-  // years & months accurate
-  let yy = d2.getFullYear() - d1.getFullYear();
-  let mm = d2.getMonth()    - d1.getMonth();
-  let dd = d2.getDate()     - d1.getDate();
-  let hh = d2.getHours()    - d1.getHours();
-  let mi = d2.getMinutes()  - d1.getMinutes();
-
-  if(mi<0){mi+=60;hh--;}
-  if(hh<0){hh+=24;dd--;}
-  if(dd<0){
-    const prevMonth = new Date(d2.getFullYear(), d2.getMonth(), 0);
-    dd += prevMonth.getDate();
-    mm--;
+  if(w==='s'){
+    ss=t;
+    document.getElementById('sc').classList.toggle('on',t==='c');
+    document.getElementById('sn').classList.toggle('on',t==='n');
+    document.getElementById('sw').classList.toggle('hidden',t==='n');
+  } else {
+    es=t;
+    document.getElementById('ec').classList.toggle('on',t==='c');
+    document.getElementById('en').classList.toggle('on',t==='n');
+    document.getElementById('ew').classList.toggle('hidden',t==='n');
   }
-  if(mm<0){mm+=12;yy--;}
-
-  const weeks = Math.floor(dd/7);
-  const days  = dd % 7;
-
-  // totals for chart
-  const totalDays  = Math.floor(abs/86400000);
-  const totalHours = Math.floor(abs/3600000);
-  const totalMins  = Math.floor(abs/60000);
-
-  return {past,yy,mm,weeks,days,hh,mi,totalDays,totalHours,totalMins,abs};
 }
 
 function go(){
-  clearInterval(tmr);
+  clearInterval(ptmr);
   const now=new Date();
   const v1=document.getElementById('ts').value;
   const v2=document.getElementById('te').value;
-  let t1=ss==='n'?now:(v1?new Date(v1):null);
-  let t2=es==='n'?now:(v2?new Date(v2):null);
+  const t1=ss==='n'?now:(v1?new Date(v1):null);
+  const t2=es==='n'?now:(v2?new Date(v2):null);
   if(!t1||isNaN(t1)){showErr('حدد وقت البداية');return;}
   if(!t2||isNaN(t2)){showErr('حدد وقت النهاية');return;}
   document.getElementById('er').classList.remove('show');
-
-  const live = ss==='n'||es==='n';
+  const live=ss==='n'||es==='n';
 
   function render(){
     const n=new Date();
     const a=ss==='n'?n:t1;
     const b=es==='n'?n:t2;
-    const r=calcBreakdown(a.getTime(), b.getTime());
-    drawResult(r);
+    drawResult(a,b);
   }
   render();
-  if(live) tmr=setInterval(render,30000); // refresh every 30s (no seconds shown)
+  if(live) ptmr=setInterval(render,30000);
 }
 
-function drawResult(r){
+function drawResult(a,b){
+  const ms=b-a;
   const rb=document.getElementById('res-body');
 
-  if(r.zero){
-    rb.innerHTML=`<div class="res-empty"><div class="ico">⚖️</div><p>الوقتان متساويان</p></div>`;
-    rb.classList.add('anim');setTimeout(()=>rb.classList.remove('anim'),300);
+  if(ms===0){
+    rb.innerHTML=`<div class="res-empty"><div class="ico">⚖️</div><p>الوقتان متساويان تماماً</p></div>`;
     return;
   }
 
-  const badge = r.past
-    ? `<div class="badge pst">في الماضي</div>`
-    : `<div class="badge fut">في المستقبل</div>`;
+  const past=ms<0;
+  const d1=past?b:a, d2=past?a:b;
 
-  // Build only non-zero units
+  // Accurate breakdown
+  let yy=d2.getFullYear()-d1.getFullYear();
+  let mo=d2.getMonth()   -d1.getMonth();
+  let dd=d2.getDate()    -d1.getDate();
+  let hh=d2.getHours()   -d1.getHours();
+  let mi=d2.getMinutes() -d1.getMinutes();
+
+  if(mi<0){mi+=60;hh--;}
+  if(hh<0){hh+=24;dd--;}
+  if(dd<0){dd+=new Date(d2.getFullYear(),d2.getMonth(),0).getDate();mo--;}
+  if(mo<0){mo+=12;yy--;}
+
+  const wk=Math.floor(dd/7), dy=dd%7;
+
+  // Build visible units only
   const units=[];
-  if(r.yy>0)    units.push({n:r.yy,   l:'سنة',    hi:r.yy>=1});
-  if(r.mm>0)    units.push({n:r.mm,   l:'شهر',    hi:false});
-  if(r.weeks>0) units.push({n:r.weeks,l:'أسبوع',  hi:false});
-  if(r.days>0)  units.push({n:r.days, l:'يوم',    hi:false});
-  if(r.hh>0)    units.push({n:r.hh,   l:'ساعة',   hi:false});
-  if(r.mi>0)    units.push({n:r.mi,   l:'دقيقة',  hi:false});
+  if(yy>0) units.push({n:yy,l:'سنة'});
+  if(mo>0) units.push({n:mo,l:'شهر'});
+  if(wk>0) units.push({n:wk,l:'أسبوع'});
+  if(dy>0) units.push({n:dy,l:'يوم'});
+  if(hh>0) units.push({n:hh,l:'ساعة'});
+  if(mi>0) units.push({n:mi,l:'دقيقة'});
+  if(units.length===0) units.push({n:'<1',l:'دقيقة'});
 
-  // If everything is 0 (less than 1 min)
-  if(units.length===0) units.push({n:'<1',l:'دقيقة',hi:false});
-
-  // Make first item highlighted
-  if(units.length>0) units[0].hi=true;
-
-  const unitBoxes = units.map(u=>`
-    <div class="unit-box${u.hi?' hi':''}">
+  const gridHTML=units.map((u,i)=>`
+    <div class="unit-cell${i===0?' hi':''}">
       <div class="unit-num">${u.n}</div>
       <div class="unit-lbl">${u.l}</div>
     </div>`).join('');
 
-  // Summary sentence
-  const parts=[];
-  if(r.yy>0)    parts.push(`<strong>${r.yy}</strong> سنة`);
-  if(r.mm>0)    parts.push(`<strong>${r.mm}</strong> شهر`);
-  if(r.weeks>0) parts.push(`<strong>${r.weeks}</strong> أسبوع`);
-  if(r.days>0)  parts.push(`<strong>${r.days}</strong> يوم`);
-  if(r.hh>0)    parts.push(`<strong>${r.hh}</strong> ساعة`);
-  if(r.mi>0)    parts.push(`<strong>${r.mi}</strong> دقيقة`);
-  const sumTxt = (r.past?'مرّ ':'يتبقى ') + (parts.join(' و ') || 'أقل من دقيقة');
+  const parts=units.map(u=>`<strong>${u.n}</strong> ${u.l}`);
+  const sumTxt=(past?'مرّ ':'يتبقى ')+parts.join(' و ');
 
-  // Chart — totals relative to largest
-  const chartItems=[
-    {l:'أيام',  v:r.totalDays},
-    {l:'ساعات', v:r.totalHours},
-    {l:'دقائق', v:r.totalMins},
-  ].filter(x=>x.v>0);
-  const maxV = chartItems.length ? chartItems[0].v : 1;
-  const chartHTML = chartItems.map(ci=>{
-    const pct = Math.min(100, Math.round((ci.v/maxV)*100));
+  // Totals for chart
+  const absMs=Math.abs(ms);
+  const tDays =Math.floor(absMs/86400000);
+  const tHours=Math.floor(absMs/3600000);
+  const tMins =Math.floor(absMs/60000);
+  const chartRows=[];
+  if(tDays >0) chartRows.push({l:'أيام',  v:tDays});
+  if(tHours>0) chartRows.push({l:'ساعات',v:tHours});
+  if(tMins >0) chartRows.push({l:'دقائق',v:tMins});
+  const maxV=chartRows.length?chartRows[0].v:1;
+  const chartHTML=chartRows.map(c=>{
+    const pct=Math.round((c.v/maxV)*100);
     return `<div class="chart-row">
-      <div class="chart-lbl">${ci.l}</div>
-      <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${pct}%"></div></div>
-      <div class="chart-val">${ci.v.toLocaleString()}</div>
+      <div class="chart-lbl">${c.l}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="chart-val">${c.v.toLocaleString()}</div>
     </div>`;
   }).join('');
 
   rb.innerHTML=`
-    <div class="status-row">${badge}</div>
-    <div class="big-units">${unitBoxes}</div>
-    <div class="summ-box">${sumTxt}</div>
-    ${chartHTML?`<div class="chart-wrap" style="margin-top:10px;">${chartHTML}</div>`:''}
+    <div class="badge-row">
+      <div class="badge ${past?'pst':'fut'}">${past?'في الماضي':'في المستقبل'}</div>
+    </div>
+    <div class="units-grid">${gridHTML}</div>
+    <div class="summ">${sumTxt}</div>
+    ${chartHTML?`<div class="chart">${chartHTML}</div>`:''}
   `;
-  rb.classList.add('anim');
-  setTimeout(()=>rb.classList.remove('anim'),300);
 }
 
 function rst(){
-  clearInterval(tmr);tmr=null;
+  clearInterval(ptmr);ptmr=null;
   setSrc('s','c');setSrc('e','c');
-  const now=new Date();
-  const dt=localDT(now);
+  const dt=ldt(new Date());
   document.getElementById('ts').value=dt;
   document.getElementById('te').value=dt;
-  document.getElementById('res-body').innerHTML=`<div class="res-empty"><div class="ico">⏳</div><p>حدد وقت البداية والنهاية<br>ثم اضغط «احسب الفترة»</p></div>`;
+  document.getElementById('res-body').innerHTML=`<div class="res-empty"><div class="ico">⏳</div><p>حدد البداية والنهاية<br>ثم اضغط «احسب الفترة»</p></div>`;
   document.getElementById('er').classList.remove('show');
 }
 
@@ -666,123 +610,128 @@ function showErr(m){
   setTimeout(()=>e.classList.remove('show'),3000);
 }
 
-// ══════════════════════════════════════
+// ════════════════════════════════════
 // VIRTUAL TIME CALCULATOR
-// ══════════════════════════════════════
-let vcBaseMode='c';
-let vcOp='+';
-let vcUnit='year';
-let vcUnitLabel='سنة';
-let vcNum='';
+// ════════════════════════════════════
+let vbm='c', vop='+', vunit='year', vulbl='سنة', vnum='';
 
-function setVcBase(t){
-  vcBaseMode=t;
-  document.getElementById('vc-bc').classList.toggle('on',t==='c');
-  document.getElementById('vc-bn').classList.toggle('on',t==='n');
-  document.getElementById('vc-bwrap').classList.toggle('hidden',t==='n');
-  updateExpr();
+function setVBase(t){
+  vbm=t;
+  document.getElementById('vbc').classList.toggle('on',t==='c');
+  document.getElementById('vbn').classList.toggle('on',t==='n');
+  document.getElementById('vbw').classList.toggle('hidden',t==='n');
+  updExpr();
 }
 
 function setOp(op){
-  vcOp=op;
-  document.getElementById('op-plus').classList.toggle('on',op==='+');
-  document.getElementById('op-minus').classList.toggle('on',op==='−');
-  updateExpr();
+  vop=op;
+  document.getElementById('op-p').classList.toggle('on',op==='+');
+  document.getElementById('op-m').classList.toggle('on',op==='−');
+  updExpr();
 }
 
-function setUnit(u,lbl){
-  vcUnit=u; vcUnitLabel=lbl;
-  ['min','hour','day','week','month','year'].forEach(x=>{
-    document.getElementById('u-'+x).classList.toggle('on',x===u);
-  });
-  updateExpr();
+function setU(u,lbl){
+  vunit=u;vulbl=lbl;
+  ['min','hour','day','week','month','year'].forEach(x=>
+    document.getElementById('u-'+x).classList.toggle('on',x===u));
+  updExpr();
 }
 
-function numPress(d){
-  if(vcNum.length>=4) return; // max 4 digits
-  vcNum+=d;
-  updateExpr();
-}
-function numDel(){
-  vcNum=vcNum.slice(0,-1);
-  updateExpr();
+function nd(d){ if(vnum.length>=4)return; vnum+=d; updExpr(); }
+function ndel(){ vnum=vnum.slice(0,-1); updExpr(); }
+
+function updExpr(){
+  const base=getBase();
+  const bStr=base?fmtD(base):'—';
+
+  // old expr line (small, above result)
+  document.getElementById('vc-expr').textContent=
+    `${bStr}  ${vop}  ${vnum||'?'} ${vulbl}`;
+
+  // live summary cells
+  document.getElementById('vs-date').textContent = bStr;
+  document.getElementById('vs-op').textContent   = vop==='+'?'＋ إضافة':'－ طرح';
+  const hasNum = vnum && parseInt(vnum)>0;
+  const numEl  = document.getElementById('vs-num');
+  numEl.textContent  = hasNum ? vnum : '؟';
+  numEl.className    = 'vc-sum-val ' + (hasNum?'orange':'pending');
+  document.getElementById('vs-unit').textContent = vulbl;
+
+  // sentence
+  const opWord = vop==='+'?'إضافة':'طرح';
+  const numWord= hasNum?`<strong>${vnum}</strong>`:'<span style="color:#d0d5de">( رقم )</span>';
+  const dateWord= base?`<strong>${bStr}</strong>`:'<span style="color:#d0d5de">( تاريخ )</span>';
+  document.getElementById('vs-sent').innerHTML=
+    `${opWord} ${numWord} <strong>${vulbl}</strong> على التاريخ ${dateWord}`;
 }
 
-function updateExpr(){
-  const base = getVcBase();
-  const bStr = base ? fmtDate(base) : '—';
-  const nStr = vcNum||'?';
-  document.getElementById('vc-expr').textContent=`${bStr}  ${vcOp}  ${nStr} ${vcUnitLabel}`;
-}
-
-function getVcBase(){
-  if(vcBaseMode==='n') return new Date();
-  const v=document.getElementById('vc-base').value;
+function getBase(){
+  if(vbm==='n') return new Date();
+  const v=document.getElementById('vb').value;
   return v?new Date(v):null;
 }
 
 function vcCalc(){
-  const base=getVcBase();
-  if(!base||isNaN(base)){
-    document.getElementById('vc-out').textContent='⚠ حدد الوقت المطلوب';return;
-  }
-  const n=parseInt(vcNum||'0');
-  if(!vcNum||n===0){
-    document.getElementById('vc-out').textContent='⚠ أدخل رقماً';return;
-  }
+  const base=getBase();
+  if(!base||isNaN(base)){document.getElementById('vc-out').textContent='⚠ حدد الوقت المطلوب';return;}
+  const n=parseInt(vnum||'0');
+  if(!vnum||n===0){document.getElementById('vc-out').textContent='⚠ أدخل رقماً';return;}
 
-  const sign = vcOp==='+' ? 1 : -1;
-  const result = new Date(base);
+  const s=vop==='+'?1:-1;
+  const r=new Date(base);
+  if(vunit==='min')   r.setMinutes(r.getMinutes()   +s*n);
+  if(vunit==='hour')  r.setHours(r.getHours()       +s*n);
+  if(vunit==='day')   r.setDate(r.getDate()          +s*n);
+  if(vunit==='week')  r.setDate(r.getDate()          +s*n*7);
+  if(vunit==='month') r.setMonth(r.getMonth()        +s*n);
+  if(vunit==='year')  r.setFullYear(r.getFullYear()  +s*n);
 
-  switch(vcUnit){
-    case 'min':   result.setMinutes(result.getMinutes()   + sign*n); break;
-    case 'hour':  result.setHours(result.getHours()       + sign*n); break;
-    case 'day':   result.setDate(result.getDate()         + sign*n); break;
-    case 'week':  result.setDate(result.getDate()         + sign*n*7); break;
-    case 'month': result.setMonth(result.getMonth()       + sign*n); break;
-    case 'year':  result.setFullYear(result.getFullYear() + sign*n); break;
-  }
-
-  document.getElementById('vc-out').textContent = fmtDateFull(result);
-
-  const expr=`${fmtDate(base)} ${vcOp} ${n} ${vcUnitLabel}`;
-  document.getElementById('vc-expr').textContent=expr;
+  const resultStr = fmtFull(r);
+  document.getElementById('vc-expr').textContent=`${fmtD(base)}  ${vop}  ${n} ${vulbl}  =`;
+  document.getElementById('vc-out').textContent=resultStr;
+  // update summary sentence with result
+  const opWord2=vop==='+'?'إضافة':'طرح';
+  document.getElementById('vs-sent').innerHTML=
+    `${opWord2} <strong>${n}</strong> <strong>${vulbl}</strong> على <strong>${fmtD(base)}</strong>`+
+    `<br>＝ <strong style="color:#27ae7a;font-size:14px;">${resultStr}</strong>`;
 }
 
-function vcReset(){
-  vcNum='';vcOp='+';vcUnit='year';vcUnitLabel='سنة';
-  setVcBase('c');setOp('+');setUnit('year','سنة');
+function vcRst(){
+  vnum='';vop='+';vunit='year';vulbl='سنة';
+  setVBase('c');setOp('+');setU('year','سنة');
   document.getElementById('vc-expr').textContent='—';
   document.getElementById('vc-out').textContent='حدد وقتاً للبدء';
-  const now=new Date();
-  document.getElementById('vc-base').value=localDT(now);
+  document.getElementById('vb').value=ldt(new Date());
+  document.getElementById('vs-date').textContent='—';
+  document.getElementById('vs-op').textContent='＋';
+  document.getElementById('vs-num').textContent='؟';
+  document.getElementById('vs-num').className='vc-sum-val pending';
+  document.getElementById('vs-unit').textContent='سنة';
+  document.getElementById('vs-sent').innerHTML='حدد القيم أعلاه ثم اضغط احسب';
 }
 
-// ── Helpers ──────────────────────────
-function localDT(d){
+// helpers
+function ldt(d){
   const p=n=>String(n).padStart(2,'0');
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
-
-function fmtDate(d){
+function fmtD(d){
   const p=n=>String(n).padStart(2,'0');
-  return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;
 }
-
-function fmtDateFull(d){
+function fmtFull(d){
   const days=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
   const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
   const p=n=>String(n).padStart(2,'0');
-  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}  •  ${p(d.getHours())}:${p(d.getMinutes())}`;
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}  ·  ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
-// ── Init ─────────────────────────────
+// init
 (function(){
-  const now=new Date();
-  const dt=localDT(now);
+  const dt=ldt(new Date());
   document.getElementById('ts').value=dt;
   document.getElementById('te').value=dt;
-  document.getElementById('vc-base').value=dt;
+  document.getElementById('vb').value=dt;
 })();
 </script>
 </body>
