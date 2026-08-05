@@ -116,6 +116,20 @@ button{font-family:inherit;}
 .remaining-strip .rv.neg{color:var(--red);}
 .remaining-strip .ring{width:52px;height:52px; flex:0 0 auto;}
 
+.cycle-banner{
+  margin:14px 18px 0; padding:13px 16px; border-radius:var(--radius-md);
+  background:var(--orange-soft2); border:1px solid var(--orange-soft);
+  display:flex; align-items:center; gap:10px; cursor:pointer;
+}
+.cycle-banner .cb-icon{font-size:17px; flex:0 0 auto;}
+.cycle-banner .cb-text{flex:1; font-size:12.5px; font-weight:700; color:var(--orange-deep); line-height:1.5;}
+.cycle-banner .cb-arrow{font-size:20px; color:var(--orange-deep); flex:0 0 auto; font-weight:800;}
+
+.app-footer{
+  text-align:center; padding:26px 18px 8px; font-size:11.5px; color:var(--ink-faint);
+  font-weight:600; direction:ltr;
+}
+
 /* ===== Section Divider ===== */
 .section-divider{
   display:flex; align-items:center; gap:12px;
@@ -153,13 +167,22 @@ button{font-family:inherit;}
 
 .day-group{margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--line);}
 .day-group:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
-.day-header{display:flex; align-items:center; justify-content:space-between; margin:0 4px 10px;}
-.day-label{font-size:12px; font-weight:700; color:var(--ink-faint);}
+.day-header{display:flex; align-items:center; justify-content:space-between; margin:0 4px 0; cursor:pointer; user-select:none; padding:6px 2px;}
+.day-header-left{display:flex; align-items:center; gap:8px;}
+.chevron{color:var(--ink-faint); flex:0 0 auto; transition:transform .25s ease;}
+.day-group.open .chevron{transform:rotate(180deg);}
+.day-label{font-size:12px; font-weight:700; color:var(--ink-faint); display:flex; align-items:center; gap:6px;}
+.today-tag{
+  background:var(--orange-soft2); color:var(--orange-deep); font-size:9.5px; font-weight:800;
+  padding:2px 7px; border-radius:100px; border:1px solid var(--orange-soft);
+}
 .day-total-badge{
   background:var(--orange); color:#fff; font-weight:800; font-size:11.5px;
   padding:4px 11px; border-radius:100px; white-space:nowrap;
   box-shadow:0 3px 8px -3px rgba(228,85,10,0.5);
 }
+.day-items-wrap{overflow:hidden; max-height:0; transition:max-height .3s ease; margin-top:0;}
+.day-group.open .day-items-wrap{margin-top:10px;}
 .expense-item{
   background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-md);
   padding:12px 14px; display:flex; align-items:center; gap:12px; margin-bottom:9px;
@@ -272,6 +295,15 @@ button{font-family:inherit;}
 }
 .text-input:focus, .amount-input-wrap:focus-within{border-color:var(--orange);}
 
+.select-wrap{position:relative;}
+.select-input{
+  width:100%; background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-sm);
+  padding:12px 38px 12px 14px; font-size:14px; outline:none; color:var(--ink); font-family:inherit;
+  -webkit-appearance:none; appearance:none; cursor:pointer;
+}
+.select-input:focus{border-color:var(--orange);}
+.select-chevron{position:absolute; top:50%; left:14px; transform:translateY(-50%); color:var(--ink-faint); pointer-events:none;}
+
 .primary-btn{
   width:100%; margin-top:20px; padding:15px; border:none; border-radius:var(--radius-md);
   background:var(--orange); color:#fff; font-weight:800; font-size:15.5px; cursor:pointer;
@@ -361,6 +393,12 @@ button{font-family:inherit;}
   </svg>
 </div>
 
+<div class="cycle-banner" id="cycleBanner" style="display:none;">
+  <div class="cb-icon">⚠️</div>
+  <div class="cb-text" id="cycleBannerText"></div>
+  <div class="cb-arrow">‹</div>
+</div>
+
 <!-- Divider -->
 <div class="section-divider">
   <div class="line"></div>
@@ -415,6 +453,8 @@ button{font-family:inherit;}
   </div>
 </div>
 
+<div class="app-footer">Qasim omish - qas4qas2@gmail.com</div>
+
 <!-- Floating add button -->
 <button class="fab" id="btnAdd" aria-label="إضافة مصروف">＋</button>
 
@@ -432,6 +472,12 @@ button{font-family:inherit;}
 
     <div class="field-label">النوع</div>
     <div class="cat-grid" id="catGrid"></div>
+
+    <div class="field-label">التاريخ</div>
+    <div class="select-wrap">
+      <select id="expDate" class="select-input"></select>
+      <svg class="select-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
 
     <div class="field-label">ملاحظة (اختياري)</div>
     <input type="text" class="text-input" id="expNote" placeholder="مثال: عشاء مع الأصدقاء">
@@ -593,6 +639,21 @@ button{font-family:inherit;}
     return b.start.toLocaleDateString('ar-EG', opts) + ' — ' + b.end.toLocaleDateString('ar-EG', opts);
   }
 
+  function hasPreviousCycleData(){
+    var b = getCycleBounds();
+    return state.expenses.some(function(e){ return new Date(e.date) < b.start; });
+  }
+
+  function renderCycleBanner(){
+    var banner = document.getElementById('cycleBanner');
+    if(hasPreviousCycleData()){
+      document.getElementById('cycleBannerText').textContent = 'انتهت دورة الشهر الحالي، فضلا تصدير البيانات ومسح التقرير';
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
   function toast(msg){
     var t = document.getElementById('toast');
     t.textContent = msg;
@@ -640,6 +701,7 @@ button{font-family:inherit;}
     renderIncomeSourcesRow(income);
     renderList();
     renderCatBreakdown(income);
+    renderCycleBanner();
     document.getElementById('monthDaysDisplay').value = cycleLabel();
   }
 
@@ -660,16 +722,50 @@ button{font-family:inherit;}
     row.appendChild(addPill);
   }
 
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function isoDateOf(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+  function getTodayISO(){ return isoDateOf(new Date()); }
+
+  var openDays = new Set([getTodayISO()]); // الأيام المفتوحة حاليًا في القائمة (اليوم الحالي مفتوح افتراضيًا فقط)
+
   function groupByDay(list){
-    var groups = {};
+    var groups = {}; // iso -> {label, items:[]}
     var order = [];
     list.forEach(function(e){
       var d = new Date(e.date);
-      var key = d.toLocaleDateString('ar-EG', {weekday:'long', day:'numeric', month:'long'});
-      if(!groups[key]){ groups[key]=[]; order.push(key); }
-      groups[key].push(e);
+      var iso = isoDateOf(d);
+      if(!groups[iso]){
+        groups[iso] = { label: d.toLocaleDateString('ar-EG', {weekday:'long', day:'numeric', month:'long'}), items: [] };
+        order.push(iso);
+      }
+      groups[iso].items.push(e);
     });
     return {groups:groups, order:order};
+  }
+
+  function toggleDayGroup(groupEl){
+    var wrap = groupEl.querySelector('.day-items-wrap');
+    var iso = groupEl.getAttribute('data-iso');
+    var isOpen = groupEl.classList.contains('open');
+    if(isOpen){
+      wrap.style.maxHeight = wrap.scrollHeight + 'px';
+      requestAnimationFrame(function(){
+        groupEl.classList.remove('open');
+        wrap.style.maxHeight = '0px';
+      });
+      openDays.delete(iso);
+    } else {
+      groupEl.classList.add('open');
+      wrap.style.maxHeight = wrap.scrollHeight + 'px';
+      openDays.add(iso);
+      var onEnd = function(ev){
+        if(ev.propertyName === 'max-height'){
+          if(groupEl.classList.contains('open')) wrap.style.maxHeight = 'none';
+          wrap.removeEventListener('transitionend', onEnd);
+        }
+      };
+      wrap.addEventListener('transitionend', onEnd);
+    }
   }
 
   function renderList(){
@@ -679,22 +775,33 @@ button{font-family:inherit;}
       wrap.innerHTML = '<div class="empty-state"><div class="em-icon">🧾</div><div class="em-t">لا توجد مصروفات بعد</div><div class="em-s">اضغط على زر + بالأسفل لإضافة أول مصروف</div></div>';
       return;
     }
+    var todayISO = getTodayISO();
     var sorted = state.expenses.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
     var g = groupByDay(sorted);
-    g.order.forEach(function(key){
+    g.order.forEach(function(iso){
+      var isOpen = openDays.has(iso);
       var dayDiv = document.createElement('div');
-      dayDiv.className = 'day-group';
+      dayDiv.className = 'day-group' + (isOpen ? ' open' : '');
+      dayDiv.setAttribute('data-iso', iso);
 
-      var dayTotal = g.groups[key].reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
+      var dayTotal = g.groups[iso].items.reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
 
       var header = document.createElement('div');
       header.className = 'day-header';
       header.innerHTML =
-        '<div class="day-label">'+key+'</div>'+
+        '<div class="day-header-left">'+
+          '<svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'+
+          '<div class="day-label">'+g.groups[iso].label + (iso===todayISO ? ' <span class="today-tag">اليوم</span>' : '')+'</div>'+
+        '</div>'+
         '<div class="day-total-badge num">'+fmt(dayTotal)+' ر.س</div>';
+      header.addEventListener('click', function(){ toggleDayGroup(dayDiv); });
       dayDiv.appendChild(header);
 
-      g.groups[key].forEach(function(e){
+      var itemsWrap = document.createElement('div');
+      itemsWrap.className = 'day-items-wrap';
+      itemsWrap.style.maxHeight = isOpen ? 'none' : '0px';
+
+      g.groups[iso].items.forEach(function(e){
         var c = catInfo(e.category);
         var item = document.createElement('div');
         item.className = 'expense-item';
@@ -712,13 +819,15 @@ button{font-family:inherit;}
               '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'+
             '</button>'+
           '</div>';
-        dayDiv.appendChild(item);
+        itemsWrap.appendChild(item);
       });
+      dayDiv.appendChild(itemsWrap);
       wrap.appendChild(dayDiv);
     });
 
     wrap.querySelectorAll('.exp-edit').forEach(function(btn){
-      btn.addEventListener('click', function(){
+      btn.addEventListener('click', function(ev){
+        ev.stopPropagation();
         var id = btn.getAttribute('data-id');
         var exp = state.expenses.find(function(e){ return String(e.id) === String(id); });
         if(exp) openAddSheet(exp);
@@ -726,7 +835,8 @@ button{font-family:inherit;}
     });
 
     wrap.querySelectorAll('.exp-del').forEach(function(btn){
-      btn.addEventListener('click', function(){
+      btn.addEventListener('click', function(ev){
+        ev.stopPropagation();
         var id = btn.getAttribute('data-id');
         state.expenses = state.expenses.filter(function(e){ return String(e.id) !== String(id); });
         saveState(); render();
@@ -838,6 +948,46 @@ button{font-family:inherit;}
   function openSheet(id){ document.getElementById(id).classList.add('show'); }
   function closeSheet(id){ document.getElementById(id).classList.remove('show'); }
 
+  function buildDateSelect(selectedISO){
+    var sel = document.getElementById('expDate');
+    sel.innerHTML = "";
+    var b = getCycleBounds();
+    var todayISO = getTodayISO();
+    var isoList = [];
+
+    var cursor = new Date(b.start);
+    var todayDate = new Date(); todayDate.setHours(0,0,0,0);
+    var upperBound = todayDate < b.end ? todayDate : b.end; // لا نسمح بأيام مستقبلية بعد اليوم
+
+    while(cursor <= upperBound){
+      isoList.push(isoDateOf(cursor));
+      cursor.setDate(cursor.getDate()+1);
+    }
+    // تضمين التاريخ المسجل حاليًا حتى لو خرج (لأي سبب) عن النطاق المحسوب أعلاه
+    if(selectedISO && isoList.indexOf(selectedISO) === -1){
+      isoList.push(selectedISO);
+      isoList.sort();
+    }
+
+    isoList.forEach(function(iso){
+      var parts = iso.split('-').map(Number);
+      var d = new Date(parts[0], parts[1]-1, parts[2]);
+      var label = d.toLocaleDateString('ar-EG', {weekday:'long', day:'numeric', month:'long'});
+      if(iso === todayISO) label += ' (اليوم)';
+      var opt = document.createElement('option');
+      opt.value = iso;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    });
+    sel.value = selectedISO || todayISO;
+  }
+
+  function combineDateKeepTime(isoDateStr, referenceDate){
+    var parts = isoDateStr.split('-').map(Number);
+    var ref = referenceDate || new Date();
+    return new Date(parts[0], parts[1]-1, parts[2], ref.getHours(), ref.getMinutes(), ref.getSeconds(), ref.getMilliseconds());
+  }
+
   function openAddSheet(existingExpense){
     if(existingExpense){
       editingId = existingExpense.id;
@@ -846,6 +996,7 @@ button{font-family:inherit;}
       selectedCat = existingExpense.category;
       document.getElementById('addSheetTitle').textContent = 'تعديل المصروف';
       document.getElementById('saveExpense').textContent = 'حفظ التعديل';
+      buildDateSelect(isoDateOf(new Date(existingExpense.date)));
     } else {
       editingId = null;
       document.getElementById('expAmount').value = '';
@@ -853,6 +1004,7 @@ button{font-family:inherit;}
       selectedCat = CATEGORIES[0].id;
       document.getElementById('addSheetTitle').textContent = 'إضافة مصروف';
       document.getElementById('saveExpense').textContent = 'إضافة المصروف';
+      buildDateSelect(getTodayISO());
     }
     buildCatGrid();
     openSheet('overlayAdd');
@@ -896,6 +1048,7 @@ button{font-family:inherit;}
     var amt = parseFloat(document.getElementById('expAmount').value);
     if(!amt || amt <= 0){ toast('أدخل قيمة صحيحة للمصروف'); return; }
     var note = document.getElementById('expNote').value.trim();
+    var selectedISO = document.getElementById('expDate').value || getTodayISO();
 
     if(editingId){
       var exp = state.expenses.find(function(e){ return String(e.id) === String(editingId); });
@@ -903,7 +1056,8 @@ button{font-family:inherit;}
         exp.amount = amt;
         exp.category = selectedCat;
         exp.note = note;
-        // التاريخ الأصلي يبقى كما هو، فقط القيمة والنوع والملاحظة قابلة للتعديل
+        // التاريخ يُحدَّث حسب الاختيار، مع الحفاظ على وقت اليوم الأصلي لضبط الترتيب
+        exp.date = combineDateKeepTime(selectedISO, new Date(exp.date)).toISOString();
       }
       editingId = null;
       saveState();
@@ -916,7 +1070,7 @@ button{font-family:inherit;}
         amount: amt,
         category: selectedCat,
         note: note,
-        date: new Date().toISOString()
+        date: combineDateKeepTime(selectedISO, new Date()).toISOString()
       });
       saveState();
       render();
@@ -955,6 +1109,7 @@ button{font-family:inherit;}
   });
 
   document.getElementById('btnSettings').addEventListener('click', function(){ openSheet('overlaySettings'); });
+  document.getElementById('cycleBanner').addEventListener('click', function(){ openSheet('overlaySettings'); });
   document.getElementById('closeSettings').addEventListener('click', function(){ closeSheet('overlaySettings'); });
   document.getElementById('overlaySettings').addEventListener('click', function(e){ if(e.target===this) closeSheet('overlaySettings'); });
 
