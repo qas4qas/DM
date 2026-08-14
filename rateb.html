@@ -206,34 +206,6 @@ button{font-family:inherit;}
 .exp-edit:active{background:var(--orange-soft2); color:var(--orange-deep);}
 .exp-del:active{background:var(--red-soft); color:var(--red);}
 
-/* ===== Week grouping ===== */
-.week-group{margin-bottom:20px;}
-.week-group:last-child{margin-bottom:0;}
-.week-header{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  background:linear-gradient(155deg,#2A2A25,var(--ink)); color:#fff;
-  border-radius:var(--radius-md); padding:13px 15px; cursor:pointer; user-select:none;
-  box-shadow:var(--shadow);
-}
-.week-header-left{display:flex; align-items:center; gap:9px; min-width:0;}
-.week-chevron{color:rgba(255,255,255,0.55); flex:0 0 auto; transition:transform .25s ease;}
-.week-group.open .week-chevron{transform:rotate(180deg);}
-.week-label{font-size:13px; font-weight:800; display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
-.week-now-tag{
-  background:rgba(255,106,26,0.22); color:#FFA36B; font-size:9.5px; font-weight:800;
-  padding:2px 7px; border-radius:100px; border:1px solid rgba(255,106,26,0.35);
-}
-.week-range{font-size:10.5px; color:rgba(255,255,255,0.5); font-weight:600; margin-top:2px;}
-.week-right{text-align:left; display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:0 0 auto;}
-.week-total{font-size:15.5px; font-weight:800;}
-.week-diff{font-size:10px; font-weight:800; padding:3px 9px; border-radius:100px; white-space:nowrap;}
-.week-diff.up{background:rgba(225,75,75,0.2); color:#FF9B9B;}
-.week-diff.down{background:rgba(28,154,108,0.24); color:#7BE8BB;}
-.week-diff.same{background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.65);}
-.week-days-wrap{overflow:hidden; max-height:0; transition:max-height .3s ease;}
-.week-group.open .week-days-wrap{margin-top:12px;}
-.week-days-wrap .day-group{padding:0 3px;}
-
 /* ===== Stats ===== */
 .stats-title{margin:30px 18px 12px; font-weight:800; font-size:15px; display:flex; align-items:center; gap:7px;}
 .stats-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 18px;}
@@ -268,16 +240,6 @@ button{font-family:inherit;}
 .cb-bar-track{height:8px; border-radius:100px; background:var(--bg-soft); overflow:hidden;}
 .cb-bar-fill{height:100%; border-radius:100px; background:linear-gradient(90deg,var(--orange),var(--orange-deep));}
 
-/* ===== Weekly analysis chart ===== */
-.week-chart{display:flex; align-items:flex-end; gap:6px; height:118px; margin-top:8px; padding:0 2px;}
-.week-chart-col{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; height:100%;}
-.week-chart-bar-wrap{flex:1; width:100%; display:flex; align-items:flex-end; justify-content:center;}
-.week-chart-bar{width:100%; max-width:26px; border-radius:7px 7px 3px 3px; background:linear-gradient(180deg,#FFB37D,var(--orange)); transition:height .5s cubic-bezier(.22,.9,.32,1); min-height:4px;}
-.week-chart-bar.current{background:linear-gradient(180deg,var(--orange-deep),#B23F06); box-shadow:0 0 0 2px var(--orange-soft2);}
-.week-chart-val{font-size:9px; font-weight:800; color:var(--ink-dim); white-space:nowrap;}
-.week-chart-lbl{font-size:9px; font-weight:700; color:var(--ink-faint); white-space:nowrap;}
-.week-chart-lbl.current{color:var(--orange-deep);}
-
 /* ===== Floating Add Button ===== */
 .fab{
   position:fixed; bottom:calc(24px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
@@ -298,53 +260,95 @@ button{font-family:inherit;}
 .overlay.show{opacity:1; pointer-events:auto;}
 .sheet{
   background:var(--bg-soft); width:100%; max-width:480px; border-radius:24px 24px 0 0;
-  padding:10px 18px calc(22px + env(safe-area-inset-bottom));
+  padding:8px 16px calc(14px + env(safe-area-inset-bottom));
   transform:translateY(100%); transition:transform .28s cubic-bezier(.32,.72,0,1);
-  max-height:88vh; overflow-y:auto;
+  max-height:92vh; overflow-y:auto;
 }
 .overlay.show .sheet{transform:translateY(0);}
-.sheet-handle{width:40px;height:4px;background:var(--line); border-radius:100px; margin:6px auto 14px;}
-.sheet-title{font-size:17px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;}
-.sheet-title .x{width:30px;height:30px;border-radius:9px;background:var(--paper); border:1px solid var(--line); display:flex;align-items:center;justify-content:center; color:var(--ink-dim); cursor:pointer;}
+.sheet-handle{width:36px;height:4px;background:var(--line); border-radius:100px; margin:4px auto 8px;}
+.sheet-title{font-size:15px; font-weight:800; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;}
+.sheet-title .x{width:26px;height:26px;border-radius:8px;background:var(--paper); border:1px solid var(--line); display:flex;align-items:center;justify-content:center; color:var(--ink-dim); cursor:pointer;}
 
-.field-label{font-size:12.5px; font-weight:700; color:var(--ink-dim); margin:14px 2px 8px;}
-.amount-input-wrap{
-  background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-md);
-  display:flex; align-items:center; padding:12px 16px;
-}
-.amount-input-wrap input{
-  border:none; outline:none; background:transparent; font-size:26px; font-weight:800;
-  width:100%; color:var(--ink); font-family:'Tajawal',sans-serif;
-}
-.amount-input-wrap .cur{font-size:14px; color:var(--ink-faint); font-weight:700;}
+.field-label{font-size:11px; font-weight:800; color:var(--ink-dim); margin:8px 2px 5px;}
 
-.cat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:9px;}
-.cat-opt{
-  background:var(--paper); border:1.5px solid var(--line); border-radius:14px;
-  padding:14px 4px; display:flex; flex-direction:column; align-items:center; gap:6px;
-  font-size:12px; font-weight:700; color:var(--ink-dim); cursor:pointer;
+/* ===== Top entry row: value box + category box, side by side ===== */
+.entry-row{display:flex; gap:8px; margin-top:2px;}
+.entry-box{
+  flex:1; min-width:0; background:var(--paper); border:1.5px solid var(--line); border-radius:14px;
+  padding:9px 10px; cursor:pointer; text-align:center; transition:.15s;
 }
-.cat-opt .ic{font-size:23px;}
-.cat-opt.sel{border-color:var(--orange); background:var(--orange-soft2); color:var(--orange-deep);}
+.entry-box.active{border-color:var(--orange); background:var(--orange-soft2); box-shadow:0 3px 10px -4px rgba(228,85,10,0.35);}
+.entry-box .eb-label{font-size:9.5px; color:var(--ink-faint); font-weight:800;}
+.entry-box .eb-val{
+  font-size:17px; font-weight:900; margin-top:2px; color:var(--ink);
+  font-family:'Tajawal',sans-serif; font-variant-numeric: tabular-nums;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+}
+.entry-box .eb-val.placeholder{color:var(--ink-faint); font-weight:700;}
+.entry-box.active .eb-val{color:var(--orange-deep);}
+
+/* ===== Dynamic middle area: calculator OR category picker ===== */
+.dynamic-area{margin-top:10px;}
+.dyn-panel{display:none;}
+.dyn-panel.show{display:block;}
+
+.calc-display{
+  background:var(--paper); border:1.5px solid var(--line); border-radius:var(--radius-md);
+  padding:14px 16px; text-align:center; direction:ltr; overflow-x:auto; white-space:nowrap;
+}
+.calc-display .cd-val{
+  font-size:34px; font-weight:900; color:var(--ink); font-family:'Tajawal',sans-serif;
+  font-variant-numeric: tabular-nums; letter-spacing:-0.5px;
+}
+.calc-display .cd-val.zero{color:var(--ink-faint);}
+.calc-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:8px;}
+.calc-btn{
+  background:var(--paper); border:1px solid var(--line); border-radius:13px;
+  padding:14px 0; font-size:20px; font-weight:900; color:var(--ink); cursor:pointer;
+  font-family:'Tajawal',sans-serif; font-variant-numeric: tabular-nums; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+}
+.calc-btn:active{background:var(--bg-soft); transform:scale(.94);}
+.calc-btn.calc-ghost{background:transparent; border:none; pointer-events:none;}
+.calc-btn.calc-op{color:var(--orange-deep); background:var(--orange-soft2); border-color:var(--orange-soft);}
+.calc-btn.calc-op:active{background:var(--orange-soft);}
+.calc-btn.calc-clear{color:var(--ink-dim); background:var(--bg-soft);}
+.calc-btn.calc-back{color:var(--ink-dim); background:var(--bg-soft);}
+.calc-btn.calc-eq{background:var(--orange); color:#fff; border-color:var(--orange);}
+.calc-btn.calc-eq:active{background:var(--orange-deep);}
+
+.catlist{display:flex; flex-direction:column; gap:8px;}
+.catlist-item{
+  display:flex; align-items:center; gap:10px; background:var(--paper); border:1.5px solid var(--line);
+  border-radius:14px; padding:13px 16px; font-weight:800; font-size:14.5px; color:var(--ink-dim); cursor:pointer;
+}
+.catlist-item .ic{font-size:19px; flex:0 0 auto;}
+.catlist-item.sel{background:var(--orange-soft2); border-color:var(--orange); color:var(--orange-deep);}
+.catlist-item:active{transform:scale(.98);}
+
+/* ===== Bottom row: date + note, side by side ===== */
+.bottom-row{display:flex; gap:8px; align-items:flex-start;}
+.bottom-row .bcol{flex:1; min-width:0;}
 
 .text-input{
   width:100%; background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-sm);
-  padding:12px 14px; font-size:14px; outline:none; color:var(--ink); font-family:inherit;
+  padding:9px 12px; font-size:12.5px; font-weight:600; outline:none; color:var(--ink); font-family:inherit;
 }
-.text-input:focus, .amount-input-wrap:focus-within{border-color:var(--orange);}
+.text-input:focus{border-color:var(--orange);}
 
 .select-wrap{position:relative;}
 .select-input{
   width:100%; background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-sm);
-  padding:12px 38px 12px 14px; font-size:14px; outline:none; color:var(--ink); font-family:inherit;
+  padding:9px 28px 9px 10px; font-size:12.5px; font-weight:700; outline:none; color:var(--ink); font-family:inherit;
   -webkit-appearance:none; appearance:none; cursor:pointer;
 }
 .select-input:focus{border-color:var(--orange);}
-.select-chevron{position:absolute; top:50%; left:14px; transform:translateY(-50%); color:var(--ink-faint); pointer-events:none;}
+.select-chevron{position:absolute; top:50%; left:10px; transform:translateY(-50%); color:var(--ink-faint); pointer-events:none;}
 
 .primary-btn{
-  width:100%; margin-top:20px; padding:15px; border:none; border-radius:var(--radius-md);
-  background:var(--orange); color:#fff; font-weight:800; font-size:15.5px; cursor:pointer;
+  width:100%; margin-top:14px; padding:13px; border:none; border-radius:var(--radius-md);
+  background:var(--orange); color:#fff; font-weight:800; font-size:14.5px; cursor:pointer;
   box-shadow:0 8px 20px -8px rgba(228,85,10,0.6);
 }
 .primary-btn:active{transform:scale(.98);}
@@ -476,12 +480,6 @@ button{font-family:inherit;}
     <div class="stat-sub" id="dailyBudgetSub">لبقية أيام الشهر</div>
   </div>
 
-  <div class="stat-card wide" id="weeklyChartCard">
-    <div class="stat-label" style="margin-bottom:2px;">تحليل الصرف الأسبوعي (آخر ٨ أسابيع)</div>
-    <div class="stat-sub" id="weekChartSub">الأسبوع من الأحد إلى السبت</div>
-    <div class="week-chart" id="weekChart"></div>
-  </div>
-
   <div class="stat-card wide" id="catBreakdownCard">
     <div class="stat-label" style="margin-bottom:10px;">تقسيم المصروفات حسب النوع (من الدخل)</div>
     <div class="donut-wrap" id="donutWrap">
@@ -508,23 +506,65 @@ button{font-family:inherit;}
     <div class="sheet-handle"></div>
     <div class="sheet-title"><span id="addSheetTitle">إضافة مصروف</span> <span class="x" id="closeAdd">✕</span></div>
 
-    <div class="field-label">القيمة</div>
-    <div class="amount-input-wrap">
-      <input type="number" inputmode="decimal" id="expAmount" placeholder="0" min="0" step="0.01">
-      <span class="cur">ر.س</span>
+    <div class="entry-row">
+      <div class="entry-box active" id="entryValueBox">
+        <div class="eb-label">القيمة</div>
+        <div class="eb-val placeholder" id="entryValueText">0.00 ر.س</div>
+      </div>
+      <div class="entry-box" id="entryCatBox">
+        <div class="eb-label">النوع</div>
+        <div class="eb-val" id="entryCatText"></div>
+      </div>
     </div>
 
-    <div class="field-label">النوع</div>
-    <div class="cat-grid" id="catGrid"></div>
+    <div class="dynamic-area">
+      <div class="dyn-panel show" id="calcPanel">
+        <div class="calc-display">
+          <span class="cd-val" id="calcDisplay">0</span>
+        </div>
+        <div class="calc-grid" id="calcGrid">
+          <button type="button" class="calc-btn calc-clear" data-action="clear">C</button>
+          <div class="calc-btn calc-ghost"></div>
+          <div class="calc-btn calc-ghost"></div>
+          <button type="button" class="calc-btn calc-back" data-action="backspace">⌫</button>
 
-    <div class="field-label">التاريخ</div>
-    <div class="select-wrap">
-      <select id="expDate" class="select-input"></select>
-      <svg class="select-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          <button type="button" class="calc-btn" data-val="1">1</button>
+          <button type="button" class="calc-btn" data-val="2">2</button>
+          <button type="button" class="calc-btn" data-val="3">3</button>
+          <button type="button" class="calc-btn calc-op" data-val="÷">÷</button>
+
+          <button type="button" class="calc-btn" data-val="4">4</button>
+          <button type="button" class="calc-btn" data-val="5">5</button>
+          <button type="button" class="calc-btn" data-val="6">6</button>
+          <button type="button" class="calc-btn calc-op" data-val="×">×</button>
+
+          <button type="button" class="calc-btn" data-val="7">7</button>
+          <button type="button" class="calc-btn" data-val="8">8</button>
+          <button type="button" class="calc-btn" data-val="9">9</button>
+          <button type="button" class="calc-btn calc-op" data-val="-">−</button>
+
+          <button type="button" class="calc-btn" data-val=".">.</button>
+          <button type="button" class="calc-btn" data-val="0">0</button>
+          <button type="button" class="calc-btn calc-eq" data-action="equals">=</button>
+          <button type="button" class="calc-btn calc-op" data-val="+">+</button>
+        </div>
+      </div>
+
+      <div class="dyn-panel" id="catPanel">
+        <div class="catlist" id="catList"></div>
+      </div>
     </div>
 
-    <div class="field-label">ملاحظة (اختياري)</div>
-    <input type="text" class="text-input" id="expNote" placeholder="مثال: عشاء مع الأصدقاء">
+    <div class="field-label">التاريخ والملاحظة</div>
+    <div class="bottom-row">
+      <div class="bcol select-wrap">
+        <select id="expDate" class="select-input"></select>
+        <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="bcol">
+        <input type="text" class="text-input" id="expNote" placeholder="ملاحظة (اختياري)">
+      </div>
+    </div>
 
     <button class="primary-btn" id="saveExpense">إضافة المصروف</button>
   </div>
@@ -550,7 +590,7 @@ button{font-family:inherit;}
     <div class="settings-row">
       <div>
         <div class="l">دورة الشهر الحالية</div>
-        <div class="s">من ٢٧ إلى ٢٦ من الشهر التالي</div>
+        <div class="s">من 27 إلى 26 من الشهر التالي</div>
       </div>
       <input type="text" class="text-input" style="width:100px; text-align:center; font-size:12px;" id="monthDaysDisplay" disabled>
     </div>
@@ -603,6 +643,7 @@ button{font-family:inherit;}
   var state = loadState();
   var selectedCat = CATEGORIES[0].id;
   var editingId = null; // null = إضافة جديدة، وإلا معرف المصروف الجاري تعديله
+  var calcExpr = ""; // تعبير الآلة الحاسبة الظاهر في شاشة إدخال المصروف (أرقام إنجليزية فقط)
 
   function defaultState(){
     return { sources: [ {name:"الراتب", amount: 0} ], expenses: [] };
@@ -626,7 +667,7 @@ button{font-family:inherit;}
   function fmt(n){
     n = Math.round(n*100)/100;
     if(Object.is(n,-0)) n = 0;
-    return n.toLocaleString('ar-EG', {maximumFractionDigits:2});
+    return n.toLocaleString('ar-EG-u-nu-latn', {maximumFractionDigits:2});
   }
 
   function catInfo(id){
@@ -680,7 +721,7 @@ button{font-family:inherit;}
   function cycleLabel(){
     var b = getCycleBounds();
     var opts = {day:'numeric', month:'long'};
-    return b.start.toLocaleDateString('ar-EG', opts) + ' — ' + b.end.toLocaleDateString('ar-EG', opts);
+    return b.start.toLocaleDateString('ar-EG-u-nu-latn', opts) + ' — ' + b.end.toLocaleDateString('ar-EG-u-nu-latn', opts);
   }
 
   function hasPreviousCycleData(){
@@ -745,7 +786,6 @@ button{font-family:inherit;}
     renderIncomeSourcesRow(income);
     renderList();
     renderCatBreakdown(income);
-    renderWeeklyChart();
     renderCycleBanner();
     document.getElementById('monthDaysDisplay').value = cycleLabel();
   }
@@ -773,75 +813,6 @@ button{font-family:inherit;}
 
   var openDays = new Set([getTodayISO()]); // الأيام المفتوحة حاليًا في القائمة (اليوم الحالي مفتوح افتراضيًا فقط)
 
-  // ===== أسابيع: تبدأ دائمًا يوم الأحد وتنتهي يوم السبت =====
-  function getWeekStart(date){
-    var d = new Date(date);
-    d.setHours(0,0,0,0);
-    d.setDate(d.getDate() - d.getDay()); // getDay(): الأحد = 0
-    return d;
-  }
-  function getWeekEnd(weekStart){
-    var d = new Date(weekStart);
-    d.setDate(d.getDate() + 6);
-    return d;
-  }
-  function weekKeyOf(date){ return isoDateOf(getWeekStart(date)); }
-  function weekRangeLabel(weekStart, weekEnd){
-    var opts = {day:'numeric', month:'long'};
-    return weekStart.toLocaleDateString('ar-EG', opts) + ' - ' + weekEnd.toLocaleDateString('ar-EG', opts);
-  }
-  function sumExpensesInRange(start, end){
-    var endExclusive = new Date(end);
-    endExclusive.setDate(endExclusive.getDate()+1);
-    return state.expenses.reduce(function(s,e){
-      var d = new Date(e.date);
-      return (d >= start && d < endExclusive) ? s + (parseFloat(e.amount)||0) : s;
-    }, 0);
-  }
-
-  var openWeeks = new Set([weekKeyOf(new Date())]); // الأسبوع الحالي مفتوح افتراضيًا فقط
-
-  function groupByWeek(list){
-    var groups = {}; // wkey -> {start, end, items:[]}
-    var order = [];
-    list.forEach(function(e){
-      var d = new Date(e.date);
-      var wKey = weekKeyOf(d);
-      if(!groups[wKey]){
-        var wStart = getWeekStart(d);
-        groups[wKey] = { start: wStart, end: getWeekEnd(wStart), items: [] };
-        order.push(wKey);
-      }
-      groups[wKey].items.push(e);
-    });
-    return {groups:groups, order:order};
-  }
-
-  function toggleWeekGroup(groupEl){
-    var wrap = groupEl.querySelector('.week-days-wrap');
-    var wKey = groupEl.getAttribute('data-wkey');
-    var isOpen = groupEl.classList.contains('open');
-    if(isOpen){
-      wrap.style.maxHeight = wrap.scrollHeight + 'px';
-      requestAnimationFrame(function(){
-        groupEl.classList.remove('open');
-        wrap.style.maxHeight = '0px';
-      });
-      openWeeks.delete(wKey);
-    } else {
-      groupEl.classList.add('open');
-      wrap.style.maxHeight = wrap.scrollHeight + 'px';
-      openWeeks.add(wKey);
-      var onEnd = function(ev){
-        if(ev.propertyName === 'max-height'){
-          if(groupEl.classList.contains('open')) wrap.style.maxHeight = 'none';
-          wrap.removeEventListener('transitionend', onEnd);
-        }
-      };
-      wrap.addEventListener('transitionend', onEnd);
-    }
-  }
-
   function groupByDay(list){
     var groups = {}; // iso -> {label, items:[]}
     var order = [];
@@ -849,7 +820,7 @@ button{font-family:inherit;}
       var d = new Date(e.date);
       var iso = isoDateOf(d);
       if(!groups[iso]){
-        groups[iso] = { label: d.toLocaleDateString('ar-EG', {weekday:'long', day:'numeric', month:'long'}), items: [] };
+        groups[iso] = { label: d.toLocaleDateString('ar-EG-u-nu-latn', {weekday:'long', day:'numeric', month:'long'}), items: [] };
         order.push(iso);
       }
       groups[iso].items.push(e);
@@ -882,8 +853,16 @@ button{font-family:inherit;}
     }
   }
 
-  function renderDayGroupsInto(container, items, todayISO){
-    var g = groupByDay(items); // items وصلت مرتبة تنازليًا مسبقًا
+  function renderList(){
+    var wrap = document.getElementById('listWrap');
+    wrap.innerHTML = "";
+    if(state.expenses.length === 0){
+      wrap.innerHTML = '<div class="empty-state"><div class="em-icon">🧾</div><div class="em-t">لا توجد مصروفات بعد</div><div class="em-s">اضغط على زر + بالأسفل لإضافة أول مصروف</div></div>';
+      return;
+    }
+    var todayISO = getTodayISO();
+    var sorted = state.expenses.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+    var g = groupByDay(sorted);
     g.order.forEach(function(iso){
       var isOpen = openDays.has(iso);
       var dayDiv = document.createElement('div');
@@ -928,64 +907,7 @@ button{font-family:inherit;}
         itemsWrap.appendChild(item);
       });
       dayDiv.appendChild(itemsWrap);
-      container.appendChild(dayDiv);
-    });
-  }
-
-  function renderList(){
-    var wrap = document.getElementById('listWrap');
-    wrap.innerHTML = "";
-    if(state.expenses.length === 0){
-      wrap.innerHTML = '<div class="empty-state"><div class="em-icon">🧾</div><div class="em-t">لا توجد مصروفات بعد</div><div class="em-s">اضغط على زر + بالأسفل لإضافة أول مصروف</div></div>';
-      return;
-    }
-    var todayISO = getTodayISO();
-    var sorted = state.expenses.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
-    var currentWeekKey = weekKeyOf(new Date());
-    var wg = groupByWeek(sorted);
-
-    wg.order.forEach(function(wKey){
-      var wdata = wg.groups[wKey];
-      var isOpen = openWeeks.has(wKey);
-      var weekDiv = document.createElement('div');
-      weekDiv.className = 'week-group' + (isOpen ? ' open' : '');
-      weekDiv.setAttribute('data-wkey', wKey);
-
-      var weekTotal = wdata.items.reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
-      var prevStart = new Date(wdata.start); prevStart.setDate(prevStart.getDate()-7);
-      var prevEnd = new Date(wdata.start); prevEnd.setDate(prevEnd.getDate()-1);
-      var prevTotal = sumExpensesInRange(prevStart, prevEnd);
-      var diff = weekTotal - prevTotal;
-
-      var diffClass = diff > 0.004 ? 'up' : (diff < -0.004 ? 'down' : 'same');
-      var diffText = diffClass === 'same'
-        ? 'كالأسبوع الماضي'
-        : (diffClass==='up' ? '+' : '−') + fmt(Math.abs(diff)) + ' ر.س عن الأسبوع الماضي';
-
-      var header = document.createElement('div');
-      header.className = 'week-header';
-      header.innerHTML =
-        '<div class="week-header-left">'+
-          '<svg class="week-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'+
-          '<div>'+
-            '<div class="week-label">أسبوع'+(wKey===currentWeekKey ? ' <span class="week-now-tag">الحالي</span>' : '')+'</div>'+
-            '<div class="week-range">'+weekRangeLabel(wdata.start, wdata.end)+'</div>'+
-          '</div>'+
-        '</div>'+
-        '<div class="week-right">'+
-          '<div class="week-total num">'+fmt(weekTotal)+' ر.س</div>'+
-          '<div class="week-diff '+diffClass+'">'+diffText+'</div>'+
-        '</div>';
-      header.addEventListener('click', function(){ toggleWeekGroup(weekDiv); });
-      weekDiv.appendChild(header);
-
-      var daysWrap = document.createElement('div');
-      daysWrap.className = 'week-days-wrap';
-      daysWrap.style.maxHeight = isOpen ? 'none' : '0px';
-      renderDayGroupsInto(daysWrap, wdata.items, todayISO);
-      weekDiv.appendChild(daysWrap);
-
-      wrap.appendChild(weekDiv);
+      wrap.appendChild(dayDiv);
     });
 
     wrap.querySelectorAll('.exp-edit').forEach(function(btn){
@@ -1089,58 +1011,124 @@ button{font-family:inherit;}
     centerVal.textContent = Math.round(Math.min(100, totalPct)) + '٪';
   }
 
-  function renderWeeklyChart(){
-    var container = document.getElementById('weekChart');
-    container.innerHTML = "";
-    var WEEKS_COUNT = 8;
-    var currentWeekStart = getWeekStart(new Date());
-    var weeksData = [];
-    for(var i = WEEKS_COUNT - 1; i >= 0; i--){
-      var wStart = new Date(currentWeekStart);
-      wStart.setDate(wStart.getDate() - i*7);
-      var wEnd = getWeekEnd(wStart);
-      weeksData.push({
-        start: wStart,
-        total: sumExpensesInRange(wStart, wEnd),
-        isCurrent: i === 0
-      });
-    }
-    var maxVal = Math.max.apply(null, weeksData.map(function(w){ return w.total; }).concat([1]));
-    var hasAny = weeksData.some(function(w){ return w.total > 0; });
+  /* ============ شاشة إدخال المصروف: مربعا الإدخال + المنطقة الديناميكية ============ */
+  // كل الأرقام هنا إنجليزية فقط (0-9)، ولا تُستخدم أي دوال تنسيق محلي على شاشة الإدخال
+  var activePanel = 'calc'; // 'calc' أو 'cat'
 
-    if(!hasAny){
-      container.innerHTML = '<div class="stat-sub" style="text-align:center; width:100%; padding:20px 0;">أضف مصروفات لعرض تحليل الأسابيع</div>';
-      return;
-    }
+  function updateCalcDisplay(){
+    var el = document.getElementById('calcDisplay');
+    var shown = calcExpr === "" ? "0" : calcExpr;
+    el.textContent = shown;
+    el.classList.toggle('zero', calcExpr === "");
 
-    weeksData.forEach(function(w){
-      var barPct = maxVal > 0 ? Math.max(4, (w.total/maxVal)*100) : 4;
-      var lbl = w.start.toLocaleDateString('ar-EG', {day:'numeric', month:'numeric'});
-      var col = document.createElement('div');
-      col.className = 'week-chart-col';
-      col.innerHTML =
-        '<div class="week-chart-val num">'+ (w.total > 0 ? fmt(w.total) : '') +'</div>'+
-        '<div class="week-chart-bar-wrap"><div class="week-chart-bar'+(w.isCurrent ? ' current':'')+'" style="height:'+barPct+'%"></div></div>'+
-        '<div class="week-chart-lbl'+(w.isCurrent ? ' current':'')+'">'+lbl+(w.isCurrent ? ' •' : '')+'</div>';
-      container.appendChild(col);
-    });
+    var ebVal = document.getElementById('entryValueText');
+    if(calcExpr === ""){
+      ebVal.textContent = '0.00 ر.س';
+      ebVal.classList.add('placeholder');
+    } else {
+      ebVal.textContent = shown + ' ر.س';
+      ebVal.classList.remove('placeholder');
+    }
   }
 
-  /* ============ Category grid in add-sheet ============ */
-  function buildCatGrid(){
-    var grid = document.getElementById('catGrid');
-    grid.innerHTML = "";
+  function calcAppend(val){
+    var isOp = (val === '+' || val === '-' || val === '×' || val === '÷');
+    var lastChar = calcExpr.slice(-1);
+    var lastIsOp = (lastChar === '+' || lastChar === '-' || lastChar === '×' || lastChar === '÷');
+
+    if(isOp){
+      if(calcExpr === "") return; // لا نبدأ بعملية حسابية
+      if(lastIsOp){ calcExpr = calcExpr.slice(0,-1) + val; updateCalcDisplay(); return; }
+      calcExpr += val;
+      updateCalcDisplay();
+      return;
+    }
+    if(val === '.'){
+      var segment = calcExpr.split(/[+\-×÷]/).pop();
+      if(segment.indexOf('.') !== -1) return; // فاصلة عشرية واحدة فقط بكل رقم
+      if(segment === '') calcExpr += '0';
+      calcExpr += '.';
+      updateCalcDisplay();
+      return;
+    }
+    calcExpr += val; // رقم إنجليزي 0-9
+    updateCalcDisplay();
+  }
+
+  function calcClear(){ calcExpr = ""; updateCalcDisplay(); }
+  function calcBackspace(){ calcExpr = calcExpr.slice(0, -1); updateCalcDisplay(); }
+
+  function calcEvaluate(){
+    var expr = calcExpr.replace(/×/g, '*').replace(/÷/g, '/').replace(/[+\-*/]$/, '');
+    if(expr === "") return;
+    try{
+      var val = Function('"use strict";return (' + expr + ')')();
+      if(typeof val !== 'number' || !isFinite(val)) throw new Error('invalid');
+      calcExpr = String(Math.round(val * 100) / 100);
+    }catch(e){
+      toast('عملية حسابية غير صحيحة');
+    }
+    updateCalcDisplay();
+  }
+
+  function calcSetValue(n){
+    calcExpr = (n === null || n === undefined || isNaN(n)) ? "" : String(n);
+    updateCalcDisplay();
+  }
+
+  function getCalcAmount(){
+    var expr = calcExpr.replace(/×/g, '*').replace(/÷/g, '/').replace(/[+\-*/]$/, '');
+    if(expr === "") return NaN;
+    try{
+      var val = Function('"use strict";return (' + expr + ')')();
+      if(typeof val !== 'number' || !isFinite(val)) return NaN;
+      return Math.round(val * 100) / 100;
+    }catch(e){ return NaN; }
+  }
+
+  document.getElementById('calcGrid').addEventListener('click', function(e){
+    var btn = e.target.closest('.calc-btn');
+    if(!btn || btn.classList.contains('calc-ghost')) return;
+    var action = btn.dataset.action;
+    if(action === 'clear'){ calcClear(); return; }
+    if(action === 'backspace'){ calcBackspace(); return; }
+    if(action === 'equals'){ calcEvaluate(); return; }
+    if(btn.dataset.val !== undefined) calcAppend(btn.dataset.val);
+  });
+
+  // التبديل بين لوحة الآلة الحاسبة وقائمة اختيار النوع
+  function setActivePanel(panel){
+    activePanel = panel;
+    document.getElementById('calcPanel').classList.toggle('show', panel === 'calc');
+    document.getElementById('catPanel').classList.toggle('show', panel === 'cat');
+    document.getElementById('entryValueBox').classList.toggle('active', panel === 'calc');
+    document.getElementById('entryCatBox').classList.toggle('active', panel === 'cat');
+  }
+
+  document.getElementById('entryValueBox').addEventListener('click', function(){ setActivePanel('calc'); });
+  document.getElementById('entryCatBox').addEventListener('click', function(){ setActivePanel('cat'); });
+
+  function updateEntryCatText(){
+    var c = catInfo(selectedCat);
+    document.getElementById('entryCatText').innerHTML = '<span>'+c.icon+'</span><span>'+c.name+'</span>';
+  }
+
+  function buildCatList(){
+    var list = document.getElementById('catList');
+    list.innerHTML = "";
     CATEGORIES.forEach(function(c){
-      var opt = document.createElement('div');
-      opt.className = 'cat-opt' + (c.id===selectedCat ? ' sel':'');
-      opt.dataset.id = c.id;
-      opt.innerHTML = '<div class="ic">'+c.icon+'</div><div>'+c.name+'</div>';
-      opt.onclick = function(){
+      var item = document.createElement('div');
+      item.className = 'catlist-item' + (c.id===selectedCat ? ' sel':'');
+      item.dataset.id = c.id;
+      item.innerHTML = '<span class="ic">'+c.icon+'</span><span>'+c.name+'</span>';
+      item.onclick = function(){
         selectedCat = c.id;
-        grid.querySelectorAll('.cat-opt').forEach(function(o){o.classList.remove('sel');});
-        opt.classList.add('sel');
+        list.querySelectorAll('.catlist-item').forEach(function(o){o.classList.remove('sel');});
+        item.classList.add('sel');
+        updateEntryCatText();
+        setActivePanel('calc'); // بعد اختيار النوع نعود مباشرة لإدخال القيمة
       };
-      grid.appendChild(opt);
+      list.appendChild(item);
     });
   }
 
@@ -1172,7 +1160,7 @@ button{font-family:inherit;}
     isoList.forEach(function(iso){
       var parts = iso.split('-').map(Number);
       var d = new Date(parts[0], parts[1]-1, parts[2]);
-      var label = d.toLocaleDateString('ar-EG', {weekday:'long', day:'numeric', month:'long'});
+      var label = d.toLocaleDateString('ar-EG-u-nu-latn', {weekday:'long', day:'numeric', month:'long'});
       if(iso === todayISO) label += ' (اليوم)';
       var opt = document.createElement('option');
       opt.value = iso;
@@ -1191,7 +1179,7 @@ button{font-family:inherit;}
   function openAddSheet(existingExpense){
     if(existingExpense){
       editingId = existingExpense.id;
-      document.getElementById('expAmount').value = existingExpense.amount;
+      calcSetValue(existingExpense.amount);
       document.getElementById('expNote').value = existingExpense.note || '';
       selectedCat = existingExpense.category;
       document.getElementById('addSheetTitle').textContent = 'تعديل المصروف';
@@ -1199,16 +1187,17 @@ button{font-family:inherit;}
       buildDateSelect(isoDateOf(new Date(existingExpense.date)));
     } else {
       editingId = null;
-      document.getElementById('expAmount').value = '';
+      calcClear();
       document.getElementById('expNote').value = '';
       selectedCat = CATEGORIES[0].id;
       document.getElementById('addSheetTitle').textContent = 'إضافة مصروف';
       document.getElementById('saveExpense').textContent = 'إضافة المصروف';
       buildDateSelect(getTodayISO());
     }
-    buildCatGrid();
+    updateEntryCatText();
+    buildCatList();
+    setActivePanel('calc');
     openSheet('overlayAdd');
-    setTimeout(function(){ document.getElementById('expAmount').focus(); }, 300);
   }
 
   function openIncomeSheet(){
@@ -1241,12 +1230,12 @@ button{font-family:inherit;}
 
   /* ============ Events ============ */
   document.getElementById('btnAdd').addEventListener('click', function(){ openAddSheet(); });
-  document.getElementById('closeAdd').addEventListener('click', function(){ editingId = null; closeSheet('overlayAdd'); });
-  document.getElementById('overlayAdd').addEventListener('click', function(e){ if(e.target===this){ editingId = null; closeSheet('overlayAdd'); } });
+  document.getElementById('closeAdd').addEventListener('click', function(){ editingId = null; calcClear(); closeSheet('overlayAdd'); });
+  document.getElementById('overlayAdd').addEventListener('click', function(e){ if(e.target===this){ editingId = null; calcClear(); closeSheet('overlayAdd'); } });
 
   document.getElementById('saveExpense').addEventListener('click', function(){
-    var amt = parseFloat(document.getElementById('expAmount').value);
-    if(!amt || amt <= 0){ toast('أدخل قيمة صحيحة للمصروف'); return; }
+    var amt = getCalcAmount();
+    if(!amt || isNaN(amt) || amt <= 0){ toast('أدخل قيمة صحيحة للمصروف'); return; }
     var note = document.getElementById('expNote').value.trim();
     var selectedISO = document.getElementById('expDate').value || getTodayISO();
 
@@ -1336,7 +1325,7 @@ button{font-family:inherit;}
     sorted.forEach(function(e){
       var d = new Date(e.date);
       var isoDate = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-      var dayName = d.toLocaleDateString('ar-EG', {weekday:'long'});
+      var dayName = d.toLocaleDateString('ar-EG-u-nu-latn', {weekday:'long'});
       var c = catInfo(e.category);
       lines += csvRow([isoDate, dayName, c.name, (parseFloat(e.amount)||0).toFixed(2), e.note || '']);
     });
@@ -1377,7 +1366,7 @@ button{font-family:inherit;}
       lines += csvRow([c.name, val.toFixed(2), pctIncome, pctExpenses]);
     });
     lines += csvRow([]);
-    lines += csvRow(['تاريخ التصدير', now.toLocaleDateString('ar-EG', {year:'numeric', month:'long', day:'numeric'})]);
+    lines += csvRow(['تاريخ التصدير', now.toLocaleDateString('ar-EG-u-nu-latn', {year:'numeric', month:'long', day:'numeric'})]);
 
     return lines;
   }
