@@ -856,26 +856,54 @@ button{font-family:inherit;}
 
   function dateFromISO(iso){ var p = iso.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); }
 
-  /* ===== تجميع حسب الأسبوع: الأسبوع يبدأ الأحد وينتهي السبت ===== */
+  /* ===== تجميع حسب الأسبوع: الأسبوع يبدأ الأحد وينتهي السبت، لكن يُقصّ عند حدود الدورة المالية (27 - 26) ===== */
   function getWeekStartDate(date){
     var d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     d.setDate(d.getDate() - d.getDay()); // getDay(): 0=الأحد ... 6=السبت
     return d;
   }
-  function weekStartISOOf(date){ return isoDateOf(getWeekStartDate(date)); }
+
+  // بداية الدورة المالية (يوم 27) التي يقع فيها هذا التاريخ
+  function getCycleStartDate(date){
+    var y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
+    if(d >= CYCLE_START_DAY) return new Date(y, m, CYCLE_START_DAY);
+    return new Date(y, m-1, CYCLE_START_DAY);
+  }
+  // نهاية الدورة المالية (يوم 26 من الشهر التالي) التي يقع فيها هذا التاريخ
+  function getCycleEndDate(date){
+    var cs = getCycleStartDate(date);
+    return new Date(cs.getFullYear(), cs.getMonth()+1, CYCLE_START_DAY-1);
+  }
+
+  // مفتاح تجميع الأسبوع: الأحد الطبيعي، إلا إذا كان قبل بداية الدورة فيُقصّ ليبدأ من يوم 27 نفسه
+  function getWeekGroupKeyDate(date){
+    var natural = getWeekStartDate(date);
+    var cycleStart = getCycleStartDate(date);
+    return natural < cycleStart ? cycleStart : natural;
+  }
+  function weekStartISOOf(date){ return isoDateOf(getWeekGroupKeyDate(date)); }
+
+  // نهاية الأسبوع المعروضة: السبت الطبيعي، إلا إذا تجاوز نهاية الدورة (يوم 26) فيُقصّ عندها
+  function getWeekEndDate(weekStartISOStr){
+    var start = dateFromISO(weekStartISOStr);
+    var naturalEnd = new Date(getWeekStartDate(start));
+    naturalEnd.setDate(naturalEnd.getDate() + 6);
+    var cycleEnd = getCycleEndDate(start);
+    return naturalEnd > cycleEnd ? cycleEnd : naturalEnd;
+  }
 
   var openWeeks = new Set([weekStartISOOf(new Date())]); // الأسبوع الحالي مفتوح افتراضيًا فقط
 
-  // أول أسبوع في الشهر = الأسبوع الذي يقع بدايته في شهر مختلف عن الأسبوع الذي قبله بأسبوع
+  // أول أسبوع في الدورة (الشهر المالي) = الأسبوع الذي يبدأ بالضبط من تاريخ بداية الدورة (يوم 27)
   function isFirstWeekOfMonth(weekStartISOStr){
     var start = dateFromISO(weekStartISOStr);
-    var prevWeekStart = new Date(start); prevWeekStart.setDate(prevWeekStart.getDate() - 7);
-    return (prevWeekStart.getMonth() !== start.getMonth()) || (prevWeekStart.getFullYear() !== start.getFullYear());
+    var cycleStart = getCycleStartDate(start);
+    return isoDateOf(start) === isoDateOf(cycleStart);
   }
 
   function weekRangeLabel(weekStartISOStr){
     var start = dateFromISO(weekStartISOStr);
-    var end = new Date(start); end.setDate(end.getDate() + 6);
+    var end = getWeekEndDate(weekStartISOStr);
     var optsFull = {day:'numeric', month:'long'};
     if(start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()){
       return start.toLocaleDateString('ar-EG-u-nu-latn', {day:'numeric'}) + ' - ' + end.toLocaleDateString('ar-EG-u-nu-latn', optsFull);
@@ -1072,9 +1100,10 @@ button{font-family:inherit;}
       var firstOfMonth = isFirstWeekOfMonth(wk.weekStartISO);
       var prevWeekTotal = 0;
       if(!firstOfMonth){
-        var prevWeekStart = dateFromISO(wk.weekStartISO);
-        prevWeekStart.setDate(prevWeekStart.getDate() - 7);
-        prevWeekTotal = weekTotalsMap[isoDateOf(prevWeekStart)] || 0;
+        var dayBeforeWeek = dateFromISO(wk.weekStartISO);
+        dayBeforeWeek.setDate(dayBeforeWeek.getDate() - 1);
+        var prevWeekKey = weekStartISOOf(dayBeforeWeek); // يراعي نفس منطق القص عند حدود الدورة
+        prevWeekTotal = weekTotalsMap[prevWeekKey] || 0;
       }
 
       var isOpen = openWeeks.has(wk.weekStartISO);
@@ -1155,7 +1184,7 @@ button{font-family:inherit;}
     // نعرضها من الأقدم (يمين) إلى الأحدث (يسار) لتصبح القراءة بترتيب زمني طبيعي في RTL
     last5.slice().reverse().forEach(function(wk){
       var start = dateFromISO(wk.weekStartISO);
-      var end = new Date(start); end.setDate(end.getDate()+6);
+      var end = getWeekEndDate(wk.weekStartISO);
       var shortLabel = start.getDate() + '-' + end.getDate();
       var barH = Math.max(4, Math.round((wk.total/maxVal)*maxBarPx));
       var isCurrent = wk.weekStartISO === thisWeekISO;
