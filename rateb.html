@@ -165,6 +165,25 @@ button{font-family:inherit;}
 .empty-state .em-t{font-weight:700; color:var(--ink-dim); font-size:14.5px;}
 .empty-state .em-s{font-size:12.5px; margin-top:3px;}
 
+/* ===== تجميع المصروفات حسب الأسبوع (الأحد - السبت) ===== */
+.week-group{margin-bottom:24px;}
+.week-group:last-child{margin-bottom:0;}
+.week-header{
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:12px; box-shadow:var(--shadow);
+}
+.week-header-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+.week-title{font-size:12.5px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:6px;}
+.week-title .wk-icon{font-size:13px;}
+.week-total{font-size:16px; font-weight:900; color:var(--ink); white-space:nowrap;}
+.week-header-bottom{display:flex; align-items:center; justify-content:space-between; margin-top:6px; padding-top:6px; border-top:1px dashed var(--line);}
+.week-diff{font-size:11px; font-weight:800; display:flex; align-items:center; gap:4px;}
+.week-diff.up{color:var(--red);}
+.week-diff.down{color:var(--green);}
+.week-diff.same{color:var(--ink-faint);}
+.week-diff .arrow{font-size:12px;}
+.week-prev-label{font-size:10.5px; color:var(--ink-faint); font-weight:600;}
+
 .day-group{margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--line);}
 .day-group:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
 .day-header{display:flex; align-items:center; justify-content:space-between; margin:0 4px 0; cursor:pointer; user-select:none; padding:6px 2px;}
@@ -813,6 +832,35 @@ button{font-family:inherit;}
 
   var openDays = new Set([getTodayISO()]); // الأيام المفتوحة حاليًا في القائمة (اليوم الحالي مفتوح افتراضيًا فقط)
 
+  function dateFromISO(iso){ var p = iso.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); }
+
+  /* ===== تجميع حسب الأسبوع: الأسبوع يبدأ الأحد وينتهي السبت ===== */
+  function getWeekStartDate(date){
+    var d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setDate(d.getDate() - d.getDay()); // getDay(): 0=الأحد ... 6=السبت
+    return d;
+  }
+  function weekStartISOOf(date){ return isoDateOf(getWeekStartDate(date)); }
+
+  function weekRangeLabel(weekStartISOStr){
+    var start = dateFromISO(weekStartISOStr);
+    var end = new Date(start); end.setDate(end.getDate() + 6);
+    var optsFull = {day:'numeric', month:'long'};
+    if(start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()){
+      return start.toLocaleDateString('ar-EG-u-nu-latn', {day:'numeric'}) + ' - ' + end.toLocaleDateString('ar-EG-u-nu-latn', optsFull);
+    }
+    return start.toLocaleDateString('ar-EG-u-nu-latn', optsFull) + ' - ' + end.toLocaleDateString('ar-EG-u-nu-latn', optsFull);
+  }
+
+  function buildWeekTotalsMap(){
+    var map = {};
+    state.expenses.forEach(function(e){
+      var wIso = weekStartISOOf(new Date(e.date));
+      map[wIso] = (map[wIso]||0) + (parseFloat(e.amount)||0);
+    });
+    return map;
+  }
+
   function groupByDay(list){
     var groups = {}; // iso -> {label, items:[]}
     var order = [];
@@ -853,6 +901,79 @@ button{font-family:inherit;}
     }
   }
 
+  function buildDayGroupEl(iso, group, todayISO){
+    var isOpen = openDays.has(iso);
+    var dayDiv = document.createElement('div');
+    dayDiv.className = 'day-group' + (isOpen ? ' open' : '');
+    dayDiv.setAttribute('data-iso', iso);
+
+    var dayTotal = group.items.reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
+
+    var header = document.createElement('div');
+    header.className = 'day-header';
+    header.innerHTML =
+      '<div class="day-header-left">'+
+        '<svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'+
+        '<div class="day-label">'+group.label + (iso===todayISO ? ' <span class="today-tag">اليوم</span>' : '')+'</div>'+
+      '</div>'+
+      '<div class="day-total-badge num">'+fmt(dayTotal)+' ر.س</div>';
+    header.addEventListener('click', function(){ toggleDayGroup(dayDiv); });
+    dayDiv.appendChild(header);
+
+    var itemsWrap = document.createElement('div');
+    itemsWrap.className = 'day-items-wrap';
+    itemsWrap.style.maxHeight = isOpen ? 'none' : '0px';
+
+    group.items.forEach(function(e){
+      var c = catInfo(e.category);
+      var item = document.createElement('div');
+      item.className = 'expense-item';
+      item.innerHTML =
+        '<div class="cat-icon">'+c.icon+'</div>'+
+        '<div class="exp-body">'+
+          '<div class="exp-top"><div class="exp-cat">'+c.name+'</div><div class="exp-amt num">'+fmt(e.amount)+' ر.س</div></div>'+
+          (e.note ? '<div class="exp-note">'+escapeHtml(e.note)+'</div>' : '')+
+        '</div>'+
+        '<div class="exp-actions">'+
+          '<button class="exp-edit" data-id="'+e.id+'" aria-label="تعديل">'+
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'+
+          '</button>'+
+          '<button class="exp-del" data-id="'+e.id+'" aria-label="حذف">'+
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'+
+          '</button>'+
+        '</div>';
+      itemsWrap.appendChild(item);
+    });
+    dayDiv.appendChild(itemsWrap);
+    return dayDiv;
+  }
+
+  function buildWeekHeaderEl(weekStartISOStr, weekTotal, prevWeekTotal){
+    var diff = weekTotal - prevWeekTotal;
+    var diffClass = diff > 0.004 ? 'up' : (diff < -0.004 ? 'down' : 'same');
+    var diffArrow = diff > 0.004 ? '↑' : (diff < -0.004 ? '↓' : '—');
+    var diffText;
+    if(Math.abs(diff) < 0.005){
+      diffText = 'بدون تغيير عن الأسبوع السابق';
+    } else if(diff > 0){
+      diffText = 'زيادة ' + fmt(Math.abs(diff)) + ' ر.س عن الأسبوع السابق';
+    } else {
+      diffText = 'نقصان ' + fmt(Math.abs(diff)) + ' ر.س عن الأسبوع السابق';
+    }
+
+    var header = document.createElement('div');
+    header.className = 'week-header';
+    header.innerHTML =
+      '<div class="week-header-top">'+
+        '<div class="week-title"><span class="wk-icon">🗓️</span>الأسبوع '+weekRangeLabel(weekStartISOStr)+'</div>'+
+        '<div class="week-total num">'+fmt(weekTotal)+' ر.س</div>'+
+      '</div>'+
+      '<div class="week-header-bottom">'+
+        '<div class="week-diff '+diffClass+'"><span class="arrow">'+diffArrow+'</span><span class="num">'+diffText+'</span></div>'+
+      '</div>';
+    return header;
+  }
+
   function renderList(){
     var wrap = document.getElementById('listWrap');
     wrap.innerHTML = "";
@@ -863,51 +984,38 @@ button{font-family:inherit;}
     var todayISO = getTodayISO();
     var sorted = state.expenses.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
     var g = groupByDay(sorted);
-    g.order.forEach(function(iso){
-      var isOpen = openDays.has(iso);
-      var dayDiv = document.createElement('div');
-      dayDiv.className = 'day-group' + (isOpen ? ' open' : '');
-      dayDiv.setAttribute('data-iso', iso);
 
-      var dayTotal = g.groups[iso].items.reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
+    // تجميع أيام sorted (منظمة تنازليًا) داخل أسابيعها (الأحد - السبت)
+    var weeks = []; // [{weekStartISO, dayIsos:[...]}]
+    var weekIndex = {};
+    g.order.forEach(function(dayIso){
+      var wIso = weekStartISOOf(dateFromISO(dayIso));
+      if(!weekIndex.hasOwnProperty(wIso)){
+        weekIndex[wIso] = weeks.length;
+        weeks.push({weekStartISO: wIso, dayIsos: []});
+      }
+      weeks[weekIndex[wIso]].dayIsos.push(dayIso);
+    });
 
-      var header = document.createElement('div');
-      header.className = 'day-header';
-      header.innerHTML =
-        '<div class="day-header-left">'+
-          '<svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'+
-          '<div class="day-label">'+g.groups[iso].label + (iso===todayISO ? ' <span class="today-tag">اليوم</span>' : '')+'</div>'+
-        '</div>'+
-        '<div class="day-total-badge num">'+fmt(dayTotal)+' ر.س</div>';
-      header.addEventListener('click', function(){ toggleDayGroup(dayDiv); });
-      dayDiv.appendChild(header);
+    var weekTotalsMap = buildWeekTotalsMap(); // من كل المصروفات، لحساب الفرق حتى لو الأسبوع السابق غير معروض
 
-      var itemsWrap = document.createElement('div');
-      itemsWrap.className = 'day-items-wrap';
-      itemsWrap.style.maxHeight = isOpen ? 'none' : '0px';
+    weeks.forEach(function(wk){
+      var weekTotal = wk.dayIsos.reduce(function(sum, dayIso){
+        return sum + g.groups[dayIso].items.reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
+      }, 0);
+      var prevWeekStart = dateFromISO(wk.weekStartISO);
+      prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+      var prevWeekTotal = weekTotalsMap[isoDateOf(prevWeekStart)] || 0;
 
-      g.groups[iso].items.forEach(function(e){
-        var c = catInfo(e.category);
-        var item = document.createElement('div');
-        item.className = 'expense-item';
-        item.innerHTML =
-          '<div class="cat-icon">'+c.icon+'</div>'+
-          '<div class="exp-body">'+
-            '<div class="exp-top"><div class="exp-cat">'+c.name+'</div><div class="exp-amt num">'+fmt(e.amount)+' ر.س</div></div>'+
-            (e.note ? '<div class="exp-note">'+escapeHtml(e.note)+'</div>' : '')+
-          '</div>'+
-          '<div class="exp-actions">'+
-            '<button class="exp-edit" data-id="'+e.id+'" aria-label="تعديل">'+
-              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'+
-            '</button>'+
-            '<button class="exp-del" data-id="'+e.id+'" aria-label="حذف">'+
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'+
-            '</button>'+
-          '</div>';
-        itemsWrap.appendChild(item);
+      var weekDiv = document.createElement('div');
+      weekDiv.className = 'week-group';
+      weekDiv.appendChild(buildWeekHeaderEl(wk.weekStartISO, weekTotal, prevWeekTotal));
+
+      wk.dayIsos.forEach(function(dayIso){
+        weekDiv.appendChild(buildDayGroupEl(dayIso, g.groups[dayIso], todayISO));
       });
-      dayDiv.appendChild(itemsWrap);
-      wrap.appendChild(dayDiv);
+
+      wrap.appendChild(weekDiv);
     });
 
     wrap.querySelectorAll('.exp-edit').forEach(function(btn){
