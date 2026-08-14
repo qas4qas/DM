@@ -206,6 +206,34 @@ button{font-family:inherit;}
 .exp-edit:active{background:var(--orange-soft2); color:var(--orange-deep);}
 .exp-del:active{background:var(--red-soft); color:var(--red);}
 
+/* ===== Week grouping ===== */
+.week-group{margin-bottom:20px;}
+.week-group:last-child{margin-bottom:0;}
+.week-header{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:linear-gradient(155deg,#2A2A25,var(--ink)); color:#fff;
+  border-radius:var(--radius-md); padding:13px 15px; cursor:pointer; user-select:none;
+  box-shadow:var(--shadow);
+}
+.week-header-left{display:flex; align-items:center; gap:9px; min-width:0;}
+.week-chevron{color:rgba(255,255,255,0.55); flex:0 0 auto; transition:transform .25s ease;}
+.week-group.open .week-chevron{transform:rotate(180deg);}
+.week-label{font-size:13px; font-weight:800; display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+.week-now-tag{
+  background:rgba(255,106,26,0.22); color:#FFA36B; font-size:9.5px; font-weight:800;
+  padding:2px 7px; border-radius:100px; border:1px solid rgba(255,106,26,0.35);
+}
+.week-range{font-size:10.5px; color:rgba(255,255,255,0.5); font-weight:600; margin-top:2px;}
+.week-right{text-align:left; display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:0 0 auto;}
+.week-total{font-size:15.5px; font-weight:800;}
+.week-diff{font-size:10px; font-weight:800; padding:3px 9px; border-radius:100px; white-space:nowrap;}
+.week-diff.up{background:rgba(225,75,75,0.2); color:#FF9B9B;}
+.week-diff.down{background:rgba(28,154,108,0.24); color:#7BE8BB;}
+.week-diff.same{background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.65);}
+.week-days-wrap{overflow:hidden; max-height:0; transition:max-height .3s ease;}
+.week-group.open .week-days-wrap{margin-top:12px;}
+.week-days-wrap .day-group{padding:0 3px;}
+
 /* ===== Stats ===== */
 .stats-title{margin:30px 18px 12px; font-weight:800; font-size:15px; display:flex; align-items:center; gap:7px;}
 .stats-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 18px;}
@@ -239,6 +267,16 @@ button{font-family:inherit;}
 .cb-pct{font-weight:800; color:var(--ink-dim);}
 .cb-bar-track{height:8px; border-radius:100px; background:var(--bg-soft); overflow:hidden;}
 .cb-bar-fill{height:100%; border-radius:100px; background:linear-gradient(90deg,var(--orange),var(--orange-deep));}
+
+/* ===== Weekly analysis chart ===== */
+.week-chart{display:flex; align-items:flex-end; gap:6px; height:118px; margin-top:8px; padding:0 2px;}
+.week-chart-col{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; height:100%;}
+.week-chart-bar-wrap{flex:1; width:100%; display:flex; align-items:flex-end; justify-content:center;}
+.week-chart-bar{width:100%; max-width:26px; border-radius:7px 7px 3px 3px; background:linear-gradient(180deg,#FFB37D,var(--orange)); transition:height .5s cubic-bezier(.22,.9,.32,1); min-height:4px;}
+.week-chart-bar.current{background:linear-gradient(180deg,var(--orange-deep),#B23F06); box-shadow:0 0 0 2px var(--orange-soft2);}
+.week-chart-val{font-size:9px; font-weight:800; color:var(--ink-dim); white-space:nowrap;}
+.week-chart-lbl{font-size:9px; font-weight:700; color:var(--ink-faint); white-space:nowrap;}
+.week-chart-lbl.current{color:var(--orange-deep);}
 
 /* ===== Floating Add Button ===== */
 .fab{
@@ -436,6 +474,12 @@ button{font-family:inherit;}
     <div class="stat-label">الرصيد اليومي المتاح</div>
     <div class="stat-value num" id="dailyBudget">0 ر.س</div>
     <div class="stat-sub" id="dailyBudgetSub">لبقية أيام الشهر</div>
+  </div>
+
+  <div class="stat-card wide" id="weeklyChartCard">
+    <div class="stat-label" style="margin-bottom:2px;">تحليل الصرف الأسبوعي (آخر ٨ أسابيع)</div>
+    <div class="stat-sub" id="weekChartSub">الأسبوع من الأحد إلى السبت</div>
+    <div class="week-chart" id="weekChart"></div>
   </div>
 
   <div class="stat-card wide" id="catBreakdownCard">
@@ -701,6 +745,7 @@ button{font-family:inherit;}
     renderIncomeSourcesRow(income);
     renderList();
     renderCatBreakdown(income);
+    renderWeeklyChart();
     renderCycleBanner();
     document.getElementById('monthDaysDisplay').value = cycleLabel();
   }
@@ -727,6 +772,75 @@ button{font-family:inherit;}
   function getTodayISO(){ return isoDateOf(new Date()); }
 
   var openDays = new Set([getTodayISO()]); // الأيام المفتوحة حاليًا في القائمة (اليوم الحالي مفتوح افتراضيًا فقط)
+
+  // ===== أسابيع: تبدأ دائمًا يوم الأحد وتنتهي يوم السبت =====
+  function getWeekStart(date){
+    var d = new Date(date);
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() - d.getDay()); // getDay(): الأحد = 0
+    return d;
+  }
+  function getWeekEnd(weekStart){
+    var d = new Date(weekStart);
+    d.setDate(d.getDate() + 6);
+    return d;
+  }
+  function weekKeyOf(date){ return isoDateOf(getWeekStart(date)); }
+  function weekRangeLabel(weekStart, weekEnd){
+    var opts = {day:'numeric', month:'long'};
+    return weekStart.toLocaleDateString('ar-EG', opts) + ' - ' + weekEnd.toLocaleDateString('ar-EG', opts);
+  }
+  function sumExpensesInRange(start, end){
+    var endExclusive = new Date(end);
+    endExclusive.setDate(endExclusive.getDate()+1);
+    return state.expenses.reduce(function(s,e){
+      var d = new Date(e.date);
+      return (d >= start && d < endExclusive) ? s + (parseFloat(e.amount)||0) : s;
+    }, 0);
+  }
+
+  var openWeeks = new Set([weekKeyOf(new Date())]); // الأسبوع الحالي مفتوح افتراضيًا فقط
+
+  function groupByWeek(list){
+    var groups = {}; // wkey -> {start, end, items:[]}
+    var order = [];
+    list.forEach(function(e){
+      var d = new Date(e.date);
+      var wKey = weekKeyOf(d);
+      if(!groups[wKey]){
+        var wStart = getWeekStart(d);
+        groups[wKey] = { start: wStart, end: getWeekEnd(wStart), items: [] };
+        order.push(wKey);
+      }
+      groups[wKey].items.push(e);
+    });
+    return {groups:groups, order:order};
+  }
+
+  function toggleWeekGroup(groupEl){
+    var wrap = groupEl.querySelector('.week-days-wrap');
+    var wKey = groupEl.getAttribute('data-wkey');
+    var isOpen = groupEl.classList.contains('open');
+    if(isOpen){
+      wrap.style.maxHeight = wrap.scrollHeight + 'px';
+      requestAnimationFrame(function(){
+        groupEl.classList.remove('open');
+        wrap.style.maxHeight = '0px';
+      });
+      openWeeks.delete(wKey);
+    } else {
+      groupEl.classList.add('open');
+      wrap.style.maxHeight = wrap.scrollHeight + 'px';
+      openWeeks.add(wKey);
+      var onEnd = function(ev){
+        if(ev.propertyName === 'max-height'){
+          if(groupEl.classList.contains('open')) wrap.style.maxHeight = 'none';
+          wrap.removeEventListener('transitionend', onEnd);
+        }
+      };
+      wrap.addEventListener('transitionend', onEnd);
+    }
+  }
 
   function groupByDay(list){
     var groups = {}; // iso -> {label, items:[]}
@@ -768,16 +882,8 @@ button{font-family:inherit;}
     }
   }
 
-  function renderList(){
-    var wrap = document.getElementById('listWrap');
-    wrap.innerHTML = "";
-    if(state.expenses.length === 0){
-      wrap.innerHTML = '<div class="empty-state"><div class="em-icon">🧾</div><div class="em-t">لا توجد مصروفات بعد</div><div class="em-s">اضغط على زر + بالأسفل لإضافة أول مصروف</div></div>';
-      return;
-    }
-    var todayISO = getTodayISO();
-    var sorted = state.expenses.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
-    var g = groupByDay(sorted);
+  function renderDayGroupsInto(container, items, todayISO){
+    var g = groupByDay(items); // items وصلت مرتبة تنازليًا مسبقًا
     g.order.forEach(function(iso){
       var isOpen = openDays.has(iso);
       var dayDiv = document.createElement('div');
@@ -822,7 +928,64 @@ button{font-family:inherit;}
         itemsWrap.appendChild(item);
       });
       dayDiv.appendChild(itemsWrap);
-      wrap.appendChild(dayDiv);
+      container.appendChild(dayDiv);
+    });
+  }
+
+  function renderList(){
+    var wrap = document.getElementById('listWrap');
+    wrap.innerHTML = "";
+    if(state.expenses.length === 0){
+      wrap.innerHTML = '<div class="empty-state"><div class="em-icon">🧾</div><div class="em-t">لا توجد مصروفات بعد</div><div class="em-s">اضغط على زر + بالأسفل لإضافة أول مصروف</div></div>';
+      return;
+    }
+    var todayISO = getTodayISO();
+    var sorted = state.expenses.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+    var currentWeekKey = weekKeyOf(new Date());
+    var wg = groupByWeek(sorted);
+
+    wg.order.forEach(function(wKey){
+      var wdata = wg.groups[wKey];
+      var isOpen = openWeeks.has(wKey);
+      var weekDiv = document.createElement('div');
+      weekDiv.className = 'week-group' + (isOpen ? ' open' : '');
+      weekDiv.setAttribute('data-wkey', wKey);
+
+      var weekTotal = wdata.items.reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
+      var prevStart = new Date(wdata.start); prevStart.setDate(prevStart.getDate()-7);
+      var prevEnd = new Date(wdata.start); prevEnd.setDate(prevEnd.getDate()-1);
+      var prevTotal = sumExpensesInRange(prevStart, prevEnd);
+      var diff = weekTotal - prevTotal;
+
+      var diffClass = diff > 0.004 ? 'up' : (diff < -0.004 ? 'down' : 'same');
+      var diffText = diffClass === 'same'
+        ? 'كالأسبوع الماضي'
+        : (diffClass==='up' ? '+' : '−') + fmt(Math.abs(diff)) + ' ر.س عن الأسبوع الماضي';
+
+      var header = document.createElement('div');
+      header.className = 'week-header';
+      header.innerHTML =
+        '<div class="week-header-left">'+
+          '<svg class="week-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'+
+          '<div>'+
+            '<div class="week-label">أسبوع'+(wKey===currentWeekKey ? ' <span class="week-now-tag">الحالي</span>' : '')+'</div>'+
+            '<div class="week-range">'+weekRangeLabel(wdata.start, wdata.end)+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="week-right">'+
+          '<div class="week-total num">'+fmt(weekTotal)+' ر.س</div>'+
+          '<div class="week-diff '+diffClass+'">'+diffText+'</div>'+
+        '</div>';
+      header.addEventListener('click', function(){ toggleWeekGroup(weekDiv); });
+      weekDiv.appendChild(header);
+
+      var daysWrap = document.createElement('div');
+      daysWrap.className = 'week-days-wrap';
+      daysWrap.style.maxHeight = isOpen ? 'none' : '0px';
+      renderDayGroupsInto(daysWrap, wdata.items, todayISO);
+      weekDiv.appendChild(daysWrap);
+
+      wrap.appendChild(weekDiv);
     });
 
     wrap.querySelectorAll('.exp-edit').forEach(function(btn){
@@ -924,6 +1087,43 @@ button{font-family:inherit;}
 
     donut.style.background = 'conic-gradient(' + stops.join(', ') + ')';
     centerVal.textContent = Math.round(Math.min(100, totalPct)) + '٪';
+  }
+
+  function renderWeeklyChart(){
+    var container = document.getElementById('weekChart');
+    container.innerHTML = "";
+    var WEEKS_COUNT = 8;
+    var currentWeekStart = getWeekStart(new Date());
+    var weeksData = [];
+    for(var i = WEEKS_COUNT - 1; i >= 0; i--){
+      var wStart = new Date(currentWeekStart);
+      wStart.setDate(wStart.getDate() - i*7);
+      var wEnd = getWeekEnd(wStart);
+      weeksData.push({
+        start: wStart,
+        total: sumExpensesInRange(wStart, wEnd),
+        isCurrent: i === 0
+      });
+    }
+    var maxVal = Math.max.apply(null, weeksData.map(function(w){ return w.total; }).concat([1]));
+    var hasAny = weeksData.some(function(w){ return w.total > 0; });
+
+    if(!hasAny){
+      container.innerHTML = '<div class="stat-sub" style="text-align:center; width:100%; padding:20px 0;">أضف مصروفات لعرض تحليل الأسابيع</div>';
+      return;
+    }
+
+    weeksData.forEach(function(w){
+      var barPct = maxVal > 0 ? Math.max(4, (w.total/maxVal)*100) : 4;
+      var lbl = w.start.toLocaleDateString('ar-EG', {day:'numeric', month:'numeric'});
+      var col = document.createElement('div');
+      col.className = 'week-chart-col';
+      col.innerHTML =
+        '<div class="week-chart-val num">'+ (w.total > 0 ? fmt(w.total) : '') +'</div>'+
+        '<div class="week-chart-bar-wrap"><div class="week-chart-bar'+(w.isCurrent ? ' current':'')+'" style="height:'+barPct+'%"></div></div>'+
+        '<div class="week-chart-lbl'+(w.isCurrent ? ' current':'')+'">'+lbl+(w.isCurrent ? ' •' : '')+'</div>';
+      container.appendChild(col);
+    });
   }
 
   /* ============ Category grid in add-sheet ============ */
