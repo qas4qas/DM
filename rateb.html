@@ -166,25 +166,41 @@ button{font-family:inherit;}
 .empty-state .em-s{font-size:12.5px; margin-top:3px;}
 
 /* ===== تجميع المصروفات حسب الأسبوع (الأحد - السبت) ===== */
-.week-group{margin-bottom:24px;}
+.week-group{margin-bottom:20px; border-radius:var(--radius-md); overflow:hidden; box-shadow:var(--shadow);}
 .week-group:last-child{margin-bottom:0;}
 .week-header{
-  background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-md);
-  padding:12px 14px; margin-bottom:12px; box-shadow:var(--shadow);
+  background:#DDDDD8; border:1px solid #C9C9C3; border-bottom:none; border-radius:var(--radius-md) var(--radius-md) 0 0;
+  padding:11px 14px; cursor:pointer; user-select:none;
 }
+.week-group.open .week-header{border-radius:var(--radius-md) var(--radius-md) 0 0;}
+.week-group:not(.open) .week-header{border-radius:var(--radius-md); border-bottom:1px solid #C9C9C3;}
 .week-header-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
 .week-title{font-size:12.5px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:6px;}
-.week-title .wk-icon{font-size:13px;}
+.week-title .week-chevron{color:var(--ink-dim); flex:0 0 auto; transition:transform .25s ease;}
+.week-group.open .week-title .week-chevron{transform:rotate(180deg);}
 .week-total{font-size:16px; font-weight:900; color:var(--ink); white-space:nowrap;}
-.week-header-bottom{display:flex; align-items:center; justify-content:space-between; margin-top:6px; padding-top:6px; border-top:1px dashed var(--line);}
+.week-header-bottom{display:flex; align-items:center; justify-content:space-between; margin-top:6px; padding-top:6px; border-top:1px dashed #C9C9C3;}
 .week-diff{font-size:11px; font-weight:800; display:flex; align-items:center; gap:4px;}
 .week-diff.up{color:var(--red);}
 .week-diff.down{color:var(--green);}
-.week-diff.same{color:var(--ink-faint);}
+.week-diff.same, .week-diff.none{color:var(--ink-faint);}
 .week-diff .arrow{font-size:12px;}
-.week-prev-label{font-size:10.5px; color:var(--ink-faint); font-weight:600;}
+.week-days-wrap{
+  overflow:hidden; max-height:0; transition:max-height .3s ease;
+  background:var(--bg-soft); border:1px solid #C9C9C3; border-top:none; border-radius:0 0 var(--radius-md) var(--radius-md);
+}
+.week-group.open .week-days-wrap{padding:12px 12px 2px;}
 
-.day-group{margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--line);}
+/* ===== مقارنة مصروفات آخر 5 أسابيع (رسم أعمدة بسيط) ===== */
+.week-chart{display:flex; align-items:flex-end; justify-content:space-between; gap:8px; height:120px; padding:0 2px;}
+.wc-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:6px;}
+.wc-bar-track{flex:1; width:100%; display:flex; align-items:flex-end; justify-content:center;}
+.wc-bar{width:60%; max-width:32px; border-radius:8px 8px 3px 3px; background:linear-gradient(180deg,var(--orange),var(--orange-deep)); min-height:3px; transition:height .4s ease;}
+.wc-bar.current{background:linear-gradient(180deg,#FFA35C,var(--orange));}
+.wc-val{font-size:9.5px; font-weight:800; color:var(--ink-dim); white-space:nowrap;}
+.wc-label{font-size:9px; font-weight:700; color:var(--ink-faint); white-space:nowrap;}
+
+.day-group{margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--line);}
 .day-group:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
 .day-header{display:flex; align-items:center; justify-content:space-between; margin:0 4px 0; cursor:pointer; user-select:none; padding:6px 2px;}
 .day-header-left{display:flex; align-items:center; gap:8px;}
@@ -512,6 +528,11 @@ button{font-family:inherit;}
     </div>
     <div class="cat-breakdown" id="catBreakdown"></div>
   </div>
+
+  <div class="stat-card wide" id="weekCompareCard">
+    <div class="stat-label" style="margin-bottom:12px;">مقارنة مصروفات آخر 5 أسابيع</div>
+    <div class="week-chart" id="weekChart"></div>
+  </div>
 </div>
 
 <div class="app-footer">Qasim omish - qas4qas2@gmail.com</div>
@@ -805,6 +826,7 @@ button{font-family:inherit;}
     renderIncomeSourcesRow(income);
     renderList();
     renderCatBreakdown(income);
+    renderWeekChart();
     renderCycleBanner();
     document.getElementById('monthDaysDisplay').value = cycleLabel();
   }
@@ -841,6 +863,15 @@ button{font-family:inherit;}
     return d;
   }
   function weekStartISOOf(date){ return isoDateOf(getWeekStartDate(date)); }
+
+  var openWeeks = new Set([weekStartISOOf(new Date())]); // الأسبوع الحالي مفتوح افتراضيًا فقط
+
+  // أول أسبوع في الشهر = الأسبوع الذي يقع بدايته في شهر مختلف عن الأسبوع الذي قبله بأسبوع
+  function isFirstWeekOfMonth(weekStartISOStr){
+    var start = dateFromISO(weekStartISOStr);
+    var prevWeekStart = new Date(start); prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+    return (prevWeekStart.getMonth() !== start.getMonth()) || (prevWeekStart.getFullYear() !== start.getFullYear());
+  }
 
   function weekRangeLabel(weekStartISOStr){
     var start = dateFromISO(weekStartISOStr);
@@ -901,6 +932,31 @@ button{font-family:inherit;}
     }
   }
 
+  function toggleWeekGroup(weekEl){
+    var wrap = weekEl.querySelector('.week-days-wrap');
+    var iso = weekEl.getAttribute('data-week-iso');
+    var isOpen = weekEl.classList.contains('open');
+    if(isOpen){
+      wrap.style.maxHeight = wrap.scrollHeight + 'px';
+      requestAnimationFrame(function(){
+        weekEl.classList.remove('open');
+        wrap.style.maxHeight = '0px';
+      });
+      openWeeks.delete(iso);
+    } else {
+      weekEl.classList.add('open');
+      wrap.style.maxHeight = wrap.scrollHeight + 'px';
+      openWeeks.add(iso);
+      var onEnd = function(ev){
+        if(ev.propertyName === 'max-height'){
+          if(weekEl.classList.contains('open')) wrap.style.maxHeight = 'none';
+          wrap.removeEventListener('transitionend', onEnd);
+        }
+      };
+      wrap.addEventListener('transitionend', onEnd);
+    }
+  }
+
   function buildDayGroupEl(iso, group, todayISO){
     var isOpen = openDays.has(iso);
     var dayDiv = document.createElement('div');
@@ -948,24 +1004,33 @@ button{font-family:inherit;}
     return dayDiv;
   }
 
-  function buildWeekHeaderEl(weekStartISOStr, weekTotal, prevWeekTotal){
-    var diff = weekTotal - prevWeekTotal;
-    var diffClass = diff > 0.004 ? 'up' : (diff < -0.004 ? 'down' : 'same');
-    var diffArrow = diff > 0.004 ? '↑' : (diff < -0.004 ? '↓' : '—');
-    var diffText;
-    if(Math.abs(diff) < 0.005){
-      diffText = 'بدون تغيير عن الأسبوع السابق';
-    } else if(diff > 0){
-      diffText = 'زيادة ' + fmt(Math.abs(diff)) + ' ر.س عن الأسبوع السابق';
+  function buildWeekHeaderEl(weekStartISOStr, weekTotal, prevWeekTotal, isFirstOfMonth){
+    var diffClass, diffArrow, diffText;
+    if(isFirstOfMonth){
+      diffClass = 'none';
+      diffArrow = '🆕';
+      diffText = 'أول أسبوع في الشهر — بدون مقارنة';
     } else {
-      diffText = 'نقصان ' + fmt(Math.abs(diff)) + ' ر.س عن الأسبوع السابق';
+      var diff = weekTotal - prevWeekTotal;
+      diffClass = diff > 0.004 ? 'up' : (diff < -0.004 ? 'down' : 'same');
+      diffArrow = diff > 0.004 ? '↑' : (diff < -0.004 ? '↓' : '—');
+      if(Math.abs(diff) < 0.005){
+        diffText = 'بدون تغيير عن الأسبوع السابق';
+      } else if(diff > 0){
+        diffText = 'زيادة ' + fmt(Math.abs(diff)) + ' ر.س عن الأسبوع السابق';
+      } else {
+        diffText = 'نقصان ' + fmt(Math.abs(diff)) + ' ر.س عن الأسبوع السابق';
+      }
     }
 
     var header = document.createElement('div');
     header.className = 'week-header';
     header.innerHTML =
       '<div class="week-header-top">'+
-        '<div class="week-title"><span class="wk-icon">🗓️</span>الأسبوع '+weekRangeLabel(weekStartISOStr)+'</div>'+
+        '<div class="week-title">'+
+          '<svg class="week-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'+
+          'الأسبوع من '+weekRangeLabel(weekStartISOStr)+
+        '</div>'+
         '<div class="week-total num">'+fmt(weekTotal)+' ر.س</div>'+
       '</div>'+
       '<div class="week-header-bottom">'+
@@ -1003,18 +1068,33 @@ button{font-family:inherit;}
       var weekTotal = wk.dayIsos.reduce(function(sum, dayIso){
         return sum + g.groups[dayIso].items.reduce(function(s,e){ return s + (parseFloat(e.amount)||0); }, 0);
       }, 0);
-      var prevWeekStart = dateFromISO(wk.weekStartISO);
-      prevWeekStart.setDate(prevWeekStart.getDate() - 7);
-      var prevWeekTotal = weekTotalsMap[isoDateOf(prevWeekStart)] || 0;
 
+      var firstOfMonth = isFirstWeekOfMonth(wk.weekStartISO);
+      var prevWeekTotal = 0;
+      if(!firstOfMonth){
+        var prevWeekStart = dateFromISO(wk.weekStartISO);
+        prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+        prevWeekTotal = weekTotalsMap[isoDateOf(prevWeekStart)] || 0;
+      }
+
+      var isOpen = openWeeks.has(wk.weekStartISO);
       var weekDiv = document.createElement('div');
-      weekDiv.className = 'week-group';
-      weekDiv.appendChild(buildWeekHeaderEl(wk.weekStartISO, weekTotal, prevWeekTotal));
+      weekDiv.className = 'week-group' + (isOpen ? ' open' : '');
+      weekDiv.setAttribute('data-week-iso', wk.weekStartISO);
+
+      var headerEl = buildWeekHeaderEl(wk.weekStartISO, weekTotal, prevWeekTotal, firstOfMonth);
+      headerEl.addEventListener('click', function(){ toggleWeekGroup(weekDiv); });
+      weekDiv.appendChild(headerEl);
+
+      var daysWrap = document.createElement('div');
+      daysWrap.className = 'week-days-wrap';
+      daysWrap.style.maxHeight = isOpen ? 'none' : '0px';
 
       wk.dayIsos.forEach(function(dayIso){
-        weekDiv.appendChild(buildDayGroupEl(dayIso, g.groups[dayIso], todayISO));
+        daysWrap.appendChild(buildDayGroupEl(dayIso, g.groups[dayIso], todayISO));
       });
 
+      weekDiv.appendChild(daysWrap);
       wrap.appendChild(weekDiv);
     });
 
@@ -1042,6 +1122,52 @@ button{font-family:inherit;}
     var d = document.createElement('div');
     d.textContent = s;
     return d.innerHTML;
+  }
+
+  function renderWeekChart(){
+    var el = document.getElementById('weekChart');
+    if(!el) return;
+    el.innerHTML = "";
+
+    if(state.expenses.length === 0){
+      el.innerHTML = '<div class="stat-sub" style="text-align:center; width:100%; padding:8px 0;">أضف مصروفات لعرض مقارنة الأسابيع</div>';
+      return;
+    }
+
+    var sorted = state.expenses.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+    var weeksTotals = []; // [{weekStartISO, total}], مرتبة من الأحدث إلى الأقدم
+    var seen = {};
+    sorted.forEach(function(e){
+      var wIso = weekStartISOOf(new Date(e.date));
+      if(!seen.hasOwnProperty(wIso)){
+        seen[wIso] = weeksTotals.length;
+        weeksTotals.push({weekStartISO: wIso, total: 0});
+      }
+      weeksTotals[seen[wIso]].total += (parseFloat(e.amount)||0);
+    });
+
+    var last5 = weeksTotals.slice(0, 5);
+    var maxVal = Math.max.apply(null, last5.map(function(w){ return w.total; }));
+    if(!maxVal || !isFinite(maxVal)) maxVal = 1;
+    var thisWeekISO = weekStartISOOf(new Date());
+    var maxBarPx = 78;
+
+    // نعرضها من الأقدم (يمين) إلى الأحدث (يسار) لتصبح القراءة بترتيب زمني طبيعي في RTL
+    last5.slice().reverse().forEach(function(wk){
+      var start = dateFromISO(wk.weekStartISO);
+      var end = new Date(start); end.setDate(end.getDate()+6);
+      var shortLabel = start.getDate() + '-' + end.getDate();
+      var barH = Math.max(4, Math.round((wk.total/maxVal)*maxBarPx));
+      var isCurrent = wk.weekStartISO === thisWeekISO;
+
+      var col = document.createElement('div');
+      col.className = 'wc-col';
+      col.innerHTML =
+        '<div class="wc-val num">'+fmt(wk.total)+'</div>'+
+        '<div class="wc-bar-track"><div class="wc-bar'+(isCurrent?' current':'')+'" style="height:'+barH+'px;"></div></div>'+
+        '<div class="wc-label num">'+shortLabel+(isCurrent?' (الحالي)':'')+'</div>';
+      el.appendChild(col);
+    });
   }
 
   function renderCatBreakdown(income){
