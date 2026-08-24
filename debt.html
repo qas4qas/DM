@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>ديوني — إدارة الديون والالتزامات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green-main:#66BB6A;
+  --green-dark:#1B5E20;
+  --green-light:#A5D6A7;
+  --green-bg:#E8F5E9;
+  --white:#FFFFFF;
+  --gray-50:#FAFAFA;
+  --gray-100:#F2F3F1;
+  --gray-300:#D8DBD6;
+  --gray-500:#8A8F86;
+  --gray-700:#4A4F47;
+  --danger:#C0392B;
+  --radius:18px;
+  --shadow:0 4px 18px rgba(27,94,32,0.08);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Cairo',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:linear-gradient(180deg,var(--green-bg) 0%, var(--gray-50) 340px);
+  color:var(--gray-700);
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:60px;
+}
+.num, .num *{
+  font-family:'Cairo',sans-serif;
+  font-variant-numeric:tabular-nums;
+  direction:ltr;
+  unicode-bidi:isolate;
+  font-weight:800;
+}
+.app{max-width:520px;margin:0 auto;padding:16px 14px 0;}
+
+/* HEADER */
+header.top{
+  display:flex;align-items:center;gap:14px;
+  padding:22px 6px 14px;position:relative;
+}
+header.top::before{
+  content:'';position:absolute;top:-30px;right:-40px;width:150px;height:150px;
+  background:radial-gradient(circle, rgba(102,187,106,0.18) 0%, rgba(102,187,106,0) 70%);
+  pointer-events:none;z-index:0;
+}
+header.top .logo{
+  width:52px;height:52px;border-radius:16px;
+  background:linear-gradient(135deg,var(--green-main),var(--green-dark));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 16px rgba(27,94,32,0.25);flex-shrink:0;position:relative;z-index:1;
+}
+header.top .logo svg{width:26px;height:26px;}
+header.top .text-wrap{position:relative;z-index:1;}
+header.top h1{
+  margin:0;font-size:24px;font-weight:900;
+  background:linear-gradient(135deg,var(--green-dark) 20%,var(--green-main));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  letter-spacing:0.2px;
+}
+header.top p{margin:2px 0 0;font-size:12.5px;color:var(--gray-500);font-weight:700;}
+
+/* FOOTER */
+.app-footer{
+  text-align:center;padding:26px 10px 10px;font-size:11.5px;
+  color:var(--gray-500);font-weight:600;line-height:1.8;
+}
+.app-footer a{color:var(--green-dark);font-weight:700;text-decoration:none;}
+
+/* HERO SUMMARY RING */
+.hero{
+  background:linear-gradient(135deg,var(--green-dark), #2e7d32 70%);
+  border-radius:24px;padding:22px 18px;margin-bottom:16px;
+  color:var(--white);box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:18px;
+}
+.hero .ring-wrap{position:relative;width:96px;height:96px;flex-shrink:0;}
+.hero .ring-wrap svg{transform:rotate(-90deg);}
+.hero .ring-wrap .pct{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;
+}
+.hero .info{flex:1;min-width:0;}
+.hero .info .label{font-size:12.5px;opacity:0.85;font-weight:700;margin-bottom:3px;}
+.hero .info .big{font-size:24px;font-weight:900;margin-bottom:6px;}
+.hero .info .sub{font-size:12px;opacity:0.9;font-weight:600;line-height:1.6;}
+
+/* CARDS */
+.card{
+  background:var(--white);border-radius:var(--radius);
+  padding:18px 16px;margin-bottom:14px;box-shadow:var(--shadow);
+  border:1px solid rgba(27,94,32,0.05);
+}
+.card h2{
+  margin:0 0 14px;font-size:16px;font-weight:800;color:var(--green-dark);
+  display:flex;align-items:center;gap:8px;
+}
+.card h2 .dot{width:7px;height:7px;border-radius:50%;background:var(--green-main);}
+
+/* FORM ELEMENTS */
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:6px;}
+input[type=text], input[type=number], input[type=date], select{
+  width:100%;padding:12px 13px;border-radius:12px;border:1.5px solid var(--gray-300);
+  font-family:'Cairo',sans-serif;font-size:15px;font-weight:600;background:var(--gray-50);
+  color:var(--gray-700);
+}
+input[type=number]{direction:ltr;text-align:right;}
+input:focus, select:focus{outline:none;border-color:var(--green-main);background:var(--white);}
+.checkbox-row{display:flex;align-items:center;gap:9px;padding:6px 2px;}
+.checkbox-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--green-main);flex-shrink:0;}
+.checkbox-row label{font-size:13.5px;font-weight:700;margin:0;color:var(--gray-700);}
+
+.btn{
+  width:100%;padding:14px;border:none;border-radius:14px;
+  font-family:'Cairo',sans-serif;font-size:15.5px;font-weight:800;
+  cursor:pointer;transition:transform .1s;
+}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:linear-gradient(135deg,var(--green-main),var(--green-dark));color:var(--white);}
+.btn-outline{background:var(--green-bg);color:var(--green-dark);border:1.5px solid var(--green-light);}
+.btn-danger{background:#FBEAE8;color:var(--danger);border:1.5px solid #f2c6c1;}
+.btn-sm{padding:9px 12px;font-size:13px;width:auto;border-radius:10px;}
+.row2{display:flex;gap:10px;}
+.row2 > *{flex:1;}
+
+/* DUE DAY SELECT (native wheel picker on iOS) */
+.day-select-wrap select{
+  font-size:17px;font-weight:800;text-align:center;direction:ltr;
+  background:var(--gray-50) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2366BB6A' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>") left 14px center/16px no-repeat;
+  padding-left:38px;appearance:none;-webkit-appearance:none;
+}
+
+/* DEBT LIST CARDS */
+.debt-item{
+  border:1.5px solid var(--gray-100);border-radius:16px;padding:14px;margin-bottom:12px;
+  background:var(--gray-50);
+}
+.debt-item .head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.debt-item .title{font-size:15.5px;font-weight:800;color:var(--green-dark);}
+.debt-item .badge{
+  font-size:11px;font-weight:700;background:var(--green-bg);color:var(--green-dark);
+  padding:3px 9px;border-radius:20px;margin-top:4px;display:inline-block;
+}
+.debt-item .badge.once{background:#FFF3E0;color:#E65100;}
+.debt-item .badge.deferred{background:#EDE7F6;color:#4527A0;}
+.debt-item .remaining{font-size:19px;text-align:left;}
+.debt-item .remaining .unit{font-size:11px;font-weight:700;color:var(--gray-500);}
+.progress-bar{height:9px;background:var(--gray-100);border-radius:20px;overflow:hidden;margin:8px 0;}
+.progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--green-light),var(--green-main));border-radius:20px;transition:width .4s;}
+.debt-item .meta{display:flex;justify-content:space-between;font-size:12px;color:var(--gray-500);font-weight:700;}
+.debt-item .actions{display:flex;gap:8px;margin-top:10px;}
+.debt-item .actions .btn-sm{flex:1;}
+.empty-state{text-align:center;padding:30px 10px;color:var(--gray-500);font-size:13.5px;font-weight:600;}
+.empty-state svg{width:40px;height:40px;margin-bottom:10px;opacity:0.5;}
+
+/* ANALYTICS GRID */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-box{background:var(--green-bg);border-radius:14px;padding:13px;text-align:center;}
+.stat-box .val{font-size:19px;color:var(--green-dark);}
+.stat-box .lbl{font-size:11.5px;color:var(--gray-700);font-weight:700;margin-top:3px;}
+.stat-box.full{grid-column:1/3;background:linear-gradient(135deg,var(--green-dark),#2e7d32);color:var(--white);}
+.stat-box.full .val{color:var(--white);font-size:16px;}
+.stat-box.full .lbl{color:rgba(255,255,255,0.85);}
+
+/* BAR CHART */
+.chart-bars{display:flex;flex-direction:column;gap:10px;}
+.chart-row{display:flex;align-items:center;gap:10px;}
+.chart-row .name{font-size:12.5px;font-weight:700;width:78px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chart-row .track{flex:1;height:16px;background:var(--gray-100);border-radius:8px;overflow:hidden;position:relative;}
+.chart-row .track .bar{height:100%;background:linear-gradient(90deg,var(--green-main),var(--green-dark));border-radius:8px;}
+.chart-row .amt{font-size:11.5px;width:64px;text-align:left;flex-shrink:0;color:var(--gray-700);}
+
+/* TIMELINE */
+.timeline{position:relative;padding-right:22px;}
+.timeline::before{content:'';position:absolute;right:6px;top:6px;bottom:6px;width:2px;background:var(--gray-300);}
+.tl-item{position:relative;padding-bottom:18px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:'';position:absolute;right:-22px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--green-main);border:2px solid var(--white);box-shadow:0 0 0 2px var(--green-main);}
+.tl-item .tl-date{font-size:11.5px;font-weight:800;color:var(--green-dark);}
+.tl-item .tl-title{font-size:13.5px;font-weight:700;color:var(--gray-700);}
+
+/* INCOME */
+.income-result{margin-top:12px;}
+.income-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--gray-100);}
+.income-row:last-child{border-bottom:none;}
+.income-row .amt{color:var(--green-dark);}
+.income-row .desc{min-width:0;flex:1;}
+.income-row .desc .l1{font-size:13px;font-weight:700;color:var(--gray-700);white-space:normal;line-height:1.5;}
+.income-row .desc .l2{font-size:11.5px;font-weight:700;color:var(--gray-500);margin-top:2px;}
+.income-row .val{flex-shrink:0;text-align:left;font-size:14px;font-weight:800;white-space:nowrap;}
+.income-subtitle{font-size:12.5px;font-weight:700;color:var(--green-dark);background:var(--green-bg);
+  padding:8px 12px;border-radius:10px;margin-bottom:6px;line-height:1.6;}
+.income-current{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0 14px;}
+.income-current .lbl{font-size:12.5px;font-weight:700;color:var(--gray-700);line-height:1.6;}
+.income-current .note{font-size:11px;color:var(--gray-500);font-weight:600;margin-top:2px;}
+.income-current .amt{font-size:16px;flex-shrink:0;}
+
+/* DATA SECTION */
+.data-btns{display:flex;flex-wrap:wrap;gap:10px;}
+.data-btns .btn{flex:1;min-width:100px;}
+input[type=file]{display:none;}
+
+/* MODAL */
+.overlay{
+  position:fixed;inset:0;background:rgba(20,30,20,0.5);display:none;
+  align-items:flex-end;justify-content:center;z-index:100;
+}
+.overlay.show{display:flex;}
+.modal-sheet{
+  background:var(--white);border-radius:22px 22px 0 0;padding:22px 18px 26px;
+  width:100%;max-width:520px;max-height:88vh;overflow-y:auto;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-sheet h3{margin:0 0 14px;font-size:17px;font-weight:800;color:var(--green-dark);}
+.modal-sheet .close-x{float:left;background:var(--gray-100);border:none;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--gray-700);}
+
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--green-dark);color:var(--white);padding:12px 20px;border-radius:30px;
+  font-size:13.5px;font-weight:700;box-shadow:var(--shadow);z-index:200;
+  opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 6.5c0-1.9-2.2-3.5-5-3.5S7 4.6 7 6.5 9.2 9.5 12 9.5s5 1.6 5 3.5-2.2 3.5-5 3.5-5-1.5-5-3.5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    <div class="text-wrap">
+      <h1>ديوني</h1>
+      <p>إدارة بسيطة وهادئة لالتزاماتك المالية</p>
+    </div>
+  </header>
+
+  <section class="hero" id="heroSummary"></section>
+
+  <!-- إضافة دين -->
+  <section class="card">
+    <h2><span class="dot"></span> إضافة دين جديد</h2>
+    <form id="addDebtForm">
+      <div class="field">
+        <label>عنوان الدين</label>
+        <input type="text" id="f_title" placeholder="مثال: قسط السيارة" required>
+      </div>
+      <div class="field">
+        <label id="f_amount_label">قيمة القسط</label>
+        <input type="number" id="f_amount" inputmode="decimal" placeholder="0" required min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label>الدورية</label>
+        <select id="f_period">
+          <option value="monthly">شهري</option>
+          <option value="yearly">سنوي</option>
+          <option value="once">مرة واحدة</option>
+        </select>
+      </div>
+
+      <div id="recurringFields">
+        <div class="field">
+          <label>يوم الاستحقاق</label>
+          <select id="f_dueDay" class="num"></select>
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="f_useEndDate">
+          <label for="f_useEndDate">تحديد تاريخ الانتهاء بدلاً من عدد الأقساط</label>
+        </div>
+
+        <div class="field" id="installmentsField">
+          <label>عدد الأقساط المتبقية</label>
+          <input type="number" id="f_installments" min="1" step="1" placeholder="مثال: 12">
+        </div>
+
+        <div class="field" id="endDateField" style="display:none;">
+          <label>تاريخ الانتهاء</label>
+          <input type="date" id="f_endDate">
+        </div>
+      </div>
+
+      <div class="field" id="onceStatusField" style="display:none;">
+        <label>حالة الدين</label>
+        <select id="f_onceStatus">
+          <option value="due">واجب السداد</option>
+          <option value="deferred">مؤجل</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">إضافة الدين</button>
+    </form>
+  </section>
+
+  <!-- إدارة الديون -->
+  <section class="card">
+    <h2><span class="dot"></span> إدارة الديون</h2>
+    <div class="field">
+      <label>اختيار الدين</label>
+      <select id="manageSelect"></select>
+    </div>
+    <div id="manageActionArea"></div>
+    <button class="btn btn-primary" id="manageSaveBtn" style="margin-top:10px;">حفظ التحديث</button>
+  </section>
+
+  <!-- عرض الديون -->
+  <section class="card">
+    <h2><span class="dot"></span> ديونك</h2>
+    <div id="debtList"></div>
+  </section>
+
+  <!-- تحليلات -->
+  <section class="card" id="analyticsCard" style="display:none;">
+    <h2><span class="dot"></span> نظرة سريعة</h2>
+    <div class="stats-grid" id="statsGrid"></div>
+  </section>
+
+  <!-- الرسم البصري -->
+  <section class="card" id="chartCard" style="display:none;">
+    <h2><span class="dot"></span> المتبقي من كل دين</h2>
+    <div class="chart-bars" id="chartBars"></div>
+  </section>
+
+  <!-- الخط الزمني -->
+  <section class="card" id="timelineCard" style="display:none;">
+    <h2><span class="dot"></span> الجدول الزمني للانتهاء</h2>
+    <div class="timeline" id="timelineList"></div>
+  </section>
+
+  <!-- الدخل الشهري (اختياري) -->
+  <section class="card">
+    <h2><span class="dot"></span> دخلك الشهري (اختياري)</h2>
+    <div class="field">
+      <label>الدخل الشهري</label>
+      <input type="number" id="f_income" placeholder="0" min="0" step="0.01">
+    </div>
+    <div class="income-result" id="incomeResult"></div>
+  </section>
+
+  <!-- البيانات -->
+  <section class="card">
+    <h2><span class="dot"></span> النسخ الاحتياطي</h2>
+    <div class="data-btns">
+      <button class="btn btn-outline" id="exportJsonBtn">تصدير JSON</button>
+      <button class="btn btn-outline" id="exportCsvBtn">تصدير CSV</button>
+      <button class="btn btn-outline" id="importBtn">استيراد JSON</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json">
+  </section>
+
+  <div class="app-footer">
+    تصميم qasim omish — <a href="mailto:qas4qas2@gmail.com">qas4qas2@gmail.com</a>
+  </div>
+
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal-sheet" id="modalSheet"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DATA LAYER ================= */
+const STORAGE_KEY = 'deyoni_debts_v1';
+const INCOME_KEY = 'deyoni_income_v1';
+let debts = [];
+let income = 0;
+
+function loadData(){
+  try{ debts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ debts = []; }
+  income = parseFloat(localStorage.getItem(INCOME_KEY)) || 0;
+}
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(debts));
+}
+function saveIncome(){
+  localStorage.setItem(INCOME_KEY, String(income));
+}
+
+function uid(){ return 'd_' + Date.now() + '_' + Math.floor(Math.random()*10000); }
+
+/* ================= DATE HELPERS ================= */
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function addMonths(dateObj, n){
+  const d = new Date(dateObj);
+  const day = d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + n);
+  const lastDay = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  d.setDate(Math.min(day, lastDay));
+  return d;
+}
+function nextDueDate(dueDay, periodMonths){
+  const now = new Date();
+  let candidate = new Date(now.getFullYear(), now.getMonth(), Math.min(dueDay, 28));
+  const lastDay = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  candidate = new Date(now.getFullYear(), now.getMonth(), Math.min(dueDay, lastDay));
+  if(candidate < now){ candidate = addMonths(candidate, periodMonths); }
+  return candidate;
+}
+function fmtDate(d){
+  if(!d) return '—';
+  const dt = (typeof d === 'string') ? new Date(d) : d;
+  return dt.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+function monthsBetween(a,b){
+  return (b.getFullYear()-a.getFullYear())*12 + (b.getMonth()-a.getMonth()) + (b.getDate()>=a.getDate()?0:-1);
+}
+
+/* ================= COMPUTED DEBT FIELDS ================= */
+function periodMonths(debt){ return debt.period === 'yearly' ? 12 : 1; }
+
+function computeDebt(debt){
+  const out = {...debt};
+  if(debt.period === 'once'){
+    out.remainingAmount = debt.closed ? 0 : (debt.currentAmount ?? debt.amount);
+    out.endDate = null;
+    out.remainingInstallments = out.remainingAmount > 0 ? 1 : 0;
+    out.pct = debt.originalAmount ? Math.max(0, Math.min(100, 100 - (out.remainingAmount/debt.originalAmount*100))) : 0;
+    return out;
+  }
+  // monthly / yearly
+  const pm = periodMonths(debt);
+  let remainingInstallments = debt.remainingInstallments;
+  let endDate;
+  if(debt.useEndDate){
+    const end = new Date(debt.endDate);
+    const now = new Date();
+    const diffMonths = Math.max(0, monthsBetween(now, end));
+    remainingInstallments = Math.max(0, Math.ceil(diffMonths / pm)) || (end > now ? 1 : 0);
+    endDate = end;
+  } else {
+    remainingInstallments = Math.max(0, debt.remainingInstallments);
+    if(remainingInstallments > 0){
+      const first = nextDueDate(debt.dueDay, pm);
+      endDate = addMonths(first, pm*(remainingInstallments-1));
+    } else {
+      endDate = new Date();
+    }
+  }
+  out.remainingInstallments = remainingInstallments;
+  out.endDate = endDate;
+  out.remainingAmount = remainingInstallments * debt.amount;
+  out.pct = debt.originalInstallments ? Math.max(0, Math.min(100, 100 - (remainingInstallments/debt.originalInstallments*100))) : 0;
+  return out;
+}
+
+function allComputed(){
+  return debts.map(computeDebt).sort((a,b)=>{
+    const ea = a.endDate ? new Date(a.endDate).getTime() : Infinity;
+    const eb = b.endDate ? new Date(b.endDate).getTime() : Infinity;
+    return ea - eb;
+  });
+}
+
+/* ================= NUMBER FORMAT ================= */
+function fmtNum(n){
+  n = Math.round((n + Number.EPSILON) * 100) / 100;
+  return n.toLocaleString('en-US', {maximumFractionDigits: n % 1 === 0 ? 0 : 2});
+}
+
+/* ================= TOAST ================= */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ================= DAY SELECT (يوم الاستحقاق) ================= */
+function buildDaySelect(){
+  const sel = document.getElementById('f_dueDay');
+  sel.innerHTML = '';
+  for(let i=1;i<=31;i++){
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = i;
+    sel.appendChild(opt);
+  }
+  sel.value = 1;
+}
+function setDueDay(day){
+  document.getElementById('f_dueDay').value = day;
+}
+function getDueDay(){
+  return parseInt(document.getElementById('f_dueDay').value) || 1;
+}
+
+/* ================= FORM LOGIC ================= */
+const periodSelect = document.getElementById('f_period');
+const recurringFields = document.getElementById('recurringFields');
+const onceStatusField = document.getElementById('onceStatusField');
+const useEndDateCk = document.getElementById('f_useEndDate');
+const installmentsField = document.getElementById('installmentsField');
+const endDateField = document.getElementById('endDateField');
+const amountLabel = document.getElementById('f_amount_label');
+
+periodSelect.addEventListener('change', updateFormMode);
+function updateFormMode(){
+  const p = periodSelect.value;
+  if(p === 'once'){
+    recurringFields.style.display = 'none';
+    onceStatusField.style.display = 'block';
+    amountLabel.textContent = 'قيمة الدين';
+  } else {
+    recurringFields.style.display = 'block';
+    onceStatusField.style.display = 'none';
+    amountLabel.textContent = 'قيمة القسط';
+  }
+}
+useEndDateCk.addEventListener('change', ()=>{
+  if(useEndDateCk.checked){
+    installmentsField.style.display = 'none';
+    endDateField.style.display = 'block';
+  } else {
+    installmentsField.style.display = 'block';
+    endDateField.style.display = 'none';
+  }
+});
+
+document.getElementById('addDebtForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const title = document.getElementById('f_title').value.trim();
+  const amount = parseFloat(document.getElementById('f_amount').value);
+  const period = periodSelect.value;
+  if(!title || isNaN(amount) || amount <= 0){ showToast('يرجى تعبئة البيانات بشكل صحيح'); return; }
+
+  let debt = { id: uid(), title, amount, period, createdAt: Date.now() };
+
+  if(period === 'once'){
+    debt.status = document.getElementById('f_onceStatus').value;
+    debt.currentAmount = amount;
+    debt.originalAmount = amount;
+    debt.closed = false;
+  } else {
+    debt.dueDay = getDueDay();
+    debt.useEndDate = useEndDateCk.checked;
+    if(debt.useEndDate){
+      const endVal = document.getElementById('f_endDate').value;
+      if(!endVal){ showToast('يرجى تحديد تاريخ الانتهاء'); return; }
+      debt.endDate = endVal;
+      const pm = periodMonths(debt);
+      const diffMonths = Math.max(0, monthsBetween(new Date(), new Date(endVal)));
+      debt.remainingInstallments = Math.max(1, Math.ceil(diffMonths / pm));
+    } else {
+      const inst = parseInt(document.getElementById('f_installments').value);
+      if(!inst || inst < 1){ showToast('يرجى إدخال عدد الأقساط'); return; }
+      debt.remainingInstallments = inst;
+    }
+    debt.originalInstallments = debt.remainingInstallments;
+  }
+
+  debts.push(debt);
+  saveData();
+  this.reset();
+  updateFormMode();
+  setDueDay(1);
+  useEndDateCk.checked = false;
+  installmentsField.style.display = 'block';
+  endDateField.style.display = 'none';
+  renderAll();
+  showToast('تمت إضافة الدين بنجاح');
+});
+
+/* ================= MANAGE (PAYMENTS) ================= */
+const manageSelect = document.getElementById('manageSelect');
+const manageActionArea = document.getElementById('manageActionArea');
+
+function renderManageSelect(){
+  const list = allComputed();
+  manageSelect.innerHTML = '';
+  if(list.length === 0){
+    manageSelect.innerHTML = '<option>لا توجد ديون بعد</option>';
+    manageActionArea.innerHTML = '';
+    return;
+  }
+  list.forEach(d=>{
+    const opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.title;
+    manageSelect.appendChild(opt);
+  });
+  renderManageAction();
+}
+manageSelect.addEventListener('change', renderManageAction);
+
+function renderManageAction(){
+  const debt = debts.find(d=>d.id === manageSelect.value);
+  if(!debt){ manageActionArea.innerHTML = ''; return; }
+  if(debt.period === 'once'){
+    manageActionArea.innerHTML = `
+      <div class="field">
+        <label>الإجراء</label>
+        <select id="onceActionSelect">
+          <option value="partial">دفع جزئي</option>
+          <option value="close">إغلاق الدين</option>
+        </select>
+      </div>
+      <div class="field" id="partialAmountField">
+        <label>قيمة الدفعة</label>
+        <input type="number" id="partialAmountInput" min="0" step="0.01" placeholder="0">
+      </div>
+    `;
+    document.getElementById('onceActionSelect').addEventListener('change', function(){
+      document.getElementById('partialAmountField').style.display = this.value === 'partial' ? 'block' : 'none';
+    });
+  } else {
+    manageActionArea.innerHTML = `
+      <div class="field">
+        <label>الإجراء</label>
+        <select id="recurringActionSelect">
+          <option value="1">دفع قسط واحد</option>
+          <option value="2">دفع قسطين</option>
+          <option value="finish">تم الانتهاء (إغلاق الدين)</option>
+        </select>
+      </div>
+    `;
+  }
+}
+
+document.getElementById('manageSaveBtn').addEventListener('click', function(){
+  const debt = debts.find(d=>d.id === manageSelect.value);
+  if(!debt){ showToast('اختر دينًا أولًا'); return; }
+
+  if(debt.period === 'once'){
+    const action = document.getElementById('onceActionSelect').value;
+    if(action === 'close'){
+      debt.closed = true;
+      debt.currentAmount = 0;
+    } else {
+      const amt = parseFloat(document.getElementById('partialAmountInput').value);
+      if(!amt || amt <= 0){ showToast('أدخل قيمة الدفعة'); return; }
+      debt.currentAmount = Math.max(0, (debt.currentAmount ?? debt.amount) - amt);
+      if(debt.currentAmount === 0) debt.closed = true;
+    }
+  } else {
+    const action = document.getElementById('recurringActionSelect').value;
+    if(action === 'finish'){
+      debt.remainingInstallments = 0;
+      debt.useEndDate = false;
+    } else {
+      const n = parseInt(action);
+      debt.remainingInstallments = Math.max(0, debt.remainingInstallments - n);
+      debt.useEndDate = false; // switch to installment-based tracking after payment
+    }
+  }
+  saveData();
+  renderAll();
+  showToast('تم تحديث الدين');
+});
+
+/* ================= RENDER: HERO ================= */
+function renderHero(){
+  const list = allComputed();
+  const el = document.getElementById('heroSummary');
+  if(list.length === 0){
+    el.innerHTML = `
+      <div style="width:100%;text-align:center;padding:10px 0;">
+        <div style="font-size:15px;font-weight:800;">لا توجد ديون مضافة بعد</div>
+        <div style="font-size:12.5px;opacity:0.85;margin-top:4px;font-weight:600;">ابدأ بإضافة أول التزام لمتابعته هنا</div>
+      </div>`;
+    return;
+  }
+  const totalOriginal = debts.reduce((s,d)=> s + (d.period==='once' ? d.originalAmount : d.amount*d.originalInstallments), 0);
+  const totalRemaining = list.reduce((s,d)=> s + d.remainingAmount, 0);
+  const overallPct = totalOriginal > 0 ? Math.round(100 - (totalRemaining/totalOriginal*100)) : 0;
+  const r = 40, c = 2*Math.PI*r;
+  const offset = c - (overallPct/100)*c;
+  const active = list.filter(d=>d.remainingAmount>0);
+  let freedomText = 'لا توجد ديون نشطة حاليًا 🎉';
+  if(active.length){
+    const last = active.reduce((a,b)=> (new Date(a.endDate) > new Date(b.endDate) ? a : b));
+    freedomText = `موعد التحرر الكامل المتوقع: ${fmtDate(last.endDate)}`;
+  }
+  el.innerHTML = `
+    <div class="ring-wrap">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle cx="48" cy="48" r="${r}" stroke="rgba(255,255,255,0.25)" stroke-width="8" fill="none"/>
+        <circle cx="48" cy="48" r="${r}" stroke="#ffffff" stroke-width="8" fill="none"
+          stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+      </svg>
+      <div class="pct num">${overallPct}%</div>
+    </div>
+    <div class="info">
+      <div class="label">إجمالي المتبقي عليك</div>
+      <div class="big num">${fmtNum(totalRemaining)} <span style="font-size:13px;">ر.س</span></div>
+      <div class="sub">${freedomText}</div>
+    </div>
+  `;
+}
+
+/* ================= RENDER: DEBT LIST ================= */
+function renderDebtList(){
+  const list = allComputed();
+  const el = document.getElementById('debtList');
+  if(list.length === 0){
+    el.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#8A8F86" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 018 0v2"/></svg>
+      <div>لم تضف أي دين بعد. استخدم النموذج أعلاه للبدء.</div>
+    </div>`;
+    document.getElementById('analyticsCard').style.display = 'none';
+    document.getElementById('chartCard').style.display = 'none';
+    document.getElementById('timelineCard').style.display = 'none';
+    return;
+  }
+  document.getElementById('analyticsCard').style.display = 'block';
+  document.getElementById('chartCard').style.display = 'block';
+  document.getElementById('timelineCard').style.display = 'block';
+
+  el.innerHTML = list.map(d=>{
+    let badge = d.period === 'monthly' ? 'شهري' : d.period === 'yearly' ? 'سنوي' : 'مرة واحدة';
+    let badgeClass = d.period === 'once' ? 'once' : '';
+    let statusBadge = '';
+    if(d.period === 'once' && !d.closed){
+      statusBadge = `<span class="badge deferred">${d.status === 'deferred' ? 'مؤجل' : 'واجب السداد'}</span>`;
+    }
+    let metaRight = d.period === 'once'
+      ? (d.closed ? 'تم السداد بالكامل' : 'دفعة واحدة متبقية')
+      : `${fmtNum(d.remainingInstallments)} قسط متبقي`;
+    let endLabel = d.endDate ? fmtDate(d.endDate) : (d.closed ? '—' : 'غير محدد');
+    return `
+    <div class="debt-item">
+      <div class="head">
+        <div>
+          <div class="title">${escapeHtml(d.title)}</div>
+          <span class="badge ${badgeClass}">${badge}</span> ${statusBadge}
+        </div>
+        <div class="remaining num" style="color:${d.remainingAmount>0?'#1B5E20':'#66BB6A'}">
+          ${fmtNum(d.remainingAmount)}<div class="unit">ر.س متبقي</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="fill" style="width:${d.pct}%"></div></div>
+      <div class="meta">
+        <span>ينتهي: <b class="num">${endLabel}</b></span>
+        <span>${metaRight}</span>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline btn-sm" onclick="openEditModal('${d.id}')">تعديل</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('${d.id}')">حذف</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function escapeHtml(s){
+  const div = document.createElement('div'); div.textContent = s; return div.innerHTML;
+}
+
+/* ================= RENDER: ANALYTICS ================= */
+function renderAnalytics(){
+  const list = allComputed();
+  if(list.length === 0) return;
+  const totalOriginal = debts.reduce((s,d)=> s + (d.period==='once' ? d.originalAmount : d.amount*d.originalInstallments), 0);
+  const totalRemaining = list.reduce((s,d)=> s + d.remainingAmount, 0);
+  const overallPct = totalOriginal > 0 ? Math.round(100 - (totalRemaining/totalOriginal*100)) : 0;
+  const active = list.filter(d=>d.remainingAmount>0);
+  const nearest = active.length ? active[0] : null;
+  const freedomMonths = active.length ? Math.max(...active.map(d=> monthsBetween(new Date(), new Date(d.endDate)))) : 0;
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-box"><div class="val num">${fmtNum(totalRemaining)}</div><div class="lbl">إجمالي المتبقي (ر.س)</div></div>
+    <div class="stat-box"><div class="val num">${overallPct}%</div><div class="lbl">نسبة السداد الكلية</div></div>
+    <div class="stat-box"><div class="val num">${nearest ? escapeHtml(nearest.title) : '—'}</div><div class="lbl">أقرب دين للانتهاء</div></div>
+    <div class="stat-box"><div class="val num">${fmtDate(nearest?.endDate)}</div><div class="lbl">تاريخ أقرب استحقاق نهائي</div></div>
+    <div class="stat-box full"><div class="val num">${freedomMonths <= 0 ? 'أنت متحرر من الديون 🎉' : freedomMonths + ' شهرًا تقريبًا'}</div><div class="lbl">الوقت المتوقع للتحرر الكامل من جميع الديون</div></div>
+  `;
+}
+
+/* ================= RENDER: CHART ================= */
+function renderChart(){
+  const list = allComputed().filter(d=>d.remainingAmount>0);
+  const el = document.getElementById('chartBars');
+  if(list.length === 0){ el.innerHTML = '<div class="empty-state">لا توجد مبالغ متبقية حاليًا 🎉</div>'; return; }
+  const max = Math.max(...list.map(d=>d.remainingAmount));
+  el.innerHTML = list.map(d=>`
+    <div class="chart-row">
+      <div class="name">${escapeHtml(d.title)}</div>
+      <div class="track"><div class="bar" style="width:${max?(d.remainingAmount/max*100):0}%"></div></div>
+      <div class="amt num">${fmtNum(d.remainingAmount)}</div>
+    </div>
+  `).join('');
+}
+
+/* ================= RENDER: TIMELINE ================= */
+function renderTimeline(){
+  const list = allComputed().filter(d=>d.remainingAmount>0 && d.endDate);
+  const el = document.getElementById('timelineList');
+  if(list.length === 0){ el.innerHTML = '<div class="empty-state">لا توجد مواعيد استحقاق نشطة</div>'; return; }
+  el.innerHTML = list.map(d=>`
+    <div class="tl-item">
+      <div class="tl-date num">${fmtDate(d.endDate)}</div>
+      <div class="tl-title">${escapeHtml(d.title)}</div>
+    </div>
+  `).join('');
+}
+
+/* ================= RENDER: INCOME ================= */
+const incomeInput = document.getElementById('f_income');
+incomeInput.addEventListener('input', ()=>{
+  income = parseFloat(incomeInput.value) || 0;
+  saveIncome();
+  renderIncome();
+});
+function monthlyEquivalent(d){
+  // الديون الشهرية تُحسب كما هي، والسنوية تُقسّم على 12 لمعرفة عبئها الشهري الفعلي على الدخل
+  return d.period === 'yearly' ? (d.amount / 12) : d.amount;
+}
+function renderIncome(){
+  const el = document.getElementById('incomeResult');
+  if(!income || income <= 0){ el.innerHTML = ''; return; }
+  // نستثني ديون "مرة واحدة" لأنها مبلغ مقطوع لا يُحسب كعبء شهري متكرر
+  const recurringDebts = allComputed().filter(d=> d.period !== 'once' && d.remainingAmount > 0)
+    .sort((a,b)=> new Date(a.endDate) - new Date(b.endDate));
+
+  if(recurringDebts.length === 0){
+    el.innerHTML = `<div class="income-current"><div class="lbl">دخلك الشهري متاح بالكامل حاليًا</div><div class="amt num">${fmtNum(income)}</div></div>`;
+    return;
+  }
+
+  let committed = recurringDebts.reduce((s,d)=> s + monthlyEquivalent(d), 0);
+
+  let html = `
+    <div class="income-current">
+      <div>
+        <div class="lbl">الالتزام الشهري الحالي</div>
+        <div class="note">الديون السنوية محسوبة بالتناسب الشهري</div>
+      </div>
+      <div class="amt num">${fmtNum(committed)}</div>
+    </div>
+    <div class="income-subtitle">تزايد الراتب بعد قضاء كل دين، مرتبة بالأقرب</div>
+  `;
+
+  recurringDebts.forEach(d=>{
+    committed -= monthlyEquivalent(d);
+    const available = income - committed;
+    const deficit = available < 0;
+    const valLabel = deficit ? `عجز ${fmtNum(Math.abs(available))}` : `${fmtNum(available)}`;
+    const monthsLeft = Math.max(0, monthsBetween(new Date(), new Date(d.endDate)));
+    html += `
+      <div class="income-row">
+        <div class="desc">
+          <div class="l1">بعد انتهاء "${escapeHtml(d.title)}"</div>
+          <div class="l2 num">بعد (${monthsLeft} شهر)</div>
+        </div>
+        <div class="val num" style="color:${deficit?'#C0392B':'#1B5E20'}">سيصبح الراتب<br>${valLabel}</div>
+      </div>`;
+  });
+  el.innerHTML = html;
+}
+
+/* ================= EDIT / DELETE MODALS ================= */
+const overlay = document.getElementById('overlay');
+const modalSheet = document.getElementById('modalSheet');
+function closeModal(){ overlay.classList.remove('show'); modalSheet.innerHTML=''; }
+overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+
+function openEditModal(id){
+  const debt = debts.find(d=>d.id === id);
+  if(!debt) return;
+  let bodyHtml = `
+    <div class="field"><label>عنوان الدين</label><input type="text" id="em_title" value="${escapeHtml(debt.title)}"></div>
+    <div class="field"><label>${debt.period==='once'?'قيمة الدين':'قيمة القسط'}</label><input type="number" id="em_amount" value="${debt.period==='once'?debt.currentAmount:debt.amount}" min="0" step="0.01"></div>
+  `;
+  if(debt.period !== 'once'){
+    let dayOptions = '';
+    for(let i=1;i<=31;i++){ dayOptions += `<option value="${i}" ${i===debt.dueDay?'selected':''}>${i}</option>`; }
+    bodyHtml += `<div class="field"><label>يوم الاستحقاق</label><select id="em_dueDay" class="num">${dayOptions}</select></div>`;
+    bodyHtml += `<div class="field"><label>عدد الأقساط المتبقية</label><input type="number" id="em_installments" value="${debt.remainingInstallments}" min="0" step="1"></div>`;
+  } else {
+    bodyHtml += `<div class="field"><label>حالة الدين</label>
+      <select id="em_status">
+        <option value="due" ${debt.status==='due'?'selected':''}>واجب السداد</option>
+        <option value="deferred" ${debt.status==='deferred'?'selected':''}>مؤجل</option>
+      </select></div>`;
+  }
+  bodyHtml += `<button class="btn btn-primary" id="em_save" style="margin-top:6px;">حفظ التعديلات</button>`;
+
+  modalSheet.innerHTML = `<button class="close-x" onclick="closeModal()">×</button><h3>تعديل الدين</h3>${bodyHtml}`;
+  overlay.classList.add('show');
+
+  document.getElementById('em_save').addEventListener('click', ()=>{
+    const newTitle = document.getElementById('em_title').value.trim();
+    const newAmount = parseFloat(document.getElementById('em_amount').value);
+    if(!newTitle || isNaN(newAmount) || newAmount < 0){ showToast('بيانات غير صحيحة'); return; }
+    debt.title = newTitle;
+    if(debt.period === 'once'){
+      debt.currentAmount = newAmount;
+      debt.closed = newAmount <= 0;
+      debt.status = document.getElementById('em_status').value;
+    } else {
+      debt.amount = newAmount;
+      const newInst = parseInt(document.getElementById('em_installments').value);
+      debt.remainingInstallments = Math.max(0, isNaN(newInst)?debt.remainingInstallments:newInst);
+      const newDay = parseInt(document.getElementById('em_dueDay').value);
+      if(!isNaN(newDay)) debt.dueDay = newDay;
+      debt.useEndDate = false;
+    }
+    saveData();
+    closeModal();
+    renderAll();
+    showToast('تم حفظ التعديلات');
+  });
+}
+
+function confirmDelete(id){
+  const debt = debts.find(d=>d.id === id);
+  if(!debt) return;
+  modalSheet.innerHTML = `
+    <h3>حذف الدين</h3>
+    <p style="font-size:14px;font-weight:600;color:var(--gray-700);">هل أنت متأكد من حذف "<b>${escapeHtml(debt.title)}</b>"؟ لا يمكن التراجع عن هذا الإجراء.</p>
+    <div class="row2" style="margin-top:14px;">
+      <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+      <button class="btn btn-danger" id="confirmDelBtn">حذف نهائيًا</button>
+    </div>
+  `;
+  overlay.classList.add('show');
+  document.getElementById('confirmDelBtn').addEventListener('click', ()=>{
+    debts = debts.filter(d=>d.id !== id);
+    saveData();
+    closeModal();
+    renderAll();
+    showToast('تم حذف الدين');
+  });
+}
+
+/* ================= EXPORT / IMPORT ================= */
+function downloadFile(filename, content, mime){
+  const blob = new Blob([content], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+document.getElementById('exportJsonBtn').addEventListener('click', ()=>{
+  downloadFile('ديوني-نسخة-احتياطية.json', JSON.stringify({debts, income}, null, 2), 'application/json');
+  showToast('تم تصدير النسخة الاحتياطية');
+});
+document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
+  const rows = [['العنوان','الدورية','المبلغ','الأقساط المتبقية','المتبقي','تاريخ الانتهاء']];
+  allComputed().forEach(d=>{
+    rows.push([d.title, d.period, d.amount ?? d.originalAmount, d.remainingInstallments, d.remainingAmount, d.endDate?fmtDate(d.endDate):'']);
+  });
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  downloadFile('ديوني-تقرير.csv', '\uFEFF'+csv, 'text/csv;charset=utf-8;');
+  showToast('تم تصدير ملف CSV');
+});
+document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(Array.isArray(data.debts)){
+        debts = data.debts;
+        income = data.income || 0;
+        saveData(); saveIncome();
+        incomeInput.value = income || '';
+        renderAll();
+        showToast('تم استيراد البيانات بنجاح');
+      } else { showToast('ملف غير صالح'); }
+    }catch(err){ showToast('تعذر قراءة الملف'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+/* ================= RENDER ALL ================= */
+function renderAll(){
+  renderHero();
+  renderDebtList();
+  renderManageSelect();
+  renderAnalytics();
+  renderChart();
+  renderTimeline();
+  renderIncome();
+}
+
+/* ================= INIT ================= */
+loadData();
+buildDaySelect();
+updateFormMode();
+incomeInput.value = income || '';
+renderAll();
+</script>
+</body>
+</html>
