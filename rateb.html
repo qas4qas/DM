@@ -946,25 +946,28 @@ button{font-family:inherit;}
     var currentBounds = getCycleBounds();
     var currentKey = isoDateOf(currentBounds.start);
 
-    if(!state.lastCycleKey){
-      // أول تشغيل لهذه الميزة: إن كانت هناك بيانات سابقة (مصروفات) لم تُصنَّف بعد ضمن أي دورة،
-      // نبدأ من دورة أقدم مصروف مسجَّل بدل القفز مباشرة إلى "الآن" — حتى لا تُفقد أرشفة الأشهر المنتهية فعلاً.
-      if(state.expenses.length){
-        var earliestDate = state.expenses.reduce(function(min, e){
-          var d = new Date(e.date);
-          return d < min ? d : min;
-        }, new Date(state.expenses[0].date));
-        state.lastCycleKey = isoDateOf(getCycleStartDate(earliestDate));
-      } else {
+    // نتحقق مباشرة من البيانات: أي مصروف تاريخه قبل بداية الدورة الحالية يُعتبر "متبقيًا" من شهر
+    // منتهٍ ولم يُؤرشف بعد — بصرف النظر عن أي قيمة سابقة مخزَّنة في lastCycleKey. هذا يجعل الأرشفة
+    // ذاتية الإصلاح حتى لو كانت هناك بيانات من نسخة قديمة معطوبة سبق أن ضبطت الدورة خطأً.
+    var staleExpenses = state.expenses.filter(function(e){
+      return new Date(e.date) < currentBounds.start;
+    });
+
+    if(staleExpenses.length === 0){
+      if(state.lastCycleKey !== currentKey){
         state.lastCycleKey = currentKey;
         saveState();
-        return;
       }
+      return;
     }
-    if(state.lastCycleKey === currentKey){ saveState(); return; }
+
+    var earliestDate = staleExpenses.reduce(function(min, e){
+      var d = new Date(e.date);
+      return d < min ? d : min;
+    }, new Date(staleExpenses[0].date));
 
     var archivedNow = [];
-    var cursorStart = dateFromISO(state.lastCycleKey);
+    var cursorStart = getCycleStartDate(earliestDate);
     var guard = 0; // حماية من أي حلقة لا نهائية غير متوقعة
 
     while(isoDateOf(cursorStart) !== currentKey && guard < 240){
