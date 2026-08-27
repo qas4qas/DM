@@ -947,11 +947,21 @@ button{font-family:inherit;}
     var currentKey = isoDateOf(currentBounds.start);
 
     if(!state.lastCycleKey){
-      state.lastCycleKey = currentKey;
-      saveState();
-      return;
+      // أول تشغيل لهذه الميزة: إن كانت هناك بيانات سابقة (مصروفات) لم تُصنَّف بعد ضمن أي دورة،
+      // نبدأ من دورة أقدم مصروف مسجَّل بدل القفز مباشرة إلى "الآن" — حتى لا تُفقد أرشفة الأشهر المنتهية فعلاً.
+      if(state.expenses.length){
+        var earliestDate = state.expenses.reduce(function(min, e){
+          var d = new Date(e.date);
+          return d < min ? d : min;
+        }, new Date(state.expenses[0].date));
+        state.lastCycleKey = isoDateOf(getCycleStartDate(earliestDate));
+      } else {
+        state.lastCycleKey = currentKey;
+        saveState();
+        return;
+      }
     }
-    if(state.lastCycleKey === currentKey) return;
+    if(state.lastCycleKey === currentKey){ saveState(); return; }
 
     var archivedNow = [];
     var cursorStart = dateFromISO(state.lastCycleKey);
