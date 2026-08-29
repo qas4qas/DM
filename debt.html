@@ -79,8 +79,9 @@ header.top p{margin:2px 0 0;font-size:12.5px;color:var(--gray-500);font-weight:7
   background:linear-gradient(135deg,var(--green-dark), #2e7d32 70%);
   border-radius:24px;padding:22px 18px;margin-bottom:16px;
   color:var(--white);box-shadow:var(--shadow);
-  display:flex;align-items:center;gap:18px;
+  display:flex;flex-direction:column;gap:14px;
 }
+.hero-top{display:flex;align-items:center;gap:18px;}
 .hero .ring-wrap{position:relative;width:96px;height:96px;flex-shrink:0;}
 .hero .ring-wrap svg{transform:rotate(-90deg);}
 .hero .ring-wrap .pct{
@@ -91,6 +92,10 @@ header.top p{margin:2px 0 0;font-size:12.5px;color:var(--gray-500);font-weight:7
 .hero .info .label{font-size:12.5px;opacity:0.85;font-weight:700;margin-bottom:3px;}
 .hero .info .big{font-size:24px;font-weight:900;margin-bottom:6px;}
 .hero .info .sub{font-size:12px;opacity:0.9;font-weight:600;line-height:1.6;}
+.hero-counts{display:flex;justify-content:space-between;gap:6px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.18);}
+.hc-item{flex:1;text-align:center;}
+.hc-num{font-size:17px;font-weight:900;}
+.hc-lbl{font-size:10.5px;opacity:0.85;font-weight:700;margin-top:2px;}
 
 /* CARDS */
 .card{
@@ -103,6 +108,11 @@ header.top p{margin:2px 0 0;font-size:12.5px;color:var(--gray-500);font-weight:7
   display:flex;align-items:center;gap:8px;
 }
 .card h2 .dot{width:7px;height:7px;border-radius:50%;background:var(--green-main);}
+.collapsible-head{cursor:pointer;user-select:none;justify-content:flex-start;}
+.collapsible-head .chevron{width:18px;height:18px;margin-inline-start:auto;transition:transform .25s ease;color:var(--green-main);flex-shrink:0;}
+.collapsible-head .chevron.open{transform:rotate(180deg);}
+.collapsible-body{overflow:hidden;max-height:1400px;opacity:1;transition:max-height .35s ease, opacity .3s ease;}
+.collapsible-body.collapsed{max-height:0;opacity:0;}
 
 /* FORM ELEMENTS */
 .field{margin-bottom:13px;}
@@ -249,7 +259,11 @@ input[type=file]{display:none;}
 
   <!-- إضافة دين -->
   <section class="card">
-    <h2><span class="dot"></span> إضافة دين جديد</h2>
+    <h2 class="collapsible-head" onclick="toggleCollapse('addDebtBody','addDebtChevron')">
+      <span class="dot"></span> إضافة دين جديد
+      <svg id="addDebtChevron" class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </h2>
+    <div id="addDebtBody" class="collapsible-body collapsed">
     <form id="addDebtForm">
       <div class="field">
         <label>عنوان الدين</label>
@@ -300,17 +314,7 @@ input[type=file]{display:none;}
 
       <button type="submit" class="btn btn-primary">إضافة الدين</button>
     </form>
-  </section>
-
-  <!-- إدارة الديون -->
-  <section class="card">
-    <h2><span class="dot"></span> إدارة الديون</h2>
-    <div class="field">
-      <label>اختيار الدين</label>
-      <select id="manageSelect"></select>
     </div>
-    <div id="manageActionArea"></div>
-    <button class="btn btn-primary" id="manageSaveBtn" style="margin-top:10px;">حفظ التحديث</button>
   </section>
 
   <!-- عرض الديون -->
@@ -574,53 +578,38 @@ document.getElementById('addDebtForm').addEventListener('submit', function(e){
   showToast('تمت إضافة الدين بنجاح');
 });
 
-/* ================= MANAGE (PAYMENTS) ================= */
-const manageSelect = document.getElementById('manageSelect');
-const manageActionArea = document.getElementById('manageActionArea');
-
-function renderManageSelect(){
-  const list = allComputed();
-  manageSelect.innerHTML = '';
-  if(list.length === 0){
-    manageSelect.innerHTML = '<option>لا توجد ديون بعد</option>';
-    manageActionArea.innerHTML = '';
-    return;
-  }
-  list.forEach(d=>{
-    const opt = document.createElement('option');
-    opt.value = d.id;
-    opt.textContent = d.title;
-    manageSelect.appendChild(opt);
-  });
-  renderManageAction();
+/* ================= COLLAPSIBLE SECTIONS ================= */
+function toggleCollapse(bodyId, chevronId){
+  const body = document.getElementById(bodyId);
+  const chevron = document.getElementById(chevronId);
+  body.classList.toggle('collapsed');
+  if(chevron) chevron.classList.toggle('open', !body.classList.contains('collapsed'));
 }
-manageSelect.addEventListener('change', renderManageAction);
 
-function renderManageAction(){
-  const debt = debts.find(d=>d.id === manageSelect.value);
-  if(!debt){ manageActionArea.innerHTML = ''; return; }
+/* ================= PAYMENTS (from debt card) ================= */
+function openPaymentModal(id){
+  const debt = debts.find(d=>d.id === id);
+  if(!debt) return;
+  let bodyHtml = '';
   if(debt.period === 'once'){
-    manageActionArea.innerHTML = `
+    bodyHtml = `
       <div class="field">
         <label>الإجراء</label>
-        <select id="onceActionSelect">
+        <select id="pm_onceAction">
           <option value="partial">دفع جزئي</option>
           <option value="close">إغلاق الدين</option>
         </select>
       </div>
-      <div class="field" id="partialAmountField">
+      <div class="field" id="pm_partialField">
         <label>قيمة الدفعة</label>
-        <input type="number" id="partialAmountInput" min="0" step="0.01" placeholder="0">
+        <input type="number" id="pm_partialAmount" min="0" step="0.01" placeholder="0">
       </div>
     `;
-    document.getElementById('onceActionSelect').addEventListener('change', function(){
-      document.getElementById('partialAmountField').style.display = this.value === 'partial' ? 'block' : 'none';
-    });
   } else {
-    manageActionArea.innerHTML = `
+    bodyHtml = `
       <div class="field">
         <label>الإجراء</label>
-        <select id="recurringActionSelect">
+        <select id="pm_recurringAction">
           <option value="1">دفع قسط واحد</option>
           <option value="2">دفع قسطين</option>
           <option value="finish">تم الانتهاء (إغلاق الدين)</option>
@@ -628,38 +617,44 @@ function renderManageAction(){
       </div>
     `;
   }
-}
-
-document.getElementById('manageSaveBtn').addEventListener('click', function(){
-  const debt = debts.find(d=>d.id === manageSelect.value);
-  if(!debt){ showToast('اختر دينًا أولًا'); return; }
+  modalSheet.innerHTML = `<button class="close-x" onclick="closeModal()">×</button><h3>إضافة دفعة — ${escapeHtml(debt.title)}</h3>${bodyHtml}<button class="btn btn-primary" id="pm_save" style="margin-top:6px;">حفظ</button>`;
+  overlay.classList.add('show');
 
   if(debt.period === 'once'){
-    const action = document.getElementById('onceActionSelect').value;
-    if(action === 'close'){
-      debt.closed = true;
-      debt.currentAmount = 0;
-    } else {
-      const amt = parseFloat(document.getElementById('partialAmountInput').value);
-      if(!amt || amt <= 0){ showToast('أدخل قيمة الدفعة'); return; }
-      debt.currentAmount = Math.max(0, (debt.currentAmount ?? debt.amount) - amt);
-      if(debt.currentAmount === 0) debt.closed = true;
-    }
-  } else {
-    const action = document.getElementById('recurringActionSelect').value;
-    if(action === 'finish'){
-      debt.remainingInstallments = 0;
-      debt.useEndDate = false;
-    } else {
-      const n = parseInt(action);
-      debt.remainingInstallments = Math.max(0, debt.remainingInstallments - n);
-      debt.useEndDate = false; // switch to installment-based tracking after payment
-    }
+    document.getElementById('pm_onceAction').addEventListener('change', function(){
+      document.getElementById('pm_partialField').style.display = this.value === 'partial' ? 'block' : 'none';
+    });
   }
-  saveData();
-  renderAll();
-  showToast('تم تحديث الدين');
-});
+
+  document.getElementById('pm_save').addEventListener('click', ()=>{
+    if(debt.period === 'once'){
+      const action = document.getElementById('pm_onceAction').value;
+      if(action === 'close'){
+        debt.closed = true;
+        debt.currentAmount = 0;
+      } else {
+        const amt = parseFloat(document.getElementById('pm_partialAmount').value);
+        if(!amt || amt <= 0){ showToast('أدخل قيمة الدفعة'); return; }
+        debt.currentAmount = Math.max(0, (debt.currentAmount ?? debt.amount) - amt);
+        if(debt.currentAmount === 0) debt.closed = true;
+      }
+    } else {
+      const action = document.getElementById('pm_recurringAction').value;
+      if(action === 'finish'){
+        debt.remainingInstallments = 0;
+        debt.useEndDate = false;
+      } else {
+        const n = parseInt(action);
+        debt.remainingInstallments = Math.max(0, debt.remainingInstallments - n);
+        debt.useEndDate = false; // switch to installment-based tracking after payment
+      }
+    }
+    saveData();
+    closeModal();
+    renderAll();
+    showToast('تم تحديث الدين');
+  });
+}
 
 /* ================= RENDER: HERO ================= */
 function renderHero(){
@@ -684,19 +679,30 @@ function renderHero(){
     const last = active.reduce((a,b)=> (new Date(a.endDate) > new Date(b.endDate) ? a : b));
     freedomText = `موعد التحرر الكامل المتوقع: ${fmtDate(last.endDate)}`;
   }
+  const countMonthly = debts.filter(d=>d.period==='monthly').length;
+  const countYearly = debts.filter(d=>d.period==='yearly').length;
+  const countOnce = debts.filter(d=>d.period==='once').length;
   el.innerHTML = `
-    <div class="ring-wrap">
-      <svg width="96" height="96" viewBox="0 0 96 96">
-        <circle cx="48" cy="48" r="${r}" stroke="rgba(255,255,255,0.25)" stroke-width="8" fill="none"/>
-        <circle cx="48" cy="48" r="${r}" stroke="#ffffff" stroke-width="8" fill="none"
-          stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
-      </svg>
-      <div class="pct num">${overallPct}%</div>
+    <div class="hero-top">
+      <div class="ring-wrap">
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="${r}" stroke="rgba(255,255,255,0.25)" stroke-width="8" fill="none"/>
+          <circle cx="48" cy="48" r="${r}" stroke="#ffffff" stroke-width="8" fill="none"
+            stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+        </svg>
+        <div class="pct num">${overallPct}%</div>
+      </div>
+      <div class="info">
+        <div class="label">إجمالي المتبقي عليك</div>
+        <div class="big num">${fmtNum(totalRemaining)} <span style="font-size:13px;">ر.س</span></div>
+        <div class="sub">${freedomText}</div>
+      </div>
     </div>
-    <div class="info">
-      <div class="label">إجمالي المتبقي عليك</div>
-      <div class="big num">${fmtNum(totalRemaining)} <span style="font-size:13px;">ر.س</span></div>
-      <div class="sub">${freedomText}</div>
+    <div class="hero-counts">
+      <div class="hc-item"><div class="hc-num num">${debts.length}</div><div class="hc-lbl">إجمالي الديون</div></div>
+      <div class="hc-item"><div class="hc-num num">${countMonthly}</div><div class="hc-lbl">شهري</div></div>
+      <div class="hc-item"><div class="hc-num num">${countYearly}</div><div class="hc-lbl">سنوي</div></div>
+      <div class="hc-item"><div class="hc-num num">${countOnce}</div><div class="hc-lbl">مرة واحدة</div></div>
     </div>
   `;
 }
@@ -748,6 +754,7 @@ function renderDebtList(){
       </div>
       <div class="actions">
         <button class="btn btn-outline btn-sm" onclick="openEditModal('${d.id}')">تعديل</button>
+        ${d.remainingAmount > 0 ? `<button class="btn btn-primary btn-sm" onclick="openPaymentModal('${d.id}')">اضافة دفعة</button>` : ''}
         <button class="btn btn-danger btn-sm" onclick="confirmDelete('${d.id}')">حذف</button>
       </div>
     </div>`;
@@ -982,7 +989,6 @@ document.getElementById('importFile').addEventListener('change', function(e){
 function renderAll(){
   renderHero();
   renderDebtList();
-  renderManageSelect();
   renderAnalytics();
   renderChart();
   renderTimeline();
